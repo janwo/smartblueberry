@@ -1,0 +1,1627 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en" datatype="plaintext" original="ng2.template" target-language="de">
+    <body>
+      <trans-unit id="6492831808763156510" datatype="html">
+        <source>Setup</source>
+        <target>Einrichtung</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/app-routing.module.ts</context>
+          <context context-type="linenumber">16</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/setup/setup.component.html</context>
+          <context context-type="linenumber">8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7803402955830827909" datatype="html">
+        <source>Climate Settings</source>
+        <target state="translated">Klimaeinstellungen</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/app-routing.module.ts</context>
+          <context context-type="linenumber">23</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/climate/climate.component.html</context>
+          <context context-type="linenumber">8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="9062157669967713330" datatype="html">
+        <source>Scene Settings</source>
+        <target state="translated">Szeneneinstellungen</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/app-routing.module.ts</context>
+          <context context-type="linenumber">31</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5135385837161201446" datatype="html">
+        <source>Light Settings</source>
+        <target state="translated">Lichteinstellungen</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/app-routing.module.ts</context>
+          <context context-type="linenumber">37</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/light/light.component.html</context>
+          <context context-type="linenumber">8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="9160455776457856632" datatype="html">
+        <source>Security Settings</source>
+        <target state="translated">Sicherheitssystemeinstellung</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/app-routing.module.ts</context>
+          <context context-type="linenumber">43</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/security/security.component.html</context>
+          <context context-type="linenumber">8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5774443744107616904" datatype="html">
+        <source>Presence Settings</source>
+        <target state="translated">Anwesenheitseinstellungen</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/app-routing.module.ts</context>
+          <context context-type="linenumber">49</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/presence/presence.component.html</context>
+          <context context-type="linenumber">8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5479576635158182770" datatype="html">
+        <source>Irrigation Settings</source>
+        <target state="translated">Bewässerungseinstellungen</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/app-routing.module.ts</context>
+          <context context-type="linenumber">55</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2525270424740021912" datatype="html">
+        <source>🍓 SmartBerry</source>
+        <target state="translated">🍓 SmartBerry</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/app.component.html</context>
+          <context context-type="linenumber">8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6148491700411607071" datatype="html">
+        <source> Adjust the way how SmartBerry handles climate control. </source>
+        <target state="translated"> Passe die Klimatisierung durch SmartBerry an. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/climate/climate.component.html</context>
+          <context context-type="linenumber">9,11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3435053421209648212" datatype="html">
+        <source>Radiators</source>
+        <target state="translated">Heizkörper</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/climate/climate.component.html</context>
+          <context context-type="linenumber">21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5973109080420432543" datatype="html">
+        <source> You can set the mode of all your radiators at once. Additionally, SmartBerry turn radiators off, if windows or doors are openend. Current modes are <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>OFF<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>, <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>ON<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>, <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>ECO<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> and <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>POWER<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>. </source>
+        <target state="translated"> Du kannst den Modus aller Heizkörper gleichzeitig einstellen. Darüber hinaus schaltet SmartBerry Heizkörper aus, wenn Fenster oder Türen geöffnet sind. Aktuelle Zustände sind <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>OFF<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>, <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>ON<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>, <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>ECO<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> und <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>POWER<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/climate/climate.component.html</context>
+          <context context-type="linenumber">24,29</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2844976128878448430" datatype="html">
+        <source> In order to let SmartBerry handle all radiators for you, organize your radiator items as shown below. </source>
+        <target state="translated"> Damit SmartBerry alle Heizkörper für Dich verwalten kann, organisiere die Heizkörper wie unten gezeigt: </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/climate/climate.component.html</context>
+          <context context-type="linenumber">30,33</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7653717159242500454" datatype="html">
+        <source>Adjust state commands</source>
+        <target state="translated">Zustände anpassen</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/climate/climate.component.html</context>
+          <context context-type="linenumber">38</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3614116355920335966" datatype="html">
+        <source> Adjust the commands sent to the heating mode item for each available state. Current choices are <x id="START_ITALIC_TEXT" ctype="x-i" equiv-text="&lt;i>"/>OFF (0.0)<x id="CLOSE_ITALIC_TEXT" ctype="x-i" equiv-text="&lt;/i>"/>, <x id="START_ITALIC_TEXT" ctype="x-i" equiv-text="&lt;i>"/>ON (1.0)<x id="CLOSE_ITALIC_TEXT" ctype="x-i" equiv-text="&lt;/i>"/>, <x id="START_ITALIC_TEXT" ctype="x-i" equiv-text="&lt;i>"/>ECO (2.0)<x id="CLOSE_ITALIC_TEXT" ctype="x-i" equiv-text="&lt;/i>"/> or <x id="START_ITALIC_TEXT" ctype="x-i" equiv-text="&lt;i>"/>POWER` (3.0)<x id="CLOSE_ITALIC_TEXT" ctype="x-i" equiv-text="&lt;/i>"/></source>
+        <target state="translated"> Stelle den Zustand ein, der für den entsprechenden Heizmodus an das Heizkörper-Item gesendet werden soll. Derzeitige Auswahlmöglichkeiten sind <x id="START_ITALIC_TEXT" ctype="x-i" equiv-text="&lt;i>"/>OFF (0.0)<x id="CLOSE_ITALIC_TEXT" ctype="x-i" equiv-text="&lt;/i>"/>, <x id="START_ITALIC_TEXT" ctype="x-i" equiv-text="&lt;i>"/>ON (1.0)<x id="CLOSE_ITALIC_TEXT" ctype="x-i" equiv-text="&lt;/i>"/>, <x id="START_ITALIC_TEXT" ctype="x-i" equiv-text="&lt;i>"/>ECO (2.0)<x id="CLOSE_ITALIC_TEXT" ctype="x-i" equiv-text="&lt;/i>"/> or <x id="START_ITALIC_TEXT" ctype="x-i" equiv-text="&lt;i>"/>POWER` (3.0)<x id="CLOSE_ITALIC_TEXT" ctype="x-i" equiv-text="&lt;/i>"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/climate/climate.component.html</context>
+          <context context-type="linenumber">39,42</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7640416587392187464" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{&#10;        countValues(heatingItem.form)&#10;          | i18nPlural&#10;            : { '=0': 'No options', '=1': 'One option', other: '# options' }&#10;      }}"/> selected</source>
+        <target state="translated">{{ countValues(heatingItem.form) | i18nPlural: { '=0': 'Keine Optionen', '=1': 'Eine Option', other: '# Optionen' } }} ausgewählt</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/climate/climate.component.html</context>
+          <context context-type="linenumber">52,56</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">206,210</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/presence/presence.component.html</context>
+          <context context-type="linenumber">67,76</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">71,79</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3768927257183755959" datatype="html">
+        <source>Save</source>
+        <target state="translated">Speichern</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/climate/climate.component.html</context>
+          <context context-type="linenumber">134</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">97</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">404</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/presence/presence.component.html</context>
+          <context context-type="linenumber">191</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">164</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">286</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">519</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/setup/setup.component.html</context>
+          <context context-type="linenumber">65</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2980581628604105155" datatype="html">
+        <source>Doors- and Windows</source>
+        <target state="translated">Türen- und Fenster</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/climate/climate.component.html</context>
+          <context context-type="linenumber">147</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7447768655927242322" datatype="html">
+        <source> You can define contact items that automatically turn off heating in open state. </source>
+        <target state="translated"> Du kannst Kontaktschalter definieren, die die Heizung im geöffneten Zustand automatisch ausschalten. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/climate/climate.component.html</context>
+          <context context-type="linenumber">150,153</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="93511031185097634" datatype="html">
+        <source>Thermostat Group</source>
+        <target state="translated">Thermostat-Gruppe</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/climate/climate.component.ts</context>
+          <context context-type="linenumber">23</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3790572175842202785" datatype="html">
+        <source>Thermostat Mode Item</source>
+        <target state="translated">Thermostatmodus-Item</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/climate/climate.component.ts</context>
+          <context context-type="linenumber">25</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3671467460079839679" datatype="html">
+        <source>Door or Window Group</source>
+        <target state="translated">Tür- oder Fenstergruppe</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/climate/climate.component.ts</context>
+          <context context-type="linenumber">30</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7585826646011739428" datatype="html">
+        <source>Edit</source>
+        <target state="translated">Editieren</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">13</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">325</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4190196007208578994" datatype="html">
+        <source> Values are required. </source>
+        <target state="translated"> Die Werte sind erforderlich. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/error/error.component.html</context>
+          <context context-type="linenumber">2,4</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="850366812744739722" datatype="html">
+        <source> Values are invalid. </source>
+        <target state="translated"> Die Werte sind ungültig. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/error/error.component.html</context>
+          <context context-type="linenumber">5,7</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6256089644514043087" datatype="html">
+        <source> No connection to your openHAB-Instance. </source>
+        <target state="translated"> Keine Verbindung zu deiner openHAB-Instanz. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/error/error.component.html</context>
+          <context context-type="linenumber">8,10</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="929477457334545737" datatype="html">
+        <source>Irrigation Events:</source>
+        <target state="translated">Bewässerungsereignisse:</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation-chart/irrigation-chart.component.html</context>
+          <context context-type="linenumber">3</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7057429995339877418" datatype="html">
+        <source> No irrigations yet. </source>
+        <target state="translated"> Keine Bewässerung bisher. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation-chart/irrigation-chart.component.html</context>
+          <context context-type="linenumber">10,12</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1211658265872270207" datatype="html">
+        <source> The last irrigation of your valve started at <x id="INTERPOLATION" equiv-text="{{&#10;          this.irrigationValveItem.jsonStorage!['lastActivation']&#10;            | date: 'medium'&#10;        }}"/> and completed at <x id="INTERPOLATION_1" equiv-text="{{&#10;          this.irrigationValveItem.jsonStorage!['lastActivationCompleted']&#10;            | date: 'medium'&#10;        }}"/>. For the last 30 days a total amount of <x id="INTERPOLATION_2" equiv-text="{{&#10;          this.length(&#10;            this.irrigationValveItem.jsonStorage!['totalMonthlyIrrigation']&#10;          ) + (unit == 'metric' ? ' mm' : ' in')&#10;        }}"/> had been irrigated. </source>
+        <target state="translated"> Die letzte Bewässerung Ihres Ventils begann am <x id="INTERPOLATION" equiv-text="{{&#10;          this.irrigationValveItem.jsonStorage!['lastActivation']&#10;            | date: 'medium'&#10;        }}"/> und endete am <x id="INTERPOLATION_1" equiv-text="{{&#10;          this.irrigationValveItem.jsonStorage!['lastActivationCompleted']&#10;               | date: 'medium'&#10;           }}"/>. Für die letzten 30 Tage wurde ein Gesamtbewässerungsmenge von <x id="INTERPOLATION_2" equiv-text="{{&#10;          this.length(&#10;            this.irrigationValveItem.jsonStorage!['totalMonthlyIrrigation']&#10;          ) + (unit == 'metric' ? ' mm' : ' in')&#10;        }}"/> gezählt. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation-chart/irrigation-chart.component.html</context>
+          <context context-type="linenumber">14,31</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4976113204352805222" datatype="html">
+        <source> An irrigation is planned for today. </source>
+        <target state="translated"> Heute ist eine Bewässerung geplant. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation-chart/irrigation-chart.component.html</context>
+          <context context-type="linenumber">34,36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="854222443102800877" datatype="html">
+        <source>No irrigation planned today.</source>
+        <target state="translated">Heute ist keine Bewässerung geplant.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation-chart/irrigation-chart.component.html</context>
+          <context context-type="linenumber">38</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5736148337429641134" datatype="html">
+        <source>Maximal Temperature</source>
+        <target state="translated">Höchsttemperatur</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation-chart/irrigation-chart.component.ts</context>
+          <context context-type="linenumber">127</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4316511385291917446" datatype="html">
+        <source>Minimal Temperature</source>
+        <target state="translated">Mindesttemperatur</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation-chart/irrigation-chart.component.ts</context>
+          <context context-type="linenumber">139</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">262</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">277</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4899692884980373598" datatype="html">
+        <source>Irrigation Indicator</source>
+        <target state="translated">Bewässerungsindikator</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation-chart/irrigation-chart.component.ts</context>
+          <context context-type="linenumber">151</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2411598666152265477" datatype="html">
+        <source>Rain</source>
+        <target state="translated">Regen</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation-chart/irrigation-chart.component.ts</context>
+          <context context-type="linenumber">170</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8878498650287859337" datatype="html">
+        <source>Irrigation</source>
+        <target state="translated">Bewässerung</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation-chart/irrigation-chart.component.ts</context>
+          <context context-type="linenumber">184</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2026171115186145848" datatype="html">
+        <source>Evaporation</source>
+        <target state="translated">Verdunstung</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation-chart/irrigation-chart.component.ts</context>
+          <context context-type="linenumber">193</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="61201008500295936" datatype="html">
+        <source> Adjust the way how SmartBerry handles the irrigation of your garden. </source>
+        <target state="translated"> Passe die Steuerung der Bewässerung durch SmartBerry an. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">9,11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="95242879353405992" datatype="html">
+        <source>OpenWeather API Token</source>
+        <target state="translated">OpenWeather API Token</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6157280836644057146" datatype="html">
+        <source>Authenticated</source>
+        <target state="translated">Authentifiziert</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">37</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/setup/setup.component.html</context>
+          <context context-type="linenumber">37</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4211528728122531424" datatype="html">
+        <source>Unauthenticated</source>
+        <target state="translated">Nicht authentifiziert</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">40</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/setup/setup.component.html</context>
+          <context context-type="linenumber">40</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7876441665545802330" datatype="html">
+        <source> Start to manage the irrigation of your garden! Set the <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;https://openweathermap.org/api&quot; target=&quot;_blank&quot;&#10;        >"/>OpenWeather API token<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&#10;      >"/> and make sure to subscribe to the <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong>"/>One Call API 3.0<x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong>"/> and to set your location in your <x id="START_LINK_1" equiv-text="&lt;a [href]=&quot;locationSettingsLink&quot; target=&quot;_blank&quot;&#10;        >"/>openHAB location settings<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&#10;      >"/>. </source>
+        <target state="translated"> Beginne mit der Steuerung deiner Gartenbewässerung! Lege den <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;https://openweathermap.org/api&quot; target=&quot;_blank&quot;&#10;        >"/>OpenWeather API token<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&#10;      >"/> an und vergewissere dich, dass du die <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong>"/>One Call API 3.0<x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong>"/> abonniert und deinen Standort in deinen <x id="START_LINK_1" equiv-text="&lt;a [href]=&quot;locationSettingsLink&quot; target=&quot;_blank&quot;&#10;        >"/>openHAB Regionale Einstellungen<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&#10;      >"/> gesetzt hast. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">45,55</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3343906168454552630" datatype="html">
+        <source> The location of the weather forecast (<x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong>"/><x id="INTERPOLATION" equiv-text="{{ this.apiSettings?.longitude }}"/>, <x id="INTERPOLATION_1" equiv-text="{{ this.apiSettings?.latitude }}"/><x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong>"/>) is <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong>"/><x id="INTERPOLATION_2" equiv-text="{{&#10;        this.apiSettings?.syncedLocation ? 'synced' : 'unsynced'&#10;      }}"/><x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong>"/> with your openHAB location settings. </source>
+        <target state="translated"> Der Standort (<x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong>"/><x id="INTERPOLATION" equiv-text="{{ this.apiSettings?.longitude }}"/>, <x id="INTERPOLATION_1" equiv-text="{{ this.apiSettings?.latitude }}"/><x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong>"/>) für die Wettervorhersage <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong>"/><x id="INTERPOLATION_2" equiv-text="{{ this.apiSettings?.syncedLocation ? 'stimmt' : 'stimmt nicht' }}"/><x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong>"/> mit deinen openHAB-Standorteinstellungen überein. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">71,80</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5129391332416070200" datatype="html">
+        <source>Your API Token</source>
+        <target state="translated">Dein API Token</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">94</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/setup/setup.component.html</context>
+          <context context-type="linenumber">62</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8392008057425970085" datatype="html">
+        <source> Sync Location </source>
+        <target state="translated"> Standort synchronisieren </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">107,109</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6366273303957908657" datatype="html">
+        <source> Delete API Token </source>
+        <target state="translated">  API Token löschen </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">118,120</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/setup/setup.component.html</context>
+          <context context-type="linenumber">76,78</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8896128560849243249" datatype="html">
+        <source>Irrigation Valve Items</source>
+        <target state="translated">Bewässerungsventile</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">141</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3932827075013533934" datatype="html">
+        <source> In order to let SmartBerry handle all irrigation valves for you, organize your valve items as shown below. </source>
+        <target state="translated"> Damit SmartBerry alle Bewässerungsventile verwalten kann, konfiguriere deine Bewässerungsventile wie unten gezeigt. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">144,147</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="113069793252909340" datatype="html">
+        <source>Adjust irrigation variables</source>
+        <target state="translated">Bewässerungsvariablen anpassen</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">152</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="747262057446848263" datatype="html">
+        <source> In order to achieve an optimal irrigation, adjust the following values to your satisfaction. </source>
+        <target state="translated"> Um eine optimale Bewässerung zu erreichen, stelle die folgenden Werte nach deinen Wünschen ein. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">153,156</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7363197680789340232" datatype="html">
+        <source><x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong>"/>Irrigation Level Per Minute (mm):<x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong>"/> How much water will be irrigated by the valve upon your plants? 1.0 liter per square meter is equal to 1.0 millimeter. </source>
+        <target state="translated"><x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong>"/>Bewässerungsmenge pro Minute (mm):<x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong>"/> Wie viel Wasser wird durch das Ventil auf Ihre Pflanzen bewässert? 1,0 Liter pro Quadratmeter entspricht 1,0 Millimeter. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">159,162</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="9219669754114067519" datatype="html">
+        <source><x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em>"/> Example: You have an area of 10 m² and your valve pours 10 l per minute. Consequently, you have a irrigation level of <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong>"/>1.0 mm<x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong>"/> per minute (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&#10;          >"/>10 l / 10 m² = 1.0 l/m² ≙ 1.0 mm<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&#10;        >"/>). <x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em>"/></source>
+        <target state="translated"><x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em>"/>Beispiel: Du hast einen Bereich von 10 m² und dein Ventil bewässert 10 l pro Minute. Somit hast du eine Bewässerungsmenge von <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong>"/>1.0 mm<x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong>"/> pro Minute (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&#10;          >"/>10 l / 10 m² = 1.0 l/m² ≙ 1.0 mm<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&#10;        >"/>). <x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em>"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">165,171</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7711680650177069208" datatype="html">
+        <source><x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong>"/>Evaporation Factor:<x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong>"/> Increase or decrease the evaporation per day that is based on the <x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em>"/>Hargreaves–Samani model<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em>"/>. Set it above <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>1<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> to increase evaporation, set it below <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>1<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> to decrease evaporation. </source>
+        <target state="translated"><x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong>"/>Verdunstungsfaktor:<x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong>"/> Erhöht oder verringert die Verdunstung pro Tag, die auf dem <x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em>"/>Hargreaves-Samani-Modell<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em>"/> basiert. Erhöhe den Wert auf über <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>1<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>, um die Verdunstung zu erhöhen und auf unter <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>1<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>, um die Verdunstung zu verringern. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">175,179</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5879384592377590707" datatype="html">
+        <source><x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong>"/>Minimal Temperature:<x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong>"/> Skips any irrigation triggers, if the temperature of the upcoming or last seven days has gone below the minimal temperature. </source>
+        <target state="translated"><x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong>"/>Mindesttemperatur:<x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong>"/> Überspringt alle Bewässerungsauslösungen, wenn die Temperatur in den kommenden oder bisherigen sieben Tagen unter die Mindesttemperatur gefallen ist. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">182,185</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1393478404225235439" datatype="html">
+        <source><x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong>"/>Bucket Size (days):<x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong>"/> Defines the range of days SmartBerry monitors the precipitation rate and decides to trigger irrigation. </source>
+        <target state="translated"><x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong>"/>Eimergröße (Tage):<x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong>"/> Definiert den Bereich der Tage, an denen SmartBerry die Niederschlagsrate überwacht und entscheidet, ob eine Bewässerung ausgelöst werden soll. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">188,190</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1430671567537643622" datatype="html">
+        <source><x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong>"/>Extend Bucket upon Future Rainfalls (days):<x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong>"/> Maximum number of days SmartBerry will postpone irrigation on upcoming rain, although precipitation level cannot be maintained. </source>
+        <target state="translated"><x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong>"/>Erhöhe die Eimergröße bei kommenden Regenfällen (Tage):<x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong>"/> Maximale Verzögerung der Bewässerung an Tagen mit bevorstehendem Regen, obwohl die Niederschlagsmenge nicht eingehalten werden kann. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">193,196</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3965023632698512270" datatype="html">
+        <source>Evaporation Factor</source>
+        <target state="translated">Verdunstungsfaktor</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">223</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">233</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1345566024991291229" datatype="html">
+        <source>Irrigation Level Per Minute (mm)</source>
+        <target state="translated">Bewässerungsmenge pro Minute (mm)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">239</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">257</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6659216693002851737" datatype="html">
+        <source>Bucket Size</source>
+        <target state="translated">Eimergröße</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">296</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3430833172621796059" datatype="html">
+        <source>Extend Bucket upon Future Rainfalls</source>
+        <target state="translated">Erhöhe die Eimergröße bei kommenden Regenfällen</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">319</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3498058130455223243" datatype="html">
+        <source>Calculation Example:</source>
+        <target state="translated">Rechenbeispiel:</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">341</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6045710461371167091" datatype="html">
+        <source> Enter all required variables first </source>
+        <target state="translated"> Gebe zunächst alle erforderlichen Variablen ein </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">349,351</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7104894549050266344" datatype="html">
+        <source> Assuming no rain and an evaporation of 1.0 mm a day, your plants need <x id="INTERPOLATION" equiv-text="{{&#10;                  this.irrigationValveItem.form.value.evaporationFactor&#10;                    | number: '1.1-1'&#10;                }}"/> mm ( <x id="INTERPOLATION" equiv-text="{{&#10;                  this.irrigationValveItem.form.value.evaporationFactor&#10;                    | number: '1.1-1'&#10;                }}"/> l/m²) per day. Your valve irrigates <x id="INTERPOLATION_1" equiv-text="{{&#10;                  this.irrigationValveItem.form.value.irrigationLevelPerMinute&#10;                    | number: '1.1-1'&#10;                }}"/> mm (<x id="INTERPOLATION_1" equiv-text="{{&#10;                  this.irrigationValveItem.form.value.irrigationLevelPerMinute&#10;                    | number: '1.1-1'&#10;                }}"/> l/m²) per minute. Consequently the valve will irrigate for <x id="INTERPOLATION_2" equiv-text="{{&#10;                  calculatedMinutes(this.irrigationValveItem.form)&#10;                    | i18nPlural&#10;                      : {&#10;                          '=0': '0 minutes',&#10;                          '=1': '1 minute',&#10;                          other: '# minutes'&#10;                        }&#10;                }}"/> , if there was no rain for <x id="INTERPOLATION_3" equiv-text="{{&#10;                  this.irrigationValveItem.form.value.observedDays&#10;                    | i18nPlural: messagesMapping&#10;                }}"/>. </source>
+        <target state="translated"> Unter der Annahme, dass es nicht regnet und die Verdunstung 1.0 mm pro Tag beträgt, benötigen deine Pflanzen <x id="INTERPOLATION" equiv-text="{{&#10;                  this.irrigationValveItem.form.value.evaporationFactor&#10;                    | number: '1.1-1'&#10;                }}"/> mm ( <x id="INTERPOLATION" equiv-text="{{&#10;                  this.irrigationValveItem.form.value.evaporationFactor&#10;                    | number: '1.1-1'&#10;                }}"/> l/m²) pro Tag. Das Ventil bewässert <x id="INTERPOLATION_1" equiv-text="{{&#10;                  this.irrigationValveItem.form.value.irrigationLevelPerMinute&#10;                    | number: '1.1-1'&#10;                }}"/> mm (<x id="INTERPOLATION_1" equiv-text="{{&#10;                  this.irrigationValveItem.form.value.irrigationLevelPerMinute&#10;                    | number: '1.1-1'&#10;                }}"/> l/m²) pro Minute. Somit wird die Bewässerung <x id="INTERPOLATION_2" equiv-text="{{&#10;  calculatedMinutes(this.irrigationValveItem.form)&#10; | i18nPlural&#10;   : { '=0': '0 Minuten', '=1': '1 Minute', other: '# Minuten' }&#10; }}"/> dauern, sofern es seit <x id="INTERPOLATION_3" equiv-text="{{&#10;    this.irrigationValveItem.form.value.observedDays&#10;   | i18nPlural&#10;                       : { '=0': '0 Tagen', '=1': '1 Tag', other: '# Tagen' }&#10;               }}"/> keinen Regen gab. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">353,389</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4606687446860017368" datatype="html">
+        <source>Irrigation Triggers</source>
+        <target state="translated">Bewässerungsauslöser</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">417</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8225534030455111255" datatype="html">
+        <source> You can define irrigation trigger items that automatically start the irrigation check. Any state change of these items will fire an irrigation event. </source>
+        <target state="translated"> Sie können Bewässerungsauslöser definieren, die automatisch die Bewässerungskontrolle starten. Jede Zustandsänderung dieser Items löst die Bewässerung aus. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
+          <context context-type="linenumber">420,424</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8816278659593304860" datatype="html">
+        <source>Irrigation Trigger Item</source>
+        <target state="translated">Bewässerungsauslösende Items</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.ts</context>
+          <context context-type="linenumber">22</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6884826196519706342" datatype="html">
+        <source>Irrigation Valve Item</source>
+        <target state="translated">Bewässerungsventil</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.ts</context>
+          <context context-type="linenumber">26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="9178394960272263692" datatype="html">
+        <source>0 days</source>
+        <target state="translated">0 Tage</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.ts</context>
+          <context context-type="linenumber">31</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4776429682428363094" datatype="html">
+        <source>1 day</source>
+        <target state="translated">1 Tag</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.ts</context>
+          <context context-type="linenumber">32</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6352305596084685225" datatype="html">
+        <source># Tage</source>
+        <target state="translated"># Tage</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.ts</context>
+          <context context-type="linenumber">33</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1721827980245086554" datatype="html">
+        <source>Schema</source>
+        <target state="translated">Schema</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/item-schema/item-schema.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3929281485914893910" datatype="html">
+        <source>and</source>
+        <target state="translated">Und</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/item-schema/item-schema.component.html</context>
+          <context context-type="linenumber">5</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6627551976444260400" datatype="html">
+        <source>or</source>
+        <target state="translated">Oder</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/item-schema/item-schema.component.html</context>
+          <context context-type="linenumber">6</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4548308453457727363" datatype="html">
+        <source>The following items comply with the schema</source>
+        <target state="translated">Die folgenden Elemente entsprechen dem Schema</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/item-schema/item-schema.component.html</context>
+          <context context-type="linenumber">15</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2925959700753727542" datatype="html">
+        <source>No items had been found</source>
+        <target state="translated">Es wurden keine Items gefunden</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/item-schema/item-schema.component.html</context>
+          <context context-type="linenumber">24</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3511240472323882653" datatype="html">
+        <source> Adjust the way how SmartBerry handles your lighting. </source>
+        <target state="translated"> Passe die Steuerung der Beleuchtung durch SmartBerry an. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/light/light.component.html</context>
+          <context context-type="linenumber">9,11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6902494353949233394" datatype="html">
+        <source>Light Switchable Items</source>
+        <target state="translated">Lichtschaltende Items</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/light/light.component.html</context>
+          <context context-type="linenumber">21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3382987254977392546" datatype="html">
+        <source> Lights are triggered automatically in dependence to daylight and presence changes. Get started with a proper lights configuration by tagging your light items as light switchables. </source>
+        <target state="translated"> Die Lichter werden automatisch in Abhängigkeit von Tageslicht- und Anwesenheitsveränderungen ein- und ausgeschaltet. Beginne mit der Einrichtung deiner Beleuchtung, indem du deine Lichter als lichtschaltende Items kennzeichnest. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/light/light.component.html</context>
+          <context context-type="linenumber">24,28</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8218993883201605956" datatype="html">
+        <source> SmartBerry will add manageable items to each location having light switchable items to let you adjust it's particular light configuration. Set the lighting mode in each location for <x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em>"/>dark<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em>"/>, <x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em>"/>obscured<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em>"/> and <x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em>"/>bright<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em>"/> conditions. To do so, edit the generated members of <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>gCore_Lights_DarkMode<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/>, <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>gCore_Lights_ObscuredMode<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/> and <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>gCore_Lights_BrightMode<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/>. Current choices are: </source>
+        <target state="translated"> SmartBerry fügt jedem Bereich (Location) mit lichtschaltenden Items zusätzlich verwaltbare Items hinzu, damit Du die jeweilige Lichtkonfiguration anpassen kannst. Stelle den Lichtmodus in jedem Bereich für <x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em>"/>dunkle<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em>"/>, <x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em>"/>verdunkelte<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em>"/> und <x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em>"/>helle<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em>"/> Bedingungen ein. Bearbeite dazu die erzeugten Items in den entsprechenden Gruppen <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>gCore_Lights_DarkMode<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/>, <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>gCore_Lights_ObscuredMode<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/> und <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>gCore_Lights_BrightMode<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/>. Die Auswahlmöglichkeiten sind: </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/light/light.component.html</context>
+          <context context-type="linenumber">32,41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1920817612058294789" datatype="html">
+        <source>Turn lights off (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>OFF<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>)</source>
+        <target state="translated">Licht ausschalten (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>OFF<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/light/light.component.html</context>
+          <context context-type="linenumber">43</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4341592235567568868" datatype="html">
+        <source>Turn lights on (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>ON<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>)</source>
+        <target state="translated">Licht einschalten (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>ON<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/light/light.component.html</context>
+          <context context-type="linenumber">44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3746801222084643610" datatype="html">
+        <source>Turn lights on presence (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>AUTO_ON<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>)</source>
+        <target state="translated">Licht einschalten bei Anwesenheit (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>AUTO_ON<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/light/light.component.html</context>
+          <context context-type="linenumber">45</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2784415951473870426" datatype="html">
+        <source>Disable light changes (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>UNCHANGED<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>)</source>
+        <target state="translated">Lichtwechsel deaktivieren (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>UNCHANGED<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/light/light.component.html</context>
+          <context context-type="linenumber">46</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4360284479341830425" datatype="html">
+        <source>Use lights to simulate presence (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>SIMULATE<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>)</source>
+        <target state="translated">Lichter verwenden, um Anwesenheit zu simulieren (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>SIMULATE<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/light/light.component.html</context>
+          <context context-type="linenumber">47</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6231649972368066576" datatype="html">
+        <source> Light switchable items in locations with a lighting mode of <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>AUTO_ON<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> will turn off after a given time without presence events. Change <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>Core_Lights_DefaultDuration<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/> to adjust the number of minutes until lights are turned off automatically. </source>
+        <target state="translated"> Lichtschaltende Items in Bereichen mit einem Lichtmodus in <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>AUTO_ON<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> werden nach einer bestimmten Zeit ohne Anwesenheitsereignisse ausgeschaltet. Ändere <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>Core_Lights_DefaultDuration<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/>, um die Anzahl der Minuten einzustellen, bis die Beleuchtung automatisch ausgeschaltet wird. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/light/light.component.html</context>
+          <context context-type="linenumber">49,54</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4906056979923127744" datatype="html">
+        <source>Welcome light</source>
+        <target state="translated">Begrüßungslicht</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/light/light.component.html</context>
+          <context context-type="linenumber">55</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4439893374806026623" datatype="html">
+        <source> If presence changes from <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>AWAY_SHORT<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> or <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>AWAY_LONG<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> to <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>HOME<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>, you can turn on all light switchable items in locations having the lighting mode set to <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>AUTO_ON<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> automatically. To do so, enable the corresponding welcome light item: </source>
+        <target state="translated"> Wenn die Anwesenheit auf <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>HOME<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> wechselt, kannst du alle lichtschaltenden Items in Bereichen mit einem Lichtmodus in <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>AUTO_ON<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> automatisch einschalten lassen. Dazu aktiviere das entsprechende Begrüßungslicht-Item: </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/light/light.component.html</context>
+          <context context-type="linenumber">56,62</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6864253144103667937" datatype="html">
+        <source><x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>Core_Lights_WelcomeLight_DarkMode<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/> to enable welcome lights during <x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em>"/>dark<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em>"/> light conditions. </source>
+        <target state="translated"><x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>Core_Lights_WelcomeLight_DarkMode<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/>, um das Begrüßungslicht bei <x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em>"/>dunklen<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em>"/> Lichtverhältnissen zu aktivieren. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/light/light.component.html</context>
+          <context context-type="linenumber">65,67</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7121958823591725738" datatype="html">
+        <source><x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>Core_Lights_WelcomeLight_ObscuredMode<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/> to enable welcome lights during <x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em>"/>obscured<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em>"/> light conditions. </source>
+        <target state="translated"><x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>Core_Lights_WelcomeLight_ObscuredMode<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/>, um das Begrüßungslicht bei <x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em>"/>verdunkelten<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em>"/> Lichtverhältnissen zu aktivieren. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/light/light.component.html</context>
+          <context context-type="linenumber">69,71</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5955556139084948748" datatype="html">
+        <source><x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>Core_Lights_WelcomeLight_BrightMode<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/> to enable welcome lights during <x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em>"/>bright<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em>"/> light conditions. </source>
+        <target state="translated"><x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>Core_Lights_WelcomeLight_BrightMode<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/>, um das Begrüßungslicht bei <x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em>"/>hellen<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em>"/> Lichtverhältnissen zu aktivieren. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/light/light.component.html</context>
+          <context context-type="linenumber">73,75</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3971110366524669470" datatype="html">
+        <source>Light Measurement Items</source>
+        <target state="translated">Lichtmessende Items</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/light/light.component.html</context>
+          <context context-type="linenumber">84</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5362207082079989159" datatype="html">
+        <source> SmartBerry analyzes light measurement items to identify the actual light conditions and change the state of <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>Core_Lights_AmbientLightCondition<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/> accordingly. Note that light measurement items of locations with at least one active light switchable item are not put into consideration. </source>
+        <target state="translated"> SmartBerry analysiert die Lichtmesswerte, um die derzeitigen Lichtverhältnisse zu ermitteln und den Zustand von <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>Core_Lights_AmbientLightCondition<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/> zu aktualisieren. Bitte beachte, dass Lichtmesswerte in Bereichen mit mindestens einem aktiven, lichtschaltenden Item nicht einbezogen werden. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/light/light.component.html</context>
+          <context context-type="linenumber">87,93</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="291769257871789333" datatype="html">
+        <source> If no considerable light measurement items are available, SmartBerry can also use the sun state of an astro item to determine the actual light conditions. </source>
+        <target state="translated"> Stehen keine relevanten Lichtmesswerte zur Verfügung, kann SmartBerry auch den Sonnenstand eines Astro-Items verwenden, um die gegenwärtigen Lichtverhältnisse zu ermitteln. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/light/light.component.html</context>
+          <context context-type="linenumber">97,101</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7128476101319021874" datatype="html">
+        <source> Adjust the tresholds of <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;&#10;        >"/>Core_Lights_AmbientLightCondition_LuminanceTreshold_Obscured<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&#10;      >"/> and <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;&#10;        >"/>Core_Lights_AmbientLightCondition_LuminanceTreshold_Dark<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&#10;      >"/> to change the upper luminance level for obscured and dark light conditions. </source>
+        <target state="translated"> Passe die Schwellenwerte von  <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;&#10;        >"/>Core_Lights_AmbientLightCondition_LuminanceTreshold_Obscured<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&#10;      >"/> und <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;&#10;        >"/>Core_Lights_AmbientLightCondition_LuminanceTreshold_Dark<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&#10;      >"/> an, um die Lichtwertobergrenze für die verdunkelten und dunklen Lichtverhältnisse zu ändern. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/light/light.component.html</context>
+          <context context-type="linenumber">105,116</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2230282145674968591" datatype="html">
+        <source>Light Switchable Item</source>
+        <target state="translated">Lichtschaltendes Item</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/light/light.component.ts</context>
+          <context context-type="linenumber">17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4798502423289750229" datatype="html">
+        <source>Astro Sun State</source>
+        <target state="translated">Astro Sonnenzustand</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/light/light.component.ts</context>
+          <context context-type="linenumber">22</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3057730155366479093" datatype="html">
+        <source>Light measurement item</source>
+        <target state="translated">Lichtmessendes Item</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/light/light.component.ts</context>
+          <context context-type="linenumber">27</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4411721389934795400" datatype="html">
+        <source> Adjust the way how SmartBerry reacts to presence changes. </source>
+        <target state="translated"> Passe das Verhalten von SmartBerry bei Anwesenheitsänderungen an. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/presence/presence.component.html</context>
+          <context context-type="linenumber">9,11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="9083691020623918061" datatype="html">
+        <source>Presence</source>
+        <target state="translated">Anwesenheit</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/presence/presence.component.html</context>
+          <context context-type="linenumber">21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8810881551232841578" datatype="html">
+        <source> The presence management will automatically adjust the presence state of a location and the entire home in dependence to the last presence detection events. In SmartBerry <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>Core_Presence<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/> reflects the presence status of your entire home and has three states: </source>
+        <target state="translated"> Das Anwesenheitsmanagement passt den Anwesenheitsstatus eines Bereiches und des gesamten Hauses automatisch anhand der letzten Anwesenheitsereignisse an. In SmartBerry spiegelt <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>Core_Presence<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/> den Anwesenheitsstatus deines gesamten Hauses wider und verfügt über drei Zustände: </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/presence/presence.component.html</context>
+          <context context-type="linenumber">24,29</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="83939423205363040" datatype="html">
+        <source>At home (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>PRESENT<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>)</source>
+        <target state="translated">Zuhause (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>PRESENT<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/presence/presence.component.html</context>
+          <context context-type="linenumber">31</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">30</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6863197760618319469" datatype="html">
+        <source>Away for short (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>AWAY_SHORT<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>)</source>
+        <target state="translated">Kurz abwesend (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>AWAY_SHORT<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/presence/presence.component.html</context>
+          <context context-type="linenumber">32</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">31</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1481241190402891937" datatype="html">
+        <source>Away for long (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>AWAY_LONG<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>)</source>
+        <target state="translated">Lange abwesend (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>AWAY_LONG<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/presence/presence.component.html</context>
+          <context context-type="linenumber">33</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">32</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1672818690264266718" datatype="html">
+        <source> Set the number of hours in <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>Core_Presence_HoursUntilAwayShort<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/> until presence management sets the presence state to <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>AWAY_SHORT<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>. Set the number of hours in <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>Core_Presence_HoursUntilAwayLong<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/> until presence management sets the presence state to <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>AWAY_LONG<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>. </source>
+        <target state="translated"> Stelle die Anzahl der Stunden in <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>Core_Presence_HoursUntilAwayShort<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/> ein, bis der Anwesenheitsstatus auf <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>AWAY_SHORT<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> gesetzt wird. Stelle die Anzahl der Stunden in <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>Core_Presence_HoursUntilAwayLong<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/> ein, bis der Anwesenheitsstatus auf <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>AWAY_LONG<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> gesetzt wird. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/presence/presence.component.html</context>
+          <context context-type="linenumber">35,42</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="531948767826173333" datatype="html">
+        <source> In order to trigger presence, you should define presence items, e.g. by tagging your motion sensors. </source>
+        <target state="translated"> Um Anwesenheit auszulösen, solltest du Anwesenheit-Items festlegen, z.B. indem du deine Bewegungsmelder markierst. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/presence/presence.component.html</context>
+          <context context-type="linenumber">43,46</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4449672946890570546" datatype="html">
+        <source>Adjust presence and absence states</source>
+        <target state="translated">An- und Abwesenheitsstatus anpassen</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/presence/presence.component.html</context>
+          <context context-type="linenumber">51</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="695088688437812245" datatype="html">
+        <source> You may restrict the states of a presence item triggering presence - by default these states are <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>ON<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> and <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>OPEN<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>. You can also define states triggering absence. </source>
+        <target state="translated"> Schränke die Zustände eines Anwesenheit-Items ein, die eine Anwesenheit auslösen - standardmäßig sind es <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>ON<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> und <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>OPEN<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>. Außerdem kannst du auch Zustände definieren, die Abwesenheit auslösen. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/presence/presence.component.html</context>
+          <context context-type="linenumber">52,56</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7373233818160939359" datatype="html">
+        <source> Presence states defaults to <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>ON<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> and <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>OPEN<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>. </source>
+        <target state="translated"> Zustände für Anwesenheit sind standardmäßig <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>ON<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> und <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>OPEN<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/presence/presence.component.html</context>
+          <context context-type="linenumber">88,90</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6011138693754054743" datatype="html">
+        <source>Presence State</source>
+        <target state="translated">Anwesenheitsstatus</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/presence/presence.component.html</context>
+          <context context-type="linenumber">99</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5911214550882917183" datatype="html">
+        <source>State</source>
+        <target state="translated">Zustand</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/presence/presence.component.html</context>
+          <context context-type="linenumber">112</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/presence/presence.component.html</context>
+          <context context-type="linenumber">155</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">357</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">370</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8212177249756365917" datatype="html">
+        <source> Remove </source>
+        <target state="translated">  Entfernen </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/presence/presence.component.html</context>
+          <context context-type="linenumber">123,125</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/presence/presence.component.html</context>
+          <context context-type="linenumber">166,168</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">146,148</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">269,271</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">381,383</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4161684285417158581" datatype="html">
+        <source> No absence states defined yet. </source>
+        <target state="translated"> Es sind noch keine Abwesenheitszustände definiert. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/presence/presence.component.html</context>
+          <context context-type="linenumber">131,133</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="23346908295972575" datatype="html">
+        <source>Absence State</source>
+        <target state="translated">Abwesenheitsstatus</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/presence/presence.component.html</context>
+          <context context-type="linenumber">142</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7073468534728110135" datatype="html">
+        <source> Add Presence State </source>
+        <target state="translated">  Anwesenheitsstatus hinzufügen </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/presence/presence.component.html</context>
+          <context context-type="linenumber">177,179</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6142602047343613033" datatype="html">
+        <source> Add Absence State </source>
+        <target state="translated">  Abwesenheitsstatus hinzufügen </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/presence/presence.component.html</context>
+          <context context-type="linenumber">186,188</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1749140300730882435" datatype="html">
+        <source>Presence Item</source>
+        <target state="translated">Anwesenheit Item</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/presence/presence.component.ts</context>
+          <context context-type="linenumber">38</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="597000058698760718" datatype="html">
+        <source> Adjust the way how SmartBerry handles scenes. </source>
+        <target state="translated"> Passe die Szenenverwaltung von SmartBerry an. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">9,11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4001602712794311610" datatype="html">
+        <source>Scene</source>
+        <target state="translated">Szene</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4969503142349391434" datatype="html">
+        <source> Scenes allow multiple devices to be controlled with a single command. In SmartBerry <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>Core_DefaultScene<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/> is the preconfigured default scene and has four states: </source>
+        <target state="translated"> Mit Szenen können mehrere Geräte mit einem einzigen Befehl gesteuert werden. In SmartBerry ist <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>Core_DefaultScene<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/> die vorkonfigurierte Standardszene und hat vier Zustände: </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">24,28</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1654457632160912215" datatype="html">
+        <source>Sleeping (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>SLEEP<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>)</source>
+        <target state="translated">Schlafen (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>SLEEP<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">33</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4039831461930775442" datatype="html">
+        <source> Scene states of user defined scenes can be changed. Edit or add the scene item's <x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em>"/>State Description<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em>"/> and enter each scene state under <x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em>"/>Options<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em>"/> on a separate line, e.g. </source>
+        <target state="translated"> Die Zustände einer benutzerdefinierten Szene können angepasst werden. Editiere oder füge der Szene eine <x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em>"/>State Description<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em>"/> hinzu und trage jeden Szenenzustand unter <x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em>"/>Options<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em>"/> in einer eigenen Zeile ein, z.B. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">35,39</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7299701447938041870" datatype="html">
+        <source> When finished, trigger item <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>Core_Scenes_ReloadStates<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/> to reinitialize all scene states. </source>
+        <target state="translated"> Sobald Du fertig bist, löse das Element <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>Core_Scenes_ReloadStates<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/> aus, um alle Szenenzustände neu zu initialisieren. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">44,48</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7795509311191009906" datatype="html">
+        <source>Adjust scene members</source>
+        <target state="translated">Szenenmitglieder anpassen</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">54</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2407408477355556841" datatype="html">
+        <source> A scene saves the states of <x id="START_LINK" ctype="x-a" equiv-text="&lt;a routerLink=&quot;/light&quot;>"/>all light switchable items<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a>"/> within the same location for every single scene state. You can change this behavior and use custom scene members instead. Select <x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em>"/>Add default members<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em>"/> to include all light switchables as well. </source>
+        <target state="translated"> Eine Szene je Option speichert die Zustände aller <x id="START_LINK" ctype="x-a" equiv-text="&lt;a routerLink=&quot;/light&quot;>"/>lichtschaltenden Items<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a>"/> innerhalb eines Bereiches. Du kannst alternativ auch benutzerdefinierte Items für die Szene auswählen. Um alle lichtschaltenden Items mit einzubeziehen, aktiviere die Option <x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em>"/>Standardmitglieder hinzufügen<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em>"/>. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">55,61</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3662906721136140559" datatype="html">
+        <source> You cannot change custom members of the default scene. </source>
+        <target state="translated"> Du kannst die benutzerdefinierten Items der Standardszene nicht ändern. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">85,87</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7715649858260382862" datatype="html">
+        <source><x id="TAG_INPUT" ctype="x-input" equiv-text="&lt;input type=&quot;checkbox&quot; formControlName=&quot;defaultMembers&quot; />"/> Add default members </source>
+        <target state="translated"><x id="TAG_INPUT" ctype="x-input" equiv-text="&lt;input type=&quot;checkbox&quot; formControlName=&quot;defaultMembers&quot; />"/> Standardmitglieder hinzufügen </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">105,107</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6297950127540572260" datatype="html">
+        <source>Member</source>
+        <target state="translated">Mitglied</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">119</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8325381706328570325" datatype="html">
+        <source>Select Item</source>
+        <target state="translated">Item auswählen</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">126</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2551969061262988981" datatype="html">
+        <source> Add Item </source>
+        <target state="translated">  Item hinzufügen </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">159,161</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5696171503649308321" datatype="html">
+        <source>Adjust scene context states</source>
+        <target state="translated">Szenenkontext anpassen</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">172</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="134361461413621352" datatype="html">
+        <source> Scenes can also react to context changes by changing its state value. The following context states are predefined and called by the default scene upon changes: <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>home<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>, <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>away-short<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>, <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>away-long<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>, <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>sleep<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>. </source>
+        <target state="translated"> Szenen können auch auf äußere Veränderungen reagieren und ihren Zustand anpassen. Die folgenden Kontextzustände sind vordefiniert und werden von der Standardszene bei Änderungen aufgerufen: <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>home<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>, <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>away-short<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>, <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>away-long<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>, <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>sleep<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">173,178</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1530904990248686673" datatype="html">
+        <source> By using rules, you can apply a context by calling <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>apply_context('your custom context')<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>. </source>
+        <target state="translated"> In Regeln kannst du einen bestimmten Kontext einstellen, indem du die Methode <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>apply_context('your custom context')<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> aufrufst. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">179,182</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1247052329680276212" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{&#10;        sceneItem.forms.contextStates.controls.contextStates.length&#10;          | i18nPlural&#10;            : {&#10;                '=0': 'No context states',&#10;                '=1': 'One context state',&#10;                other: '# context states'&#10;              }&#10;      }}"/> defined</source>
+        <target state="translated">{{ sceneItem.forms.contextStates.controls.contextStates.length | i18nPlural: { '=0': 'Keine Kontextzustände', '=1': 'Ein Kontextzustand', other: '# Kontextzustände' } }} definiert</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">191,199</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="889581076845216138" datatype="html">
+        <source>Context</source>
+        <target state="translated">Kontext</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">220</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7336363218805572871" datatype="html">
+        <source>Context State</source>
+        <target state="translated">Kontext</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">233</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="109832309325195699" datatype="html">
+        <source>Select state</source>
+        <target state="translated">Zustand auswählen</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">244</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">442</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3804472680899952465" datatype="html">
+        <source> Add Context State </source>
+        <target state="translated">  Kontext hinzufügen </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">281,283</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1411699471755040242" datatype="html">
+        <source>Scene Trigger Items</source>
+        <target state="translated">Szenenauslösende Items</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">300</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8444503508780955814" datatype="html">
+        <source> When a scene trigger item is triggered, it changes a given scene state. </source>
+        <target state="translated"> Wenn ein szenenauslösendes Item getriggert wird, ändert es den Zustand einer bestimmten Szene. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">303,305</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6648583363660973979" datatype="html">
+        <source> Each scene creates scene trigger items for every scene state by default. However, you can define custom scene trigger items by tagging them with <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>CoreSceneTrigger<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/>. </source>
+        <target state="translated"> Jede Szene erzeugt standardmäßig szenenauslösende Items für jeden Szenenzustand. Du kannst auch eigene szenenauslösende Items definieren, indem du sie als <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>CoreSceneTrigger<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/> markierst. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">306,310</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1561111633677288554" datatype="html">
+        <source> You may tag a motion sensor to be a custom scene trigger to reset the default scene automatically. </source>
+        <target state="translated"> Markiere bspw. einen Bewegungssensor als szenenauslösendes Item, um die Standardszene automatisch zurückzusetzen. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">311,314</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6059139293184802773" datatype="html">
+        <source>Adjust trigger items</source>
+        <target state="translated">Auslösende Items anpassen</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">320</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3985967159111736533" datatype="html">
+        <source> You cannot adjust generated trigger items. </source>
+        <target state="translated"> Du kannst generierte szenenauslösende Items nicht anpassen. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">332,334</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4968400128692285528" datatype="html">
+        <source>Trigger States</source>
+        <target state="translated">Auslösende Zustände</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">342</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6387393860975479754" datatype="html">
+        <source> Any state updates will change your scene state. </source>
+        <target state="translated"> Jede Zustandsänderung verändert die aktuelle Szenenauswahl. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">346,348</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3962082082496963715" datatype="html">
+        <source>Restrict States</source>
+        <target state="translated">Zustände einschränken</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">395</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3429251327594068144" datatype="html">
+        <source>Add State</source>
+        <target state="translated">Zustände hinzufügen</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">400</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2409417248470285967" datatype="html">
+        <source>Scene adjustments</source>
+        <target state="translated">Szenenanpassungen</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">405</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1426265761290787329" datatype="html">
+        <source>Target Scene</source>
+        <target state="translated">Ziel-Szene</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">408</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1487702497782674961" datatype="html">
+        <source>Select scene</source>
+        <target state="translated">Szene auswählen</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">419</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2473421831828817806" datatype="html">
+        <source>New Scene State</source>
+        <target state="translated">Neuer Szenenzustand</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">431</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3304556438235366063" datatype="html">
+        <source>Only if scene conditions are met</source>
+        <target state="translated">Sofern die Szene folgendes erfüllt</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">456</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4206507591474063989" datatype="html">
+        <source>Current State</source>
+        <target state="translated">Derzeitiger Zustand</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">460</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4418226216728715146" datatype="html">
+        <source>Any State</source>
+        <target state="translated">Jeder Zustand</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">471</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="186353368773835876" datatype="html">
+        <source>Unchanged For</source>
+        <target state="translated">Unverändert seit</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">486</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1885711713832644834" datatype="html">
+        <source>Amount of time</source>
+        <target state="translated">Zeitliche Dauer</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">499</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8874012390997067175" datatype="html">
+        <source>Seconds</source>
+        <target state="translated">Sekunden</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">510</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5531237363767747080" datatype="html">
+        <source>Minutes</source>
+        <target state="translated">Minuten</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">511</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8070396816726827304" datatype="html">
+        <source>Hours</source>
+        <target state="translated">Stunden</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.html</context>
+          <context context-type="linenumber">512</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4701322374313429162" datatype="html">
+        <source>Scene Item</source>
+        <target state="translated">Szene-Item</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.ts</context>
+          <context context-type="linenumber">65</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4283235766671034612" datatype="html">
+        <source>Scene Trigger Item</source>
+        <target state="translated">Szenenauslöser-Item</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/scene/scene.component.ts</context>
+          <context context-type="linenumber">69</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="520933666306003434" datatype="html">
+        <source> Adjust the way how SmartBerry secures your home. </source>
+        <target state="translated"> Bestimme, wie SmartBerry dein Zuhause absichert. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/security/security.component.html</context>
+          <context context-type="linenumber">9,11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1174316793464177318" datatype="html">
+        <source>Operation State</source>
+        <target state="translated">Betriebszustand</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/security/security.component.html</context>
+          <context context-type="linenumber">21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1286661777832809043" datatype="html">
+        <source> The security system protects your home and responds to any unauthorized activity. If openHAB-Cloud and the operation state is set up properly, SmartBerry notifies you as soon as smoke or an assault had been detected. Adjust the operation state by editing <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>Core_Security_OperationState<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/>. Current choices are: </source>
+        <target state="translated"> Das Sicherheitssystem schützt dein Zuhause und reagiert auf jede unzulässige Aktivität. Wenn du die OpenHAB-Cloud und den aktiven Betriebszustand konfiguriert hast, benachrichtigt dich SmartBerry, sobald Rauch oder ein Einbruch festgestellt wurde. Passe den Betriebszustand über <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>Core_Security_OperationState<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/> an. Folgende Zustände sind verfügbar: </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/security/security.component.html</context>
+          <context context-type="linenumber">24,31</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5201568217319826378" datatype="html">
+        <source>No notifications and assault alarms (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>OFF<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>)</source>
+        <target state="translated">Keine Benachrichtigungen und Überfallalarme (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>OFF<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/security/security.component.html</context>
+          <context context-type="linenumber">33</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8001957737831326410" datatype="html">
+        <source>Notifications only (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>SILENTLY<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>)</source>
+        <target state="translated">Nur Benachrichtigungen (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>SILENTLY<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/security/security.component.html</context>
+          <context context-type="linenumber">34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6324059714356516540" datatype="html">
+        <source>Notifications and assault alarms (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>ON<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>)</source>
+        <target state="translated">Benachrichtigungen und Überfallalarme (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>EIN<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/security/security.component.html</context>
+          <context context-type="linenumber">35</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2662821255036036194" datatype="html">
+        <source> You may let items disable the operation state automatically. Assault disarmer items turn off the operation state, if the item state changed to <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>ON<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> or <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>OPEN<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>. </source>
+        <target state="translated"> Du kannst den Betriebszustand von Items automatisch deaktivieren lassen. Angriffsentschärfende Items schalten den Betriebszustand aus, wenn sich der Item-Zustand in <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>ON<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> oder <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>OPEN<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> ändert. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/security/security.component.html</context>
+          <context context-type="linenumber">37,41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="342613594499788697" datatype="html">
+        <source>Assault Detection</source>
+        <target state="translated">Einbrucherkennung</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/security/security.component.html</context>
+          <context context-type="linenumber">46</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6078494402890356123" datatype="html">
+        <source> Tag your doors or windows as assault trigger items to enable assault detection. Any state change of these items will fire an assault event during an active operation state. </source>
+        <target state="translated"> Markiere deine Türen oder Fenster als angriffsauslösende Items, um eine Angriffserkennung zu ermöglichen. Jede Zustandsänderung dieser Items löst während des aktiven Betriebszustands ein Angriffsevent aus. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/security/security.component.html</context>
+          <context context-type="linenumber">47,51</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="873821052851236144" datatype="html">
+        <source> To enable assault alarms right after an assault detection, tag the corresponding siren or security system as assault alarm item. You can change the duration until the alarm will turn off automatically by editing the <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>Core_Security_AssaultAlarmAutoOff<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/> item. Set to zero to disable the auto-off functionality. </source>
+        <target state="translated"> Um Angriffsalarme direkt nach einer Angriffserkennung zu aktivieren, markiere die zugehörige Sirene oder das Sicherheitssystem als Angriffsalarm-Item. Du kannst den Alarm automatisch ausschalten lassen, indem du <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;tag&quot;>"/>Core_Security_AssaultAlarmAutoOff<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span>"/> anpasst. Setze den Wert auf null, um die automatische Abschaltfunktion zu deaktivieren. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/security/security.component.html</context>
+          <context context-type="linenumber">55,61</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2819548164011983606" datatype="html">
+        <source>Auto-Close Of Lock Items</source>
+        <target state="translated">Selbstschließende Schlösser</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/security/security.component.html</context>
+          <context context-type="linenumber">66</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6460618165327785072" datatype="html">
+        <source> Lock items may be closed by a closed door or window contact. This way, you do not need to lock it yourself. To get started, tag your locks in order to match with the following schema: </source>
+        <target state="translated"> Schloss-Items können bei geschlossenen Tür- oder Fensterkontakt direkt verschlossen werden. So musst du sie nicht selbst abschließen. Um loszulegen, markiere deine Schlösser gemäß dem folgenden Schema: </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/security/security.component.html</context>
+          <context context-type="linenumber">67,71</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4475588090104398195" datatype="html">
+        <source> Next, tag your window or door contact within the same location as lock closure items. Any lock closure item reacts to <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>OFF<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> and <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>CLOSED<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> and will close a lock item within the same location right away. </source>
+        <target state="translated"> Als Nächstes markiere deine Fenster- oder Türkontakte eines Bereiches als schlossschließende Items. Jedes schlossschließende Item reagiert auf <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>OFF<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> und <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/>CLOSED<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> und schließt dann alle Schlösser des entsprechenden Bereiches. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/security/security.component.html</context>
+          <context context-type="linenumber">76,81</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="631652162292660105" datatype="html">
+        <source>Smoke Detection</source>
+        <target state="translated">Rauchmeldung</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/security/security.component.html</context>
+          <context context-type="linenumber">86</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2974359425342983865" datatype="html">
+        <source> Tag your smoke detector items and match the following schema to enable smoke detection upon fire. </source>
+        <target state="translated"> Kennzeichne deine Rauchmelder und übernimm das folgende Schema, um die Raucherkennung bei Feuer zu aktivieren. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/security/security.component.html</context>
+          <context context-type="linenumber">87,90</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1709748985320927087" datatype="html">
+        <source>Assault trigger items</source>
+        <target state="translated">Alarmauslösende Items</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/security/security.component.ts</context>
+          <context context-type="linenumber">16</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="518474518022309704" datatype="html">
+        <source>Smoke trigger items</source>
+        <target state="translated">Rauchmeldende Items</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/security/security.component.ts</context>
+          <context context-type="linenumber">21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5375969252920498289" datatype="html">
+        <source>Assault Disarmer Items</source>
+        <target state="translated">Entschärfende Items</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/security/security.component.ts</context>
+          <context context-type="linenumber">25</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2401465356688214768" datatype="html">
+        <source>Lock closure items</source>
+        <target state="translated">Schlossschließende Items</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/security/security.component.ts</context>
+          <context context-type="linenumber">35</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1082687763877819574" datatype="html">
+        <source>Lock items</source>
+        <target state="translated">Schloss-Items</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/security/security.component.ts</context>
+          <context context-type="linenumber">44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3538466160085332322" datatype="html">
+        <source>Assault Alarm items</source>
+        <target state="translated">Angriffsalarm-Items</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/security/security.component.ts</context>
+          <context context-type="linenumber">53</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5774025790009361149" datatype="html">
+        <source> Authenticate to your openHAB-Instance to adjust addional settings. </source>
+        <target state="translated"> Authentifiziere dich mit deiner openHAB-Instanz, um weitere Einstellungen vorzunehmen. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/setup/setup.component.html</context>
+          <context context-type="linenumber">9,11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4812260174235188399" datatype="html">
+        <source>openHAB API Token</source>
+        <target state="translated">openHAB API Token</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/setup/setup.component.html</context>
+          <context context-type="linenumber">21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1316225114032640096" datatype="html">
+        <source> Set your openHAB API token to use more configuration options for SmartBerry. </source>
+        <target state="translated"> Aktualisiere dein openHAB API Token, um mehr Konfigurationsoptionen für SmartBerry zu verwenden. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">frontend/src/app/setup/setup.component.html</context>
+          <context context-type="linenumber">45,48</context>
+        </context-group>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

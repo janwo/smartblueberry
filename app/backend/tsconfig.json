@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "outDir": "../dist/backend",
+    "importHelpers": true,
+    "removeComments": true,
+    "skipLibCheck": true,
+    "target": "ES2018",
+    "module": "NodeNext",
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "lib": ["esnext"],
+    "esModuleInterop": true,
+    "paths": {
+      "@plugins/*": ["./plugins/*"]
+    }
+  }
+}

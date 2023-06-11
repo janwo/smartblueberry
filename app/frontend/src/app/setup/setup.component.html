@@ -1,0 +1,86 @@
+<section class="hero">
+  <div class="hero-body">
+    <div class="columns is-gapless is-vcentered is-mobile">
+      <div class="column is-narrow title-icon">
+        <app-svg-icon icon="link-2-outline"></app-svg-icon>
+      </div>
+      <div class="column">
+        <p class="title" i18n>Setup</p>
+        <p class="subtitle" i18n>
+          Authenticate to your openHAB-Instance to adjust addional settings.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="card">
+  <div class="card-content">
+    <div class="columns is-gapless is-vcentered is-mobile">
+      <div class="column">
+        <h2 i18n>openHAB API Token</h2>
+      </div>
+      <div class="column is-narrow">
+        <span
+          class="tag"
+          [ngClass]="{
+            'is-success': openhabService.authenticated(),
+            'is-danger': !openhabService.authenticated()
+          }">
+          <app-svg-icon
+            [icon]="
+              openhabService.authenticated()
+                ? 'checkmark-outline'
+                : 'alert-circle-outline'
+            "></app-svg-icon>
+          <ng-container *ngIf="openhabService.authenticated()" i18n
+            >Authenticated</ng-container
+          >
+          <ng-container *ngIf="!openhabService.authenticated()" i18n
+            >Unauthenticated</ng-container
+          >
+        </span>
+      </div>
+    </div>
+    <p class="block" i18n>
+      Set your openHAB API token to use more configuration options for
+      SmartBerry.
+    </p>
+    <form
+      [formGroup]="apiTokenForm"
+      (ngSubmit)="submitAPIToken()"
+      [ngClass]="{
+        'has-error': apiTokenForm.touched && !apiTokenForm.valid
+      }">
+      <div class="field has-addons">
+        <div class="control is-expanded">
+          <input
+                i18n-placeholder
+            class="input"
+            formControlName="apiToken"
+            type="text"
+            placeholder="Your API Token" />
+        </div>
+        <div class="control">
+          <button type="submit" i18n class="button is-primary">Save</button>
+        </div>
+      </div>
+
+      <fieldset [attr.disabled]="openhabService.authenticated() ? null : true">
+        <div class="field">
+          <div class="control">
+            <button
+              i18n
+              type="submit"
+              (click)="openhabService.unregister()"
+              class="button is-primary">
+              Delete API Token
+            </button>
+          </div>
+        </div>
+      </fieldset>
+
+      <app-error [form]="apiTokenForm"></app-error>
+    </form>
+  </div>
+</div>

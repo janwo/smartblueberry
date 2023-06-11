@@ -1,0 +1,36 @@
+version: '2'
+volumes:
+  smartblueberry:
+  homeassistant:
+  homeassistant-themes:
+
+
+services:
+  homeassistant:
+    container_name: homeassistant
+    restart: unless-stopped
+    depends_on:
+      - smartblueberry
+    privileged: true
+    ports:
+      - 8123:8123
+    privileged: true
+    volumes:
+      - homeassistant:/config
+      - homeassistant-themes:/config/themes
+    environment:
+      TZ: Europe/Berlin
+
+  smartblueberry:
+    container_name: smartblueberry
+    build:
+      context: ./app
+    user: node
+    ports:
+      - 8234:8234
+    restart: unless-stopped
+    volumes:
+      - smartblueberry:/data
+      - homeassistant-themes:/data/themes
+    environment:
+      JWT_SECRET:
