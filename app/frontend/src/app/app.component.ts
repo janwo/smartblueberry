@@ -1,11 +1,10 @@
-import { Component, OnInit } from "@angular/core"
-import { HAService } from "./ha.service"
-import { error } from "console"
+import { Component, OnInit } from '@angular/core'
+import { HAService } from './ha.service'
 
 @Component({
-  selector: "app-root",
-  templateUrl: "./app.component.html",
-  styleUrls: ["./app.component.scss"],
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
   constructor(private haService: HAService) {}

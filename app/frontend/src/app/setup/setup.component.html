@@ -5,16 +5,8 @@
         <app-svg-icon icon="link-2-outline"></app-svg-icon>
       </div>
       <div class="column">
-        <p
-          class="title"
-          i18n
-        >
-          Setup
-        </p>
-        <p
-          class="subtitle"
-          i18n
-        >
+        <p class="title" i18n>Setup</p>
+        <p class="subtitle" i18n>
           Authenticate with your Home Assistant - Instance to get started with
           SmartBlueBerry.
         </p>
@@ -27,153 +19,126 @@
   <div class="card-content">
     <div class="columns is-gapless is-vcentered is-mobile">
       <div class="column">
-        <h2
-          i18n
-          *ngIf="!haService.isAuthenticated()"
+        <h2 i18n>Connection to Home Assistant</h2>
+      </div>
+      <div class="column is-narrow">
+        <ng-container
+          *ngIf="haService.isAuthenticated(); else globallyNotConnected"
         >
-          Login to Home Assistant
-        </h2>
-        <h2
-          i18n
-          *ngIf="haService.isAuthenticated()"
-        >
-          Logged in to Home Assistant
-        </h2>
+          <span class="tag is-success">
+            <app-svg-icon icon="checkmark-outline" />
+            <ng-container i18n>Connected</ng-container>
+          </span>
+        </ng-container>
+        <ng-template #globallyNotConnected>
+          <span class="tag is-danger">
+            <app-svg-icon icon="alert-circle-outline" />
+            <ng-container i18n>No connection</ng-container>
+          </span>
+        </ng-template>
       </div>
     </div>
-    <p
-      class="block"
-      i18n
-      *ngIf="!haService.isAuthenticated()"
-    >
-      Please login into your Home Assistant URL to start the authentication flow
-      with Home Assistant.
-    </p>
-    <p
-      class="block"
-      i18n
-      *ngIf="haService.isAuthenticated()"
-    >
-      You successfully authenticated with Home Assistant.
-    </p>
-    <form
-      [formGroup]="setupUserConnectionForm"
-      (ngSubmit)="toggleUserAuthentication()"
-      [ngClass]="{
-        'has-error':
-          setupUserConnectionForm.touched && !setupUserConnectionForm.valid
-      }"
-    >
-      <div class="field has-addons">
-        <div class="control">
-          <button
-            type="submit"
-            i18n
-            class="button is-primary"
-            *ngIf="haService.isAuthenticated()"
-          >
-            Logout
-          </button>
-          <button
-            type="submit"
-            i18n
-            class="button is-primary"
-            *ngIf="!haService.isAuthenticated()"
-          >
-            Login
-          </button>
-        </div>
-      </div>
 
-      <app-error [form]="setupUserConnectionForm"></app-error>
-    </form>
+    <p class="block" i18n *ngIf="!haService.isAuthenticated()">
+      Please login into your Home Assistant to start the long-lived
+      authentication flow with Home Assistant.
+    </p>
+    <p class="block" i18n *ngIf="haService.isAuthenticated()">
+      You successfully authenticated with Home Assistant. You are ready to read
+      and modify the long-lived authentication status.
+    </p>
+
+    <div class="field has-addons">
+      <div class="control">
+        <button
+          type="submit"
+          i18n
+          class="button is-primary"
+          (click)="authenticate()"
+          *ngIf="!haService.isAuthenticated()"
+        >
+          Login
+        </button>
+        <button
+          type="submit"
+          i18n
+          class="button is-primary"
+          (click)="unauthenticate()"
+          *ngIf="haService.isAuthenticated()"
+        >
+          Logout
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 
-<div
-  class="card"
-  *ngIf="haService.isAuthenticated()"
->
+<div class="card" *ngIf="haService.isAuthenticated()">
   <div class="card-content">
     <div class="columns is-gapless is-vcentered is-mobile">
       <div class="column">
-        <h2 i18n>Home Assistant Connection</h2>
+        <h2 i18n>Long-Lived Connection to Home Assistant</h2>
       </div>
       <div class="column is-narrow">
-        <span
-          class="tag"
-          [ngClass]="{
-            'is-success': setupGlobalConnectionForm.controls['connected'].value,
-            'is-danger': !setupGlobalConnectionForm.controls['connected'].value
-          }"
+        <ng-container
+          *ngIf="haService.isGloballyConnected(); else globallyNotConnected"
         >
-          <app-svg-icon
-            [icon]="
-              setupGlobalConnectionForm.controls['connected'].value
-                ? 'checkmark-outline'
-                : 'alert-circle-outline'
-            "
-          />
-          <ng-container
-            *ngIf="setupGlobalConnectionForm.controls['connected'].value"
-            i18n
-            >Authenticated</ng-container
-          >
-          <ng-container
-            *ngIf="!setupGlobalConnectionForm.controls['connected'].value"
-            i18n
-            >Unauthenticated</ng-container
-          >
-        </span>
+          <span class="tag is-success">
+            <app-svg-icon icon="checkmark-outline" />
+            <ng-container i18n>Connected</ng-container>
+          </span>
+        </ng-container>
+        <ng-template #globallyNotConnected>
+          <span class="tag is-danger">
+            <app-svg-icon icon="alert-circle-outline" />
+            <ng-container i18n>Not connected</ng-container>
+          </span>
+        </ng-template>
       </div>
     </div>
-    <p
-      class="block"
-      i18n
-    >
+    <p class="block" i18n>
       Set your user as the authenticating technical user for establishing API
-      access.
+      access. SmartBlueBerry will request a long-lived token and use it to
+      establish a long-lived connection to Home Assistant.
     </p>
-    <form
-      [formGroup]="setupGlobalConnectionForm"
-      (ngSubmit)="setupGlobalConnection()"
-      [ngClass]="{
-        'has-error':
-          setupGlobalConnectionForm.touched && !setupGlobalConnectionForm.valid
-      }"
-    >
-      <div class="field has-addons">
-        <div class="control">
-          <button
-            type="submit"
-            i18n
-            class="button is-primary"
-          >
-            Establish connection
-          </button>
-        </div>
+    <article class="message is-success" *ngIf="haService.isGloballyConnected()">
+      <div class="message-body" i18n>
+        Connected via <b>{{ haService.getGlobalConnectionName() }}</b>
       </div>
+    </article>
 
-      <fieldset
-        [attr.disabled]="
-          setupGlobalConnectionForm.controls['connected'].value ? null : true
-        "
-      >
-        <div class="field">
-          <div class="control">
-            <button
-              i18n
-              type="submit"
-              (click)="haService.setGlobalConnection(true)"
-              class="button is-primary"
-            >
-              Unset connection
-            </button>
-          </div>
-        </div>
-      </fieldset>
-
-      <app-error [form]="setupGlobalConnectionForm"></app-error>
-    </form>
+    <div class="field is-grouped">
+      <div class="control">
+        <button
+          type="submit"
+          class="button is-primary"
+          (click)="setGlobalConnection()"
+        >
+          <ng-container
+            i18n
+            *ngIf="
+              haService.isGloballyConnected();
+              else globallyNotConnectedEstablishButton
+            "
+          >
+            Reestablish long-lived connection
+          </ng-container>
+          <ng-template #globallyNotConnectedEstablishButton i18n>
+            Setup long-lived connection
+          </ng-template>
+        </button>
+      </div>
+      <div class="control">
+        <button
+          [attr.disabled]="haService.isGloballyConnected() ? null : true"
+          i18n
+          type="submit"
+          (click)="unsetGlobalConnection()"
+          class="button is-light is-primary"
+        >
+          Disconnect
+        </button>
+      </div>
+    </div>
   </div>
 </div>

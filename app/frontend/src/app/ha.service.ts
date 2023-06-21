@@ -1,20 +1,13 @@
-import { Injectable } from "@angular/core"
-import { HttpClient } from "@angular/common/http"
-import { catchError, from, map, mergeMap, tap, throwError } from "rxjs"
-import { environment } from "src/environments/environment"
-import { ERR_HASS_HOST_REQUIRED, getAuth } from "home-assistant-js-websocket"
-import { ActivatedRoute, Router } from "@angular/router"
+import { Injectable } from '@angular/core'
+import { HttpClient } from '@angular/common/http'
+import { catchError, from, map, mergeMap, of, tap, throwError } from 'rxjs'
+import { environment } from 'src/environments/environment'
+import { ERR_HASS_HOST_REQUIRED, getAuth } from 'home-assistant-js-websocket'
+import { ActivatedRoute, Router } from '@angular/router'
 
 export interface GlobalConnectionResponse {
   connected: boolean
-}
-
-export interface GetItemListResponse {
-  data: Item[]
-}
-
-export interface GetSingleItemResponse {
-  data: Item
+  client_name: string
 }
 
 export type AuthResponse =
@@ -33,6 +26,14 @@ export interface PostPutDeleteResponse {
   error?: string
 }
 
+export interface GetItemListResponse {
+  data: Item[]
+}
+
+export interface GetSingleItemResponse {
+  data: Item
+}
+
 export interface Item {
   name: string
   label: string
@@ -44,22 +45,21 @@ export interface Item {
 }
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root'
 })
 export class HAService {
+  private globalConnection: string | undefined = undefined
   private get bearer() {
-    return localStorage.getItem("bearer")
+    return localStorage.getItem('bearer')
   }
 
   private set bearer(bearer: string | null) {
     if (bearer === null) {
-      localStorage.removeItem("bearer")
+      localStorage.removeItem('bearer')
     } else {
-      localStorage.setItem("bearer", bearer)
+      localStorage.setItem('bearer', bearer)
     }
   }
-
-  private authenticated = false
 
   constructor(
     private http: HttpClient,
@@ -72,12 +72,16 @@ export class HAService {
     return from(getAuth()).pipe(
       mergeMap(
         ({ data: { access_token, refresh_token, expires, expires_in } }) =>
-          this.http.post<AuthResponse>(authUrl, {
-            access_token,
-            refresh_token,
-            expires_in,
-            expires,
-          })
+          this.http.post<AuthResponse>(
+            authUrl,
+            {
+              access_token,
+              refresh_token,
+              expires_in,
+              expires
+            },
+            this.getOptions({ withoutBearer: true })
+          )
       ),
       catchError((err) => {
         switch (err) {
@@ -86,22 +90,21 @@ export class HAService {
             return this.http
               .post<AuthResponse>(authUrl, undefined, this.getOptions())
               .pipe(
-                tap(async (response) => {
-                  if (!response.success && allowOAuthCall) {
-                    await getAuth({ hassUrl: response.hassUrl })
+                tap(async ({ body }) => {
+                  if (!body?.success && allowOAuthCall) {
+                    await getAuth({ hassUrl: body!.hassUrl })
                   }
                 })
               )
         }
         return throwError(() => err)
       }),
-      tap(async (response) => {
+      tap(async ({ body }) => {
         // Update authentication state
-        if (response.success) {
-          this.authenticated = true
-          this.bearer = response.bearer
+        if (body!.success) {
+          this.bearer = body!.bearer
+          this.checkGlobalConnection()
         } else {
-          this.authenticated = false
           this.bearer = null
         }
 
@@ -111,48 +114,93 @@ export class HAService {
           relativeTo: this.route,
           queryParams: Object.fromEntries(
             Object.entries(this.route.snapshot.queryParams).filter(
-              ([param]) => !["auth_callback", "code", "state"].includes(param)
+              ([param]) => !['auth_callback', 'code', 'state'].includes(param)
             )
-          ),
+          )
         })
       })
     )
   }
 
-  setGlobalConnection(unset = false) {
-    const authUrl = `${environment.API_URL()}/${
-      unset ? "unset" : "set"
-    }-global-connection`
+  unsetGlobalConnection() {
+    const authUrl = `${environment.API_URL()}/unset-global-connection`
     this.http
-      .post<AuthResponse>(authUrl, undefined, this.getOptions())
-      .subscribe()
+      .post<GlobalConnectionResponse>(authUrl, undefined, this.getOptions())
+      .subscribe({
+        next: ({ body }) => {
+          this.globalConnection = body?.connected ? body.client_name : undefined
+        },
+        error: (error) => {
+          console.error(error)
+        }
+      })
   }
 
-  isGloballyConnected() {
+  setGlobalConnection() {
+    const authUrl = `${environment.API_URL()}/set-global-connection`
+    this.http
+      .post<GlobalConnectionResponse>(authUrl, undefined, this.getOptions())
+      .subscribe({
+        next: ({ body }) => {
+          this.globalConnection = body?.connected ? body.client_name : undefined
+        },
+        error: (error) => {
+          console.error(error)
+        }
+      })
+  }
+
+  checkGlobalConnection() {
     const authUrl = `${environment.API_URL()}/global-connection`
-    return this.http
-      .get<GlobalConnectionResponse>(authUrl, this.getOptions())
-      .pipe(map(({ connected }) => connected))
+    if (this.isAuthenticated()) {
+      this.http
+        .get<GlobalConnectionResponse>(authUrl, this.getOptions())
+        .subscribe({
+          next: ({ body }) => {
+            this.globalConnection = body?.connected
+              ? body.client_name
+              : undefined
+          },
+          error: (error) => {
+            console.error(error)
+            this.globalConnection = undefined
+          }
+        })
+      return
+    }
+
+    this.globalConnection = undefined
+  }
+
+  public isGloballyConnected() {
+    return !!this.globalConnection
+  }
+
+  public getGlobalConnectionName() {
+    return this.globalConnection
   }
 
   public isAuthenticated() {
-    return this.authenticated
+    return !!this.bearer
   }
 
   public unauthenticate() {
     this.bearer = null
-    this.authenticated = false
+    this.checkGlobalConnection()
   }
 
-  private getOptions() {
-    if (!this.bearer) {
-      return {}
+  private getOptions(options = { withoutBearer: false }) {
+    const httpOptions = { observe: 'response' as 'response' }
+    if (options.withoutBearer != true && this.bearer) {
+      return {
+        ...httpOptions,
+        headers: {
+          Authorization: `Bearer ${this.bearer}`
+        }
+      }
     }
-    return {
-      headers: {
-        Authorization: `Bearer ${this.bearer}`,
-      },
-    }
+
+    return httpOptions
   }
 
   public general = {
@@ -161,7 +209,7 @@ export class HAService {
         `${environment.API_URL()}/items-map`,
         this.getOptions()
       )
-    },
+    }
   }
 
   public light = {
@@ -182,7 +230,7 @@ export class HAService {
         `${environment.API_URL()}/light-astro-items`,
         this.getOptions()
       )
-    },
+    }
   }
 
   public irrigation = {
@@ -245,7 +293,7 @@ export class HAService {
         `${environment.API_URL()}/irrigation-valve-items/${item}`,
         this.getOptions()
       )
-    },
+    }
   }
 
   public security = {
@@ -284,7 +332,7 @@ export class HAService {
         `${environment.API_URL()}/security-assault-disarmer-items`,
         this.getOptions()
       )
-    },
+    }
   }
 
   public scene = {
@@ -355,7 +403,7 @@ export class HAService {
         `${environment.API_URL()}/scene-trigger-item/${item}/trigger-state`,
         this.getOptions()
       )
-    },
+    }
   }
 
   public presence = {
@@ -380,7 +428,7 @@ export class HAService {
         `${environment.API_URL()}/presence-item/${item}/states`,
         this.getOptions()
       )
-    },
+    }
   }
 
   public climate = {
@@ -411,6 +459,6 @@ export class HAService {
         `${environment.API_URL()}/heating-mode-item/${item}/command-map`,
         this.getOptions()
       )
-    },
+    }
   }
 }

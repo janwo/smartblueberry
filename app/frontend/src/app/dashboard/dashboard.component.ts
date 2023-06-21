@@ -1,27 +1,30 @@
-import { Component, OnInit } from "@angular/core"
-import { routes } from "../app-routing.module"
-import { HAService } from "../ha.service"
+import { Component, Injector, OnInit, inject } from '@angular/core'
+import { routes } from '../app-routing.module'
+import { HAService } from '../ha.service'
+
+interface DashboardItem {
+  title: string
+  icon: string
+  link?: string
+}
 
 @Component({
-  selector: "app-dashboard",
-  templateUrl: "./dashboard.component.html",
-  styleUrls: ["./dashboard.component.scss"],
+  selector: 'app-dashboard',
+  templateUrl: './dashboard.component.html',
+  styleUrls: ['./dashboard.component.scss']
 })
-export class DashboardComponent implements OnInit {
-  constructor(public haService: HAService) {}
-  ngOnInit(): void {}
+export class DashboardComponent {
+  dashboardItem: DashboardItem[] = []
 
-  get routeItems() {
-    return routes
-      .filter((r) => !!r.data?.["title"] && !!r.data?.["icon"])
+  constructor() {
+    this.dashboardItem = routes
+      .filter((r) => !!r.data?.['title'] && !!r.data?.['icon'])
       .map((r) => {
-        const hide =
-          r.canActivate?.find((g) => g.name == HAService.name) &&
-          !this.haService.isAuthenticated()
+        const hide = r.canActivate?.some((ca) => !ca())
         return {
-          title: r.data?.["title"],
-          icon: r.data?.["icon"],
-          link: hide ? null : r.path,
+          title: r.data?.['title'],
+          icon: r.data?.['icon'],
+          link: hide ? undefined : r.path
         }
       })
   }

@@ -16,7 +16,7 @@ import { v4 as uuid } from 'uuid'
 export type GlobalAuth = AuthData['access_token']
 export type UserAuth = Auth
 
-let _connection: Connection | undefined = undefined
+let globalConnection: Connection | undefined = undefined
 
 declare module '@hapi/hapi' {
   interface PluginProperties {
@@ -38,22 +38,25 @@ async function setGlobalConnection(
       userAuth
     )
 
-    const access_token: string = await userConnection.sendMessagePromise({
+    const clientName = `${env.CLIENT_NAME} (${uuid()})`
+    const accessToken: string = await userConnection.sendMessagePromise({
       type: 'auth/long_lived_access_token',
-      client_name: `${env.CLIENT_NAME} (${uuid()})`,
+      client_name: clientName,
       lifespan: 365 * 10
     })
 
-    await request.server.plugins['app/ha-connect'].globalConnection(
-      access_token
-    )
+    const connection = await request.server.plugins[
+      'app/ha-connect'
+    ].globalConnection(accessToken)
 
     await request.server.plugins['app/storage'].set(
-      `global-connection/access_token`,
-      access_token
+      `global-connection/client-name`,
+      clientName
     )
 
-    return h.response().code(access_token ? 200 : 400)
+    return h
+      .response({ connected: connection.connected, client_name: clientName })
+      .code(accessToken ? 200 : 400)
   } catch (err) {
     return h.response().code(400)
   } finally {
@@ -65,26 +68,30 @@ async function unsetGlobalConnection(
   request: hapi.Request,
   h: hapi.ResponseToolkit
 ) {
-  await request.server.plugins['app/storage'].delete(
-    'global-connection/access_token'
-  )
-
-  const connection = await request.server.plugins[
+  const globalConnection = await request.server.plugins[
     'app/ha-connect'
   ].globalConnection()
-  console.log(connection.connected)
-  connection?.close()
-  return h.response().code(200)
+  globalConnection?.close()
+  await request.server.plugins['app/storage'].delete('global-connection')
+  return h.response({ connected: false, client_name: undefined }).code(200)
 }
 
 async function getGlobalConnection(
   request: hapi.Request,
   h: hapi.ResponseToolkit
 ) {
-  const connection = await request.server.plugins[
+  const globalConnection = await request.server.plugins[
     'app/ha-connect'
   ].globalConnection()
-  return h.response({ connected: connection?.connected || false }).code(200)
+  const clientName = await request.server.plugins['app/storage'].get(
+    `global-connection/client-name`
+  )
+  return h
+    .response({
+      connected: globalConnection?.connected || false,
+      client_name: clientName
+    })
+    .code(200)
 }
 
 const haConnectPlugin = {
@@ -104,37 +111,48 @@ const haConnectPlugin = {
       })
     }
 
-    const globalConnection = (access_token?: AuthData['access_token']) => {
+    const resolveGlobalConnection = (
+      reauthenticateWithAccessToken?: AuthData['access_token']
+    ) => {
       return new Promise<Connection | undefined>(async (resolve, reject) => {
-        if (!access_token && _connection?.connected) {
-          return resolve(_connection)
+        if (!reauthenticateWithAccessToken && globalConnection?.connected) {
+          return resolve(globalConnection)
         }
 
-        const auth = createLongLivedTokenAuth(
-          env.HOMEASSISTANT_URL,
-          access_token ||
-            (await server.plugins['app/storage'].get(
-              `global-connection/access_token`
-            ))
-        )
+        const accessToken =
+          reauthenticateWithAccessToken ||
+          (await server.plugins['app/storage'].get(
+            `global-connection/access-token`
+          ))
 
-        if (auth) {
+        if (accessToken) {
+          const auth = createLongLivedTokenAuth(
+            env.HOMEASSISTANT_URL,
+            accessToken
+          )
+
           try {
-            _connection && _connection?.close()
-            _connection = await connect(auth)
-            return resolve(_connection)
+            globalConnection && globalConnection?.close()
+            globalConnection = await connect(auth)
+            if (reauthenticateWithAccessToken) {
+              await server.plugins['app/storage'].set(
+                `global-connection/access-token`,
+                accessToken
+              )
+            }
+            return resolve(globalConnection)
           } catch (err) {
             return reject(err)
           }
         }
 
-        return access_token
+        return reauthenticateWithAccessToken
           ? reject(new Error(`No auth data found!`))
           : resolve(undefined)
       })
     }
 
-    server.expose('globalConnection', globalConnection)
+    server.expose('globalConnection', resolveGlobalConnection)
     server.expose('connect', connect)
 
     // Add global connection setup route
@@ -199,6 +217,7 @@ export function createSocket(auth: Auth): Promise<any> {
           case MSG_TYPE_AUTH_INVALID:
             invalidAuth = true
             socket.close()
+            reject(new Error(`Auth is invalid`))
             break
 
           case MSG_TYPE_AUTH_OK:
@@ -221,4 +240,21 @@ export function createSocket(auth: Auth): Promise<any> {
   })
 }
 
+/* connection.message({
+          type: 'config/entity_registry/list'
+        }),
+        connection.message({
+          type: 'config/device_registry/list'
+        }),
+        connection.message({
+          type: 'config/area_registry/list'
+        }),
+        connection.message({
+          type: 'subscribe_events',
+          event_type: 'state_changed'
+        }),
+        connection.message({
+          type: 'get_config'
+        })
+        */
 export default haConnectPlugin

@@ -1,13 +1,13 @@
-import { Component } from "@angular/core"
-import { FormBuilder, FormGroup, Validators } from "@angular/forms"
-import { DomSanitizer } from "@angular/platform-browser"
-import { forkJoin } from "rxjs"
-import { Item, HAService } from "../ha.service"
+import { Component } from '@angular/core'
+import { FormBuilder, FormGroup, Validators } from '@angular/forms'
+import { DomSanitizer } from '@angular/platform-browser'
+import { forkJoin } from 'rxjs'
+import { Item, HAService } from '../ha.service'
 
 @Component({
-  selector: "app-irrigation",
-  templateUrl: "./irrigation.component.html",
-  styleUrls: ["./irrigation.component.scss"],
+  selector: 'app-irrigation',
+  templateUrl: './irrigation.component.html',
+  styleUrls: ['./irrigation.component.scss']
 })
 export class IrrigationComponent {
   constructor(
@@ -18,19 +18,19 @@ export class IrrigationComponent {
 
   schema = {
     irrigationTriggerItems: {
-      tags: ["CoreIrrigationTrigger"],
-      description: $localize`Irrigation Trigger Item`,
+      tags: ['CoreIrrigationTrigger'],
+      description: $localize`Irrigation Trigger Item`
     },
     irrigationValveItems: {
-      tags: ["CoreIrrigationValve"],
-      description: $localize`Irrigation Valve Item`,
-    },
+      tags: ['CoreIrrigationValve'],
+      description: $localize`Irrigation Valve Item`
+    }
   }
 
   i18nPluralMapping = {
-    "=0": $localize`0 days`,
-    "=1": $localize`1 day`,
-    other: $localize`# Tage`,
+    '=0': $localize`0 days`,
+    '=1': $localize`1 day`,
+    other: $localize`# Tage`
   }
 
   apiSettings?: {
@@ -45,64 +45,64 @@ export class IrrigationComponent {
   ngOnInit(): void {
     this.haService.irrigation.apiSettings().subscribe({
       next: (apiSettings) => {
-        this.apiSettings = apiSettings.data
-      },
+        this.apiSettings = apiSettings.body!.data
+      }
     })
 
     forkJoin([
       this.haService.irrigation.triggerItems(),
-      this.haService.irrigation.valveItems(),
+      this.haService.irrigation.valveItems()
     ]).subscribe({
       next: (items) => {
-        this.irrigationTriggerItems = items[0].data
-        this.irrigationValveItems = items[1].data.map((item) => ({
+        this.irrigationTriggerItems = items[0].body!.data
+        this.irrigationValveItems = items[1].body!.data.map((item) => ({
           item,
           form: this.formBuilder.group({
             irrigationLevelPerMinute: [
-              item.jsonStorage?.["irrigationLevelPerMinute"] !== undefined
-                ? item.jsonStorage["irrigationLevelPerMinute"]
-                : null,
+              item.jsonStorage?.['irrigationLevelPerMinute'] !== undefined
+                ? item.jsonStorage['irrigationLevelPerMinute']
+                : null
             ],
             temperatureUnit: [
-              item.jsonStorage?.["minimalTemperature"] !== undefined
-                ? item.jsonStorage["minimalTemperature"]
+              item.jsonStorage?.['minimalTemperature'] !== undefined
+                ? item.jsonStorage['minimalTemperature']
                     .substring(
-                      item.jsonStorage["minimalTemperature"].length - 1
+                      item.jsonStorage['minimalTemperature'].length - 1
                     )
                     .toUpperCase()
-                : "C",
+                : 'C'
             ],
             evaporationFactor: [
-              item.jsonStorage?.["evaporationFactor"] !== undefined
-                ? item.jsonStorage["evaporationFactor"]
-                : 1,
+              item.jsonStorage?.['evaporationFactor'] !== undefined
+                ? item.jsonStorage['evaporationFactor']
+                : 1
             ],
             minimalTemperature: [
-              item.jsonStorage?.["minimalTemperature"] !== undefined
-                ? item.jsonStorage["minimalTemperature"].substring(
+              item.jsonStorage?.['minimalTemperature'] !== undefined
+                ? item.jsonStorage['minimalTemperature'].substring(
                     0,
-                    item.jsonStorage["minimalTemperature"].length - 1
+                    item.jsonStorage['minimalTemperature'].length - 1
                   )
-                : null,
+                : null
             ],
             observedDays: [
-              item.jsonStorage?.["observedDays"] !== undefined
-                ? item.jsonStorage["observedDays"]
-                : 3,
+              item.jsonStorage?.['observedDays'] !== undefined
+                ? item.jsonStorage['observedDays']
+                : 3
             ],
             overshootDays: [
-              item.jsonStorage?.["overshootDays"] !== undefined
-                ? item.jsonStorage["overshootDays"]
-                : 1,
-            ],
-          }),
+              item.jsonStorage?.['overshootDays'] !== undefined
+                ? item.jsonStorage['overshootDays']
+                : 1
+            ]
+          })
         }))
-      },
+      }
     })
   }
 
   apiTokenForm = this.formBuilder.group({
-    apiToken: [null, Validators.required],
+    apiToken: [null, Validators.required]
   })
 
   countValues(form: FormGroup) {
@@ -134,24 +134,24 @@ export class IrrigationComponent {
     }
 
     this.haService.irrigation.updateApiSettings(apiSettings).subscribe({
-      next: (response) => {
-        if (!response?.success) {
-          switch (response.error) {
-            case "unauthenticated":
-              this.apiTokenForm.controls["apiToken"].setErrors({
-                unauthenticated: true,
+      next: ({ body }) => {
+        if (!body?.success) {
+          switch (body!.error) {
+            case 'unauthenticated':
+              this.apiTokenForm.controls['apiToken'].setErrors({
+                unauthenticated: true
               })
               break
 
-            case "nolocation":
-              this.apiTokenForm.controls["apiToken"].setErrors({
-                nolocation: true,
+            case 'nolocation':
+              this.apiTokenForm.controls['apiToken'].setErrors({
+                nolocation: true
               })
               break
 
             default:
-              this.apiTokenForm.controls["apiToken"].setErrors({
-                invalid: true,
+              this.apiTokenForm.controls['apiToken'].setErrors({
+                invalid: true
               })
           }
           return
@@ -166,10 +166,10 @@ export class IrrigationComponent {
         }
       },
       error: (response) => {
-        this.apiTokenForm.controls["apiToken"].setErrors({
-          connection: true,
+        this.apiTokenForm.controls['apiToken'].setErrors({
+          connection: true
         })
-      },
+      }
     })
   }
 
@@ -178,9 +178,9 @@ export class IrrigationComponent {
       next: () => {
         this.apiSettings = {
           hasApiKey: false,
-          syncedLocation: false,
+          syncedLocation: false
         }
-      },
+      }
     })
   }
 
@@ -201,7 +201,7 @@ export class IrrigationComponent {
 
       if (
         item.form.controls[control].value == null &&
-        control != "minimalTemperature"
+        control != 'minimalTemperature'
       ) {
         item.form.controls[control].setErrors({ required: true })
         item.form.setErrors({ required: true })
@@ -219,19 +219,19 @@ export class IrrigationComponent {
           irrigationValues
         )
     observable.subscribe({
-      next: (response) => {
-        if (!response?.success) {
+      next: ({ body }) => {
+        if (!body?.success) {
           item.form.setErrors({
-            invalid: true,
+            invalid: true
           })
           return
         }
       },
       error: (response) => {
         item.form.setErrors({
-          connection: true,
+          connection: true
         })
-      },
+      }
     })
   }
 }
