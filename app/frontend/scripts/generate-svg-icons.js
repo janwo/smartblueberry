@@ -1,39 +1,39 @@
-const fs = require('fs')
-const path = require('path')
-const { XMLParser, XMLBuilder } = require('fast-xml-parser')
+import fs from "fs"
+import path from "path"
+import { XMLParser, XMLBuilder } from "fast-xml-parser"
 const parserOptions = {
-  ignoreAttributes: false
+  ignoreAttributes: false,
 }
 
 const icons = [
   {
-    inputDir: '../../node_modules/eva-icons/outline/svg/',
-    outputFile: '../tmp/assets/svg-icons.svg',
+    inputDir: "./node_modules/eva-icons/outline/svg/",
+    outputFile: "./frontend/tmp/assets/svg-icons.svg",
     nameList: [
-      'thermometer-outline',
-      'film-outline',
-      'alert-circle-outline',
-      'link-2-outline',
-      'chevron-down-outline',
-      'umbrella-outline',
-      'chevron-up-outline',
-      'checkmark-outline',
-      'grid-outline',
-      'bulb-outline',
-      'activity-outline',
-      'shield-outline',
-      'question-mark-circle-outline'
-    ]
-  }
+      "thermometer-outline",
+      "film-outline",
+      "alert-circle-outline",
+      "link-2-outline",
+      "chevron-down-outline",
+      "umbrella-outline",
+      "chevron-up-outline",
+      "checkmark-outline",
+      "grid-outline",
+      "bulb-outline",
+      "activity-outline",
+      "shield-outline",
+      "question-mark-circle-outline",
+    ],
+  },
 ]
 
 function mergeSVG(svgObj, file, symbol) {
-  const fileContents = fs.readFileSync(file, 'utf8')
+  const fileContents = fs.readFileSync(file, "utf8")
   const newSvgObj = fromXML(fileContents)
   const symbolNode = {
-    '@_id': symbol,
-    '@_viewBox': newSvgObj.svg['@_viewBox'],
-    g: newSvgObj.svg.g
+    "@_id": symbol,
+    "@_viewBox": newSvgObj.svg["@_viewBox"],
+    g: newSvgObj.svg.g,
   }
   svgObj.svg.symbol = svgObj.svg?.symbol || []
   svgObj.svg.symbol.push(symbolNode)
@@ -54,7 +54,11 @@ icons.forEach((set) => {
     '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="0" height="0" style="display:none;"></svg>'
   )
   set.nameList.forEach((name) => {
-    mergeSVG(svg, path.resolve(__dirname, set.inputDir, name + '.svg'), name)
+    mergeSVG(
+      svg,
+      path.resolve(process.cwd(), set.inputDir, name + ".svg"),
+      name
+    )
   })
-  fs.writeFileSync(path.resolve(__dirname, set.outputFile), toXML(svg))
+  fs.writeFileSync(path.resolve(process.cwd(), set.outputFile), toXML(svg))
 })

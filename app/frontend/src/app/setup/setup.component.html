@@ -5,9 +5,18 @@
         <app-svg-icon icon="link-2-outline"></app-svg-icon>
       </div>
       <div class="column">
-        <p class="title" i18n>Setup</p>
-        <p class="subtitle" i18n>
-          Authenticate to your openHAB-Instance to adjust addional settings.
+        <p
+          class="title"
+          i18n
+        >
+          Setup
+        </p>
+        <p
+          class="subtitle"
+          i18n
+        >
+          Authenticate with your Home Assistant - Instance to get started with
+          SmartBlueBerry.
         </p>
       </div>
     </div>
@@ -18,69 +27,153 @@
   <div class="card-content">
     <div class="columns is-gapless is-vcentered is-mobile">
       <div class="column">
-        <h2 i18n>openHAB API Token</h2>
+        <h2
+          i18n
+          *ngIf="!haService.isAuthenticated()"
+        >
+          Login to Home Assistant
+        </h2>
+        <h2
+          i18n
+          *ngIf="haService.isAuthenticated()"
+        >
+          Logged in to Home Assistant
+        </h2>
+      </div>
+    </div>
+    <p
+      class="block"
+      i18n
+      *ngIf="!haService.isAuthenticated()"
+    >
+      Please login into your Home Assistant URL to start the authentication flow
+      with Home Assistant.
+    </p>
+    <p
+      class="block"
+      i18n
+      *ngIf="haService.isAuthenticated()"
+    >
+      You successfully authenticated with Home Assistant.
+    </p>
+    <form
+      [formGroup]="setupUserConnectionForm"
+      (ngSubmit)="toggleUserAuthentication()"
+      [ngClass]="{
+        'has-error':
+          setupUserConnectionForm.touched && !setupUserConnectionForm.valid
+      }"
+    >
+      <div class="field has-addons">
+        <div class="control">
+          <button
+            type="submit"
+            i18n
+            class="button is-primary"
+            *ngIf="haService.isAuthenticated()"
+          >
+            Logout
+          </button>
+          <button
+            type="submit"
+            i18n
+            class="button is-primary"
+            *ngIf="!haService.isAuthenticated()"
+          >
+            Login
+          </button>
+        </div>
+      </div>
+
+      <app-error [form]="setupUserConnectionForm"></app-error>
+    </form>
+  </div>
+</div>
+
+<div
+  class="card"
+  *ngIf="haService.isAuthenticated()"
+>
+  <div class="card-content">
+    <div class="columns is-gapless is-vcentered is-mobile">
+      <div class="column">
+        <h2 i18n>Home Assistant Connection</h2>
       </div>
       <div class="column is-narrow">
         <span
           class="tag"
           [ngClass]="{
-            'is-success': openhabService.authenticated(),
-            'is-danger': !openhabService.authenticated()
-          }">
+            'is-success': setupGlobalConnectionForm.controls['connected'].value,
+            'is-danger': !setupGlobalConnectionForm.controls['connected'].value
+          }"
+        >
           <app-svg-icon
             [icon]="
-              openhabService.authenticated()
+              setupGlobalConnectionForm.controls['connected'].value
                 ? 'checkmark-outline'
                 : 'alert-circle-outline'
-            "></app-svg-icon>
-          <ng-container *ngIf="openhabService.authenticated()" i18n
+            "
+          />
+          <ng-container
+            *ngIf="setupGlobalConnectionForm.controls['connected'].value"
+            i18n
             >Authenticated</ng-container
           >
-          <ng-container *ngIf="!openhabService.authenticated()" i18n
+          <ng-container
+            *ngIf="!setupGlobalConnectionForm.controls['connected'].value"
+            i18n
             >Unauthenticated</ng-container
           >
         </span>
       </div>
     </div>
-    <p class="block" i18n>
-      Set your openHAB API token to use more configuration options for
-      SmartBerry.
+    <p
+      class="block"
+      i18n
+    >
+      Set your user as the authenticating technical user for establishing API
+      access.
     </p>
     <form
-      [formGroup]="apiTokenForm"
-      (ngSubmit)="submitAPIToken()"
+      [formGroup]="setupGlobalConnectionForm"
+      (ngSubmit)="setupGlobalConnection()"
       [ngClass]="{
-        'has-error': apiTokenForm.touched && !apiTokenForm.valid
-      }">
+        'has-error':
+          setupGlobalConnectionForm.touched && !setupGlobalConnectionForm.valid
+      }"
+    >
       <div class="field has-addons">
-        <div class="control is-expanded">
-          <input
-                i18n-placeholder
-            class="input"
-            formControlName="apiToken"
-            type="text"
-            placeholder="Your API Token" />
-        </div>
         <div class="control">
-          <button type="submit" i18n class="button is-primary">Save</button>
+          <button
+            type="submit"
+            i18n
+            class="button is-primary"
+          >
+            Establish connection
+          </button>
         </div>
       </div>
 
-      <fieldset [attr.disabled]="openhabService.authenticated() ? null : true">
+      <fieldset
+        [attr.disabled]="
+          setupGlobalConnectionForm.controls['connected'].value ? null : true
+        "
+      >
         <div class="field">
           <div class="control">
             <button
               i18n
               type="submit"
-              (click)="openhabService.unregister()"
-              class="button is-primary">
-              Delete API Token
+              (click)="haService.setGlobalConnection(true)"
+              class="button is-primary"
+            >
+              Unset connection
             </button>
           </div>
         </div>
       </fieldset>
 
-      <app-error [form]="apiTokenForm"></app-error>
+      <app-error [form]="setupGlobalConnectionForm"></app-error>
     </form>
   </div>
 </div>

@@ -1,5 +1,5 @@
-import { Component, Input } from '@angular/core'
-import { Item } from '../openhab.service'
+import { Component, Input } from "@angular/core"
+import { Item } from "../ha.service"
 
 type IrrigationValveItemSettings = {
   observedDays: number
@@ -20,12 +20,12 @@ type Series = {
 }
 
 @Component({
-  selector: 'app-irrigation-chart',
-  templateUrl: './irrigation-chart.component.html',
-  styleUrls: ['./irrigation-chart.component.scss']
+  selector: "app-irrigation-chart",
+  templateUrl: "./irrigation-chart.component.html",
+  styleUrls: ["./irrigation-chart.component.scss"],
 })
 export class IrrigationChartComponent {
-  @Input() unit: 'metric' | 'imperial' = 'metric'
+  @Input() unit: "metric" | "imperial" = "metric"
   @Input() irrigationValveItem?: Item
   @Input() irrigationValveItemSettings?: IrrigationValveItemSettings
 
@@ -51,7 +51,7 @@ export class IrrigationChartComponent {
       if (Number.isNaN(value)) {
         return undefined
       }
-      return temperatureUnit == 'C'
+      return temperatureUnit == "C"
         ? value + 273.15
         : 1.8 * (value + 273.15) + 32
     })()
@@ -67,11 +67,11 @@ export class IrrigationChartComponent {
 
     return (
       this.calculatePrecipitationLevel(
-        this.irrigationValveItem!.jsonStorage!['series'],
+        this.irrigationValveItem!.jsonStorage!["series"],
         this.irrigationValveItemSettings!
       ) < 0 &&
       this.calculatePrecipitationLevel(
-        this.irrigationValveItem!.jsonStorage!['series'],
+        this.irrigationValveItem!.jsonStorage!["series"],
         this.irrigationValveItemSettings!,
         true
       ) < 0
@@ -98,13 +98,13 @@ export class IrrigationChartComponent {
   }
 
   temperature = (temperature: number) => {
-    return this.unit == 'metric'
+    return this.unit == "metric"
       ? temperature - 273.15
       : 1.8 * (temperature - 273.15) + 32
   }
 
   length = (length: number) => {
-    return this.unit == 'metric' ? length : length * 2.5
+    return this.unit == "metric" ? length : length * 2.5
   }
 
   data(
@@ -125,35 +125,35 @@ export class IrrigationChartComponent {
       datasets: [
         {
           label: $localize`Maximal Temperature`,
-          type: 'line',
-          yAxisID: 'temperature',
+          type: "line",
+          yAxisID: "temperature",
           tension: 0.25,
-          borderColor: 'rgba(255, 130, 169, 1)',
-          backgroundColor: 'rgba(0,0,0,0)',
-          pointBackgroundColor: 'rgba(255, 130, 169, .5)',
+          borderColor: "rgba(255, 130, 169, 1)",
+          backgroundColor: "rgba(0,0,0,0)",
+          pointBackgroundColor: "rgba(255, 130, 169, .5)",
           data: seriesPeriod.map((s: any) =>
             this.temperature(s.temperature.max)
-          )
+          ),
         },
         {
           label: $localize`Minimal Temperature`,
-          type: 'line',
-          yAxisID: 'temperature',
+          type: "line",
+          yAxisID: "temperature",
           tension: 0.25,
-          borderColor: 'rgba(90, 118, 196, 1)',
-          backgroundColor: 'rgba(0,0,0,0)',
-          pointBackgroundColor: 'rgba(90, 118, 196, .5)',
+          borderColor: "rgba(90, 118, 196, 1)",
+          backgroundColor: "rgba(0,0,0,0)",
+          pointBackgroundColor: "rgba(90, 118, 196, .5)",
           data: seriesPeriod.map((s: any) =>
             this.temperature(s.temperature.min)
-          )
+          ),
         },
         {
           label: $localize`Irrigation Indicator`,
-          type: 'line',
-          borderColor: 'rgba(0, 0, 0, 1)',
-          backgroundColor: 'rgba(0,0,0,0)',
-          pointBackgroundColor: 'rgba(0, 0, 0, .5)',
-          yAxisID: 'length',
+          type: "line",
+          borderColor: "rgba(0, 0, 0, 1)",
+          backgroundColor: "rgba(0,0,0,0)",
+          pointBackgroundColor: "rgba(0, 0, 0, .5)",
+          yAxisID: "length",
           tension: 0.25,
           data: seriesPeriod.reduce(
             (data: number[], s) => [
@@ -161,52 +161,52 @@ export class IrrigationChartComponent {
               (data[data.length - 1] || 0) +
                 s.rain +
                 (s.irrigation || 0) -
-                s.eto * evaporationFactor
+                s.eto * evaporationFactor,
             ],
             []
-          )
+          ),
         },
         {
           label: $localize`Rain`,
-          type: 'bar',
-          yAxisID: 'length',
-          stack: 'watering',
+          type: "bar",
+          yAxisID: "length",
+          stack: "watering",
           data: seriesPeriod.map((s: any) => this.length(s.rain || 0)),
-          borderColor: 'rgba(90, 118, 196, 1)',
+          borderColor: "rgba(90, 118, 196, 1)",
           backgroundColor:
             seriesPeriod.map((s, index) =>
               index >= seriesTodaysIndex
-                ? 'rgba(90, 118, 196, .25)'
-                : 'rgba(90, 118, 196, .5)'
-            ) || 'rgba(90, 118, 196, .5)'
+                ? "rgba(90, 118, 196, .25)"
+                : "rgba(90, 118, 196, .5)"
+            ) || "rgba(90, 118, 196, .5)",
         },
         {
           label: $localize`Irrigation`,
-          type: 'bar',
-          yAxisID: 'length',
-          stack: 'watering',
-          borderColor: 'rgba(14, 173, 105, 1)',
-          backgroundColor: 'rgba(14, 173, 105, .5)',
-          data: seriesPeriod.map((s: any) => this.length(s.irrigation || 0))
+          type: "bar",
+          yAxisID: "length",
+          stack: "watering",
+          borderColor: "rgba(14, 173, 105, 1)",
+          backgroundColor: "rgba(14, 173, 105, .5)",
+          data: seriesPeriod.map((s: any) => this.length(s.irrigation || 0)),
         },
         {
           label: $localize`Evaporation`,
-          type: 'bar',
-          yAxisID: 'length',
-          stack: 'watering',
+          type: "bar",
+          yAxisID: "length",
+          stack: "watering",
           data: seriesPeriod.map(
             (s: any) => -this.length(s.eto * evaporationFactor)
           ),
           fill: true,
-          borderColor: 'rgba(255, 235, 231, 1)',
+          borderColor: "rgba(255, 235, 231, 1)",
           backgroundColor:
             seriesPeriod.map((s, index) =>
               index >= seriesTodaysIndex
-                ? 'rgba(202, 137, 95, .25)'
-                : 'rgba(202, 137, 95, .5)'
-            ) || 'rgba(202, 137, 95, .5)'
-        }
-      ]
+                ? "rgba(202, 137, 95, .25)"
+                : "rgba(202, 137, 95, .5)"
+            ) || "rgba(202, 137, 95, .5)",
+        },
+      ],
     }
   }
 }

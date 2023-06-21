@@ -1,10 +1,11 @@
-import { Config, JsonDB } from "node-json-db"
-import * as Hapi from "@hapi/hapi"
-import * as Joi from "joi"
+import { Config, JsonDB } from 'node-json-db'
+import * as Hapi from '@hapi/hapi'
+import path from 'path'
+import { env } from '../../index.js'
 
-declare module "@hapi/hapi" {
+declare module '@hapi/hapi' {
   interface PluginProperties {
-    "app/storage": {
+    'app/storage': {
       get(path: string, defaultValue?: any): Promise<any | undefined>
       set(path: string, obj: any): Promise<void>
       delete(path: string): Promise<void>
@@ -13,14 +14,20 @@ declare module "@hapi/hapi" {
 }
 
 const storagePlugin = {
-  name: "app/storage",
+  name: 'app/storage',
   register: async (server: Hapi.Server, options: { port?: number }) => {
+    const filePath = path.resolve(env.CONFIG_DIR, './json-storage.json')
+
     const db = new JsonDB(
-      new Config(process.cwd() + "/data/json-storage.json", true, true, "/")
+      new Config(filePath, true, env.BUILD != 'production', '/')
     )
 
+    if (env.BUILD !== 'production') {
+      console.log(`Storage saved to "${filePath}"`)
+    }
+
     const dbHelper = (() => {
-      const createPath = (path: string) => "/" + path.split("/").join("/")
+      const createPath = (path: string) => '/' + path.split('/').join('/')
       return {
         get: async (path: string) => {
           const fullPath = createPath(path)
@@ -35,81 +42,14 @@ const storagePlugin = {
         set: async (path: string, obj: any) => {
           const fullPath = createPath(path)
           return db.push(fullPath, obj, true)
-        },
+        }
       }
     })()
 
-    server.expose("get", dbHelper.get)
-    server.expose("set", dbHelper.set)
-    server.expose("delete", dbHelper.delete)
-
-    // Start server on different port
-    const jsonServer = Hapi.server({
-      port:
-        options.port !== undefined
-          ? options.port
-          : (server.info.port as number) + 1,
-      host: server.info.host,
-      routes: {
-        cors: process.env.build !== "production",
-      },
-    })
-
-    jsonServer.route({
-      method: "GET",
-      path: "/json-storage/{path*}",
-      options: {
-        validate: {
-          params: { path: Joi.string().required() },
-          payload: Joi.object().required(),
-        },
-      },
-      handler: async (request, h) => {
-        return {
-          data: await dbHelper.get(request.params.path),
-        }
-      },
-    })
-
-    jsonServer.route({
-      method: "POST",
-      path: "/json-storage/{path*}",
-
-      options: {
-        validate: {
-          params: { path: Joi.string().required() },
-          payload: Joi.object().required(),
-        },
-        payload: { allow: "application/json" },
-      },
-      handler: async (request, h) => {
-        await dbHelper.set(request.params.path, request.payload)
-        return {
-          success: true,
-        }
-      },
-    })
-
-    jsonServer.route({
-      method: "DELETE",
-      path: "/json-storage/{path*}",
-      options: {
-        validate: {
-          params: { path: Joi.string().required() },
-        },
-      },
-      handler: async (request, h) => {
-        await dbHelper.delete(request.params.path)
-        return {
-          success: true,
-        }
-      },
-    })
-
-    server.events.on("start", () => server.control(jsonServer))
-    await jsonServer.start()
-    console.log("JSON-Server running on %s", jsonServer.info.uri)
-  },
+    server.expose('get', dbHelper.get)
+    server.expose('set', dbHelper.set)
+    server.expose('delete', dbHelper.delete)
+  }
 }
 
 export default storagePlugin

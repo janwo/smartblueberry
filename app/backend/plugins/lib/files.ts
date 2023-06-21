@@ -1,8 +1,8 @@
 import inertPlugin from "@hapi/inert"
-import * as Accept from "@hapi/accept"
-import * as fs from "fs"
-import * as Hapi from "@hapi/hapi"
-import * as path from "path"
+import Accept from "@hapi/accept"
+import fs from "fs"
+import Hapi from "@hapi/hapi"
+import path from "path"
 
 function fileTree(directory: string, tree: { [key: string]: any } = {}) {
   const files = fs.readdirSync(directory)

@@ -1,36 +1,36 @@
-import { Component } from '@angular/core'
-import { FormBuilder, FormGroup, Validators } from '@angular/forms'
-import { DomSanitizer } from '@angular/platform-browser'
-import { forkJoin } from 'rxjs'
-import { Item, OpenhabService } from '../openhab.service'
+import { Component } from "@angular/core"
+import { FormBuilder, FormGroup, Validators } from "@angular/forms"
+import { DomSanitizer } from "@angular/platform-browser"
+import { forkJoin } from "rxjs"
+import { Item, HAService } from "../ha.service"
 
 @Component({
-  selector: 'app-irrigation',
-  templateUrl: './irrigation.component.html',
-  styleUrls: ['./irrigation.component.scss']
+  selector: "app-irrigation",
+  templateUrl: "./irrigation.component.html",
+  styleUrls: ["./irrigation.component.scss"],
 })
 export class IrrigationComponent {
   constructor(
-    public openhabService: OpenhabService,
+    public haService: HAService,
     private formBuilder: FormBuilder,
     private sanitizer: DomSanitizer
   ) {}
 
   schema = {
     irrigationTriggerItems: {
-      tags: ['CoreIrrigationTrigger'],
-      description: $localize`Irrigation Trigger Item`
+      tags: ["CoreIrrigationTrigger"],
+      description: $localize`Irrigation Trigger Item`,
     },
     irrigationValveItems: {
-      tags: ['CoreIrrigationValve'],
-      description: $localize`Irrigation Valve Item`
-    }
+      tags: ["CoreIrrigationValve"],
+      description: $localize`Irrigation Valve Item`,
+    },
   }
 
   i18nPluralMapping = {
-    '=0': $localize`0 days`,
-    '=1': $localize`1 day`,
-    other: $localize`# Tage`
+    "=0": $localize`0 days`,
+    "=1": $localize`1 day`,
+    other: $localize`# Tage`,
   }
 
   apiSettings?: {
@@ -43,15 +43,15 @@ export class IrrigationComponent {
   irrigationValveItems: { item: Item; form: FormGroup }[] = []
 
   ngOnInit(): void {
-    this.openhabService.irrigation.apiSettings().subscribe({
+    this.haService.irrigation.apiSettings().subscribe({
       next: (apiSettings) => {
         this.apiSettings = apiSettings.data
-      }
+      },
     })
 
     forkJoin([
-      this.openhabService.irrigation.triggerItems(),
-      this.openhabService.irrigation.valveItems()
+      this.haService.irrigation.triggerItems(),
+      this.haService.irrigation.valveItems(),
     ]).subscribe({
       next: (items) => {
         this.irrigationTriggerItems = items[0].data
@@ -59,50 +59,50 @@ export class IrrigationComponent {
           item,
           form: this.formBuilder.group({
             irrigationLevelPerMinute: [
-              item.jsonStorage?.['irrigationLevelPerMinute'] !== undefined
-                ? item.jsonStorage['irrigationLevelPerMinute']
-                : null
+              item.jsonStorage?.["irrigationLevelPerMinute"] !== undefined
+                ? item.jsonStorage["irrigationLevelPerMinute"]
+                : null,
             ],
             temperatureUnit: [
-              item.jsonStorage?.['minimalTemperature'] !== undefined
-                ? item.jsonStorage['minimalTemperature']
+              item.jsonStorage?.["minimalTemperature"] !== undefined
+                ? item.jsonStorage["minimalTemperature"]
                     .substring(
-                      item.jsonStorage['minimalTemperature'].length - 1
+                      item.jsonStorage["minimalTemperature"].length - 1
                     )
                     .toUpperCase()
-                : 'C'
+                : "C",
             ],
             evaporationFactor: [
-              item.jsonStorage?.['evaporationFactor'] !== undefined
-                ? item.jsonStorage['evaporationFactor']
-                : 1
+              item.jsonStorage?.["evaporationFactor"] !== undefined
+                ? item.jsonStorage["evaporationFactor"]
+                : 1,
             ],
             minimalTemperature: [
-              item.jsonStorage?.['minimalTemperature'] !== undefined
-                ? item.jsonStorage['minimalTemperature'].substring(
+              item.jsonStorage?.["minimalTemperature"] !== undefined
+                ? item.jsonStorage["minimalTemperature"].substring(
                     0,
-                    item.jsonStorage['minimalTemperature'].length - 1
+                    item.jsonStorage["minimalTemperature"].length - 1
                   )
-                : null
+                : null,
             ],
             observedDays: [
-              item.jsonStorage?.['observedDays'] !== undefined
-                ? item.jsonStorage['observedDays']
-                : 3
+              item.jsonStorage?.["observedDays"] !== undefined
+                ? item.jsonStorage["observedDays"]
+                : 3,
             ],
             overshootDays: [
-              item.jsonStorage?.['overshootDays'] !== undefined
-                ? item.jsonStorage['overshootDays']
-                : 1
-            ]
-          })
+              item.jsonStorage?.["overshootDays"] !== undefined
+                ? item.jsonStorage["overshootDays"]
+                : 1,
+            ],
+          }),
         }))
-      }
+      },
     })
   }
 
   apiTokenForm = this.formBuilder.group({
-    apiToken: [null, Validators.required]
+    apiToken: [null, Validators.required],
   })
 
   countValues(form: FormGroup) {
@@ -133,25 +133,25 @@ export class IrrigationComponent {
       }
     }
 
-    this.openhabService.irrigation.updateApiSettings(apiSettings).subscribe({
+    this.haService.irrigation.updateApiSettings(apiSettings).subscribe({
       next: (response) => {
         if (!response?.success) {
           switch (response.error) {
-            case 'unauthenticated':
-              this.apiTokenForm.controls['apiToken'].setErrors({
-                unauthenticated: true
+            case "unauthenticated":
+              this.apiTokenForm.controls["apiToken"].setErrors({
+                unauthenticated: true,
               })
               break
 
-            case 'nolocation':
-              this.apiTokenForm.controls['apiToken'].setErrors({
-                nolocation: true
+            case "nolocation":
+              this.apiTokenForm.controls["apiToken"].setErrors({
+                nolocation: true,
               })
               break
 
             default:
-              this.apiTokenForm.controls['apiToken'].setErrors({
-                invalid: true
+              this.apiTokenForm.controls["apiToken"].setErrors({
+                invalid: true,
               })
           }
           return
@@ -166,21 +166,21 @@ export class IrrigationComponent {
         }
       },
       error: (response) => {
-        this.apiTokenForm.controls['apiToken'].setErrors({
-          connection: true
+        this.apiTokenForm.controls["apiToken"].setErrors({
+          connection: true,
         })
-      }
+      },
     })
   }
 
   deleteAPISettings() {
-    this.openhabService.irrigation.deleteApiSettings().subscribe({
+    this.haService.irrigation.deleteApiSettings().subscribe({
       next: () => {
         this.apiSettings = {
           hasApiKey: false,
-          syncedLocation: false
+          syncedLocation: false,
         }
-      }
+      },
     })
   }
 
@@ -201,7 +201,7 @@ export class IrrigationComponent {
 
       if (
         item.form.controls[control].value == null &&
-        control != 'minimalTemperature'
+        control != "minimalTemperature"
       ) {
         item.form.controls[control].setErrors({ required: true })
         item.form.setErrors({ required: true })
@@ -213,8 +213,8 @@ export class IrrigationComponent {
     }
 
     const observable = deleteIrrigationValues
-      ? this.openhabService.irrigation.deleteValveItems(item.item.name)
-      : this.openhabService.irrigation.updateValveItems(
+      ? this.haService.irrigation.deleteValveItems(item.item.name)
+      : this.haService.irrigation.updateValveItems(
           item.item.name,
           irrigationValues
         )
@@ -222,16 +222,16 @@ export class IrrigationComponent {
       next: (response) => {
         if (!response?.success) {
           item.form.setErrors({
-            invalid: true
+            invalid: true,
           })
           return
         }
       },
       error: (response) => {
         item.form.setErrors({
-          connection: true
+          connection: true,
         })
-      }
+      },
     })
   }
 }

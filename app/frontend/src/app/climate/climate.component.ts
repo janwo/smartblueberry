@@ -1,45 +1,42 @@
-import { Component, OnInit } from '@angular/core'
-import { FormBuilder, FormGroup } from '@angular/forms'
-import { forkJoin } from 'rxjs'
-import { Item, OpenhabService } from '../openhab.service'
+import { Component, OnInit } from "@angular/core"
+import { FormBuilder, FormGroup } from "@angular/forms"
+import { forkJoin } from "rxjs"
+import { Item, HAService } from "../ha.service"
 
 @Component({
-  selector: 'app-climate',
-  templateUrl: './climate.component.html',
-  styleUrls: ['./climate.component.scss']
+  selector: "app-climate",
+  templateUrl: "./climate.component.html",
+  styleUrls: ["./climate.component.scss"],
 })
 export class ClimateComponent implements OnInit {
-  constructor(
-    public openhabService: OpenhabService,
-    private formBuilder: FormBuilder
-  ) {}
+  constructor(public haService: HAService, private formBuilder: FormBuilder) {}
 
   heatingItems: { item: Item; form: FormGroup }[] = []
   heatingContactSwitchableItems: Item[] = []
 
   schema = {
     heatingItems: {
-      tags: ['RadiatorControl'],
+      tags: ["RadiatorControl"],
       description: $localize`Thermostat Group`,
       childs: [
-        { description: $localize`Thermostat Mode Item`, tags: ['SetPoint'] }
-      ]
+        { description: $localize`Thermostat Mode Item`, tags: ["SetPoint"] },
+      ],
     },
     heatingContactSwitchableItems: {
-      tags: ['Door', 'Window'],
+      tags: ["Door", "Window"],
       description: $localize`Door or Window Group`,
       childs: [
         {
-          tags: ['OpenState']
-        }
-      ]
-    }
+          tags: ["OpenState"],
+        },
+      ],
+    },
   }
 
   ngOnInit(): void {
     forkJoin([
-      this.openhabService.climate.modeItems(),
-      this.openhabService.climate.contactSwitchableItems()
+      this.haService.climate.modeItems(),
+      this.haService.climate.contactSwitchableItems(),
     ]).subscribe({
       next: (items) => {
         this.heatingContactSwitchableItems = items[1].data
@@ -48,29 +45,29 @@ export class ClimateComponent implements OnInit {
             item,
             form: this.formBuilder.group({
               off: [
-                item.jsonStorage?.['commandMap']?.off !== undefined
-                  ? item.jsonStorage['commandMap'].off
-                  : null
+                item.jsonStorage?.["commandMap"]?.off !== undefined
+                  ? item.jsonStorage["commandMap"].off
+                  : null,
               ],
               on: [
-                item.jsonStorage?.['commandMap']?.on !== undefined
-                  ? item.jsonStorage['commandMap'].on
-                  : null
+                item.jsonStorage?.["commandMap"]?.on !== undefined
+                  ? item.jsonStorage["commandMap"].on
+                  : null,
               ],
               eco: [
-                item.jsonStorage?.['commandMap']?.eco !== undefined
-                  ? item.jsonStorage['commandMap'].eco
-                  : null
+                item.jsonStorage?.["commandMap"]?.eco !== undefined
+                  ? item.jsonStorage["commandMap"].eco
+                  : null,
               ],
               power: [
-                item.jsonStorage?.['commandMap']?.power !== undefined
-                  ? item.jsonStorage['commandMap'].power
-                  : null
-              ]
-            })
+                item.jsonStorage?.["commandMap"]?.power !== undefined
+                  ? item.jsonStorage["commandMap"].power
+                  : null,
+              ],
+            }),
           }
         })
-      }
+      },
     })
   }
 
@@ -102,22 +99,22 @@ export class ClimateComponent implements OnInit {
     }
 
     const observable = deleteCommandMap
-      ? this.openhabService.climate.deleteCommandMap(item.item.name)
-      : this.openhabService.climate.updateCommandMap(item.item.name, commandMap)
+      ? this.haService.climate.deleteCommandMap(item.item.name)
+      : this.haService.climate.updateCommandMap(item.item.name, commandMap)
     observable.subscribe({
       next: (response) => {
         if (!response?.success) {
           item.form.setErrors({
-            invalid: true
+            invalid: true,
           })
           return
         }
       },
       error: (response) => {
         item.form.setErrors({
-          connection: true
+          connection: true,
         })
-      }
+      },
     })
   }
 }

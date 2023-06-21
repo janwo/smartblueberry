@@ -107,7 +107,6 @@
       }
     }
   },
-  "defaultProject": "openhab-helper",
   "cli": {
     "analytics": false
   }

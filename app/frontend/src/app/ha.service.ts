@@ -1,8 +1,13 @@
-import { Injectable } from '@angular/core'
-import { HttpClient } from '@angular/common/http'
-import { CanActivate } from '@angular/router'
-import { tap } from 'rxjs'
-import { environment } from 'src/environments/environment'
+import { Injectable } from "@angular/core"
+import { HttpClient } from "@angular/common/http"
+import { catchError, from, map, mergeMap, tap, throwError } from "rxjs"
+import { environment } from "src/environments/environment"
+import { ERR_HASS_HOST_REQUIRED, getAuth } from "home-assistant-js-websocket"
+import { ActivatedRoute, Router } from "@angular/router"
+
+export interface GlobalConnectionResponse {
+  connected: boolean
+}
 
 export interface GetItemListResponse {
   data: Item[]
@@ -12,11 +17,16 @@ export interface GetSingleItemResponse {
   data: Item
 }
 
-export interface AuthResponse {
-  success: boolean
-  error?: string
-  bearer?: string
-}
+export type AuthResponse =
+  | {
+      success: true
+      bearer: string
+    }
+  | {
+      success: false
+      error: string
+      hassUrl: string
+    }
 
 export interface PostPutDeleteResponse {
   success: boolean
@@ -34,55 +44,114 @@ export interface Item {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
-export class OpenhabService implements CanActivate {
+export class HAService {
   private get bearer() {
-    return localStorage.getItem('bearer')
+    return localStorage.getItem("bearer")
   }
 
   private set bearer(bearer: string | null) {
     if (bearer === null) {
-      localStorage.removeItem('bearer')
+      localStorage.removeItem("bearer")
     } else {
-      localStorage.setItem('bearer', bearer)
+      localStorage.setItem("bearer", bearer)
     }
   }
 
-  constructor(private http: HttpClient) {}
+  private authenticated = false
 
-  register(bearer: string) {
-    return this.http
-      .post<AuthResponse>(`${environment.API_URL()}/authenticate`, { bearer })
-      .pipe(
-        tap((response) => {
-          if (response?.success) {
-            this.bearer = response.bearer || null
-          }
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
+
+  authenticate({ allowOAuthCall } = { allowOAuthCall: false }) {
+    const authUrl = `${environment.API_URL()}/authenticate`
+    return from(getAuth()).pipe(
+      mergeMap(
+        ({ data: { access_token, refresh_token, expires, expires_in } }) =>
+          this.http.post<AuthResponse>(authUrl, {
+            access_token,
+            refresh_token,
+            expires_in,
+            expires,
+          })
+      ),
+      catchError((err) => {
+        switch (err) {
+          case 2:
+          case ERR_HASS_HOST_REQUIRED:
+            return this.http
+              .post<AuthResponse>(authUrl, undefined, this.getOptions())
+              .pipe(
+                tap(async (response) => {
+                  if (!response.success && allowOAuthCall) {
+                    await getAuth({ hassUrl: response.hassUrl })
+                  }
+                })
+              )
+        }
+        return throwError(() => err)
+      }),
+      tap(async (response) => {
+        // Update authentication state
+        if (response.success) {
+          this.authenticated = true
+          this.bearer = response.bearer
+        } else {
+          this.authenticated = false
+          this.bearer = null
+        }
+
+        // remove authentication query params
+        await this.router.navigate([], {
+          replaceUrl: true,
+          relativeTo: this.route,
+          queryParams: Object.fromEntries(
+            Object.entries(this.route.snapshot.queryParams).filter(
+              ([param]) => !["auth_callback", "code", "state"].includes(param)
+            )
+          ),
         })
-      )
+      })
+    )
   }
 
-  unregister() {
+  setGlobalConnection(unset = false) {
+    const authUrl = `${environment.API_URL()}/${
+      unset ? "unset" : "set"
+    }-global-connection`
+    this.http
+      .post<AuthResponse>(authUrl, undefined, this.getOptions())
+      .subscribe()
+  }
+
+  isGloballyConnected() {
+    const authUrl = `${environment.API_URL()}/global-connection`
+    return this.http
+      .get<GlobalConnectionResponse>(authUrl, this.getOptions())
+      .pipe(map(({ connected }) => connected))
+  }
+
+  public isAuthenticated() {
+    return this.authenticated
+  }
+
+  public unauthenticate() {
     this.bearer = null
+    this.authenticated = false
   }
 
-  authenticated() {
-    return !!this.bearer
-  }
-
-  canActivate() {
-    return this.authenticated()
-  }
-
-  getOptions() {
+  private getOptions() {
     if (!this.bearer) {
       return {}
     }
     return {
       headers: {
-        Authorization: `Bearer ${this.bearer}`
-      }
+        Authorization: `Bearer ${this.bearer}`,
+      },
     }
   }
 
@@ -92,7 +161,7 @@ export class OpenhabService implements CanActivate {
         `${environment.API_URL()}/items-map`,
         this.getOptions()
       )
-    }
+    },
   }
 
   public light = {
@@ -113,7 +182,7 @@ export class OpenhabService implements CanActivate {
         `${environment.API_URL()}/light-astro-items`,
         this.getOptions()
       )
-    }
+    },
   }
 
   public irrigation = {
@@ -176,7 +245,7 @@ export class OpenhabService implements CanActivate {
         `${environment.API_URL()}/irrigation-valve-items/${item}`,
         this.getOptions()
       )
-    }
+    },
   }
 
   public security = {
@@ -215,7 +284,7 @@ export class OpenhabService implements CanActivate {
         `${environment.API_URL()}/security-assault-disarmer-items`,
         this.getOptions()
       )
-    }
+    },
   }
 
   public scene = {
@@ -286,7 +355,7 @@ export class OpenhabService implements CanActivate {
         `${environment.API_URL()}/scene-trigger-item/${item}/trigger-state`,
         this.getOptions()
       )
-    }
+    },
   }
 
   public presence = {
@@ -311,7 +380,7 @@ export class OpenhabService implements CanActivate {
         `${environment.API_URL()}/presence-item/${item}/states`,
         this.getOptions()
       )
-    }
+    },
   }
 
   public climate = {
@@ -342,6 +411,6 @@ export class OpenhabService implements CanActivate {
         `${environment.API_URL()}/heating-mode-item/${item}/command-map`,
         this.getOptions()
       )
-    }
+    },
   }
 }

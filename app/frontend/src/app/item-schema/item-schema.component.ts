@@ -1,24 +1,24 @@
-import { Component, HostBinding, Input } from '@angular/core'
-import { Item } from '../openhab.service'
+import { Component, HostBinding, Input } from "@angular/core"
+import { Item } from "../ha.service"
 
 export interface ItemSchema {
   tags: string[]
-  tagRelationship?: 'and' | 'or'
+  tagRelationship?: "and" | "or"
   root?: boolean
   description?: string
   childs?: ItemSchema[]
 }
 
 @Component({
-  selector: 'app-item-schema',
-  templateUrl: './item-schema.component.html',
-  styleUrls: ['./item-schema.component.scss']
+  selector: "app-item-schema",
+  templateUrl: "./item-schema.component.html",
+  styleUrls: ["./item-schema.component.scss"],
 })
 export class ItemSchemaComponent {
   @Input() schema?: ItemSchema
-  @Input() @HostBinding('class.first') root?: boolean = true
+  @Input() @HostBinding("class.first") root?: boolean = true
   @Input() items?: Item[]
-  @HostBinding('class.last') get valid() {
+  @HostBinding("class.last") get valid() {
     return this.schema?.childs
   }
 

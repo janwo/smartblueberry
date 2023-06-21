@@ -5,7 +5,6 @@ import fs from "fs"
 import path from "path"
 import yaml from "yaml"
 import { env } from "../../index.js"
-var YAML = require("yaml")
 
 declare module "@hapi/hapi" {
   interface PluginProperties {
@@ -38,7 +37,11 @@ const themeBuilderPlugin = {
     const updateThemeFiles = () => {
       for (const { yamlJson, filename } of themes) {
         const contents = yaml.stringify(yamlJson(server))
-        fs.writeFileSync(path.join(env.THEMES_DIR, filename), contents, "utf8")
+        fs.writeFileSync(
+          path.resolve(process.cwd(), env.THEMES_DIR, filename),
+          contents,
+          "utf8"
+        )
       }
     }
 

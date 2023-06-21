@@ -1,58 +1,58 @@
-import { Component, OnInit } from '@angular/core'
-import { forkJoin } from 'rxjs'
-import { OpenhabService, Item, GetItemListResponse } from '../openhab.service'
+import { Component, OnInit } from "@angular/core"
+import { forkJoin } from "rxjs"
+import { HAService, Item, GetItemListResponse } from "../ha.service"
 
 @Component({
-  selector: 'app-security',
-  templateUrl: './security.component.html',
-  styleUrls: ['./security.component.scss']
+  selector: "app-security",
+  templateUrl: "./security.component.html",
+  styleUrls: ["./security.component.scss"],
 })
 export class SecurityComponent implements OnInit {
-  constructor(private openhabService: OpenhabService) {}
+  constructor(private haService: HAService) {}
 
   schema = {
     assaultTriggerItems: {
-      tags: ['Window', 'Door', 'CoreAssaultTrigger'],
+      tags: ["Window", "Door", "CoreAssaultTrigger"],
       description: $localize`Assault trigger items`,
-      childs: [{ tags: ['OpenState', 'Switch'] }]
+      childs: [{ tags: ["OpenState", "Switch"] }],
     },
     smokeTriggerItems: {
-      tags: ['SmokeDetector'],
+      tags: ["SmokeDetector"],
       description: $localize`Smoke trigger items`,
-      childs: [{ tags: ['Alarm'] }]
+      childs: [{ tags: ["Alarm"] }],
     },
     assaultDisarmerItems: {
       description: $localize`Assault Disarmer Items`,
-      tags: ['CoreAssaultDisarmer'],
+      tags: ["CoreAssaultDisarmer"],
       childs: [
         {
-          tags: ['OpenState', 'Switch']
-        }
-      ]
+          tags: ["OpenState", "Switch"],
+        },
+      ],
     },
     lockClosureItems: {
-      tags: ['CoreLockClosure'],
+      tags: ["CoreLockClosure"],
       description: $localize`Lock closure items`,
       childs: [
         {
-          tags: ['OpenState', 'Switch']
-        }
-      ]
+          tags: ["OpenState", "Switch"],
+        },
+      ],
     },
     lockItems: {
-      tags: ['Lock'],
+      tags: ["Lock"],
       description: $localize`Lock items`,
       childs: [
         {
-          tags: ['OpenState', 'Switch']
-        }
-      ]
+          tags: ["OpenState", "Switch"],
+        },
+      ],
     },
     assaultAlarmItems: {
-      tags: ['AlarmSystem', 'Siren'],
+      tags: ["AlarmSystem", "Siren"],
       description: $localize`Assault Alarm items`,
-      childs: [{ tags: ['Alarm'] }]
-    }
+      childs: [{ tags: ["Alarm"] }],
+    },
   }
 
   assaultTriggerItems: Item[] = []
@@ -64,12 +64,12 @@ export class SecurityComponent implements OnInit {
 
   ngOnInit(): void {
     forkJoin([
-      this.openhabService.security.assaultTriggerItems(),
-      this.openhabService.security.assaultDisarmerItems(),
-      this.openhabService.security.lockItems(),
-      this.openhabService.security.lockClosureItems(),
-      this.openhabService.security.assaultAlarmItems(),
-      this.openhabService.security.smokeTriggerItems()
+      this.haService.security.assaultTriggerItems(),
+      this.haService.security.assaultDisarmerItems(),
+      this.haService.security.lockItems(),
+      this.haService.security.lockClosureItems(),
+      this.haService.security.assaultAlarmItems(),
+      this.haService.security.smokeTriggerItems(),
     ]).subscribe({
       next: (items: GetItemListResponse[]) => {
         this.assaultTriggerItems = items[0].data
@@ -78,7 +78,7 @@ export class SecurityComponent implements OnInit {
         this.lockClosureItems = items[3].data
         this.assaultAlarmItems = items[4].data
         this.smokeTriggerItems = items[5].data
-      }
+      },
     })
   }
 }

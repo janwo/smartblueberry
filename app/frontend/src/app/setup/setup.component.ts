@@ -1,43 +1,54 @@
-import { Component } from '@angular/core'
-import { FormBuilder, Validators } from '@angular/forms'
-import { OpenhabService } from '../openhab.service'
+import {
+  getAuth,
+  createConnection,
+  subscribeEntities,
+  ERR_HASS_HOST_REQUIRED
+} from 'home-assistant-js-websocket'
+import { Component, OnInit } from '@angular/core'
+import { FormBuilder, FormGroup, Validators } from '@angular/forms'
+import { HAService } from '../ha.service'
+import { environment } from 'src/environments/environment'
+
 @Component({
   selector: 'app-setup',
   templateUrl: './setup.component.html',
   styleUrls: ['./setup.component.scss']
 })
-export class SetupComponent {
-  constructor(
-    public openhabService: OpenhabService,
-    private formBuilder: FormBuilder
-  ) {}
+export class SetupComponent implements OnInit {
+  protected authenticated = false
+  protected setupUserConnectionForm: FormGroup
+  protected setupGlobalConnectionForm: FormGroup
+  protected isGloballyConnected = false
 
-  apiTokenForm = this.formBuilder.group({
-    apiToken: [null, Validators.required]
-  })
+  constructor(public haService: HAService, private formBuilder: FormBuilder) {
+    this.setupUserConnectionForm = this.formBuilder.group({})
+    this.setupGlobalConnectionForm = this.formBuilder.group({
+      connected: [false]
+    })
+  }
+  ngOnInit(): void {
+    this.haService.isGloballyConnected().subscribe({
+      next: (connected) => {
+        this.setupGlobalConnectionForm.controls['connected'].setValue(connected)
+      }
+    })
+  }
 
-  submitAPIToken() {
-    this.apiTokenForm.markAllAsTouched()
-    if (this.apiTokenForm.invalid) {
+  toggleUserAuthentication() {
+    if (this.haService.isAuthenticated()) {
+      this.haService.unauthenticate()
       return
     }
 
-    this.openhabService.register(this.apiTokenForm.value.apiToken!).subscribe({
-      next: (response) => {
-        if (!response?.success) {
-          this.apiTokenForm.controls['apiToken'].setErrors({
-            invalidToken: true
-          })
-          return
-        }
+    this.haService.authenticate({ allowOAuthCall: true }).subscribe()
+  }
 
-        this.apiTokenForm.reset()
-      },
-      error: (response) => {
-        this.apiTokenForm.controls['apiToken'].setErrors({
-          connection: true
-        })
-      }
-    })
+  setupGlobalConnection() {
+    this.setupGlobalConnectionForm.markAllAsTouched()
+    if (this.setupGlobalConnectionForm.invalid) {
+      return
+    }
+
+    this.haService.setGlobalConnection()
   }
 }

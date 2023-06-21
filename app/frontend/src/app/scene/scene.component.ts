@@ -1,13 +1,13 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit } from "@angular/core"
 import {
   FormArray,
   FormBuilder,
   FormControl,
   FormGroup,
-  Validators
-} from '@angular/forms'
-import { forkJoin } from 'rxjs'
-import { Item, OpenhabService } from '../openhab.service'
+  Validators,
+} from "@angular/forms"
+import { forkJoin } from "rxjs"
+import { Item, HAService } from "../ha.service"
 
 interface SceneItemHelper {
   item: Item
@@ -49,25 +49,22 @@ interface SceneTriggerItemHelper {
 }
 
 @Component({
-  selector: 'app-scene',
-  templateUrl: './scene.component.html',
-  styleUrls: ['./scene.component.scss']
+  selector: "app-scene",
+  templateUrl: "./scene.component.html",
+  styleUrls: ["./scene.component.scss"],
 })
 export class SceneComponent implements OnInit {
-  constructor(
-    private openhabService: OpenhabService,
-    private formBuilder: FormBuilder
-  ) {}
+  constructor(private haService: HAService, private formBuilder: FormBuilder) {}
 
   schema = {
     sceneItems: {
-      tags: ['CoreScene'],
-      description: $localize`Scene Item`
+      tags: ["CoreScene"],
+      description: $localize`Scene Item`,
     },
     sceneTriggerItems: {
-      tags: ['CoreSceneTrigger'],
-      description: $localize`Scene Trigger Item`
-    }
+      tags: ["CoreSceneTrigger"],
+      description: $localize`Scene Trigger Item`,
+    },
   }
 
   itemsMap: { [key: string]: string } = {}
@@ -76,9 +73,9 @@ export class SceneComponent implements OnInit {
 
   ngOnInit(): void {
     forkJoin([
-      this.openhabService.general.itemsMap(),
-      this.openhabService.scene.items(),
-      this.openhabService.scene.triggerItems()
+      this.haService.general.itemsMap(),
+      this.haService.scene.items(),
+      this.haService.scene.triggerItems(),
     ]).subscribe({
       next: (response) => {
         this.itemsMap = response[0].data
@@ -88,51 +85,51 @@ export class SceneComponent implements OnInit {
         this.sceneTriggerItems = response[2].data.map((item) =>
           this.generateSceneTriggerItemHelper(item)
         )
-      }
+      },
     })
   }
 
   private generateSceneItemHelper(sceneItem: Item): SceneItemHelper {
     const defaultMembersConfig = { value: true, disabled: true }
-    const customMembersConfig = (sceneItem.jsonStorage?.['customMembers'] || [])
+    const customMembersConfig = (sceneItem.jsonStorage?.["customMembers"] || [])
       .filter((member: string) => {
-        if (member.startsWith('default:')) {
+        if (member.startsWith("default:")) {
           defaultMembersConfig.value =
-            member.substring('default:'.length) == 'true'
+            member.substring("default:".length) == "true"
           return false
         }
         return true
       })
       .map((member: string) => [member, Validators.required])
     const contextStatesConfig = (() => {
-      const states = sceneItem.jsonStorage?.['contextStates'] || {}
+      const states = sceneItem.jsonStorage?.["contextStates"] || {}
       return Object.keys(states).map((key) => {
         return this.formBuilder.group({
           context: this.formBuilder.control(key, [Validators.required]),
-          state: this.formBuilder.control(states[key], [Validators.required])
+          state: this.formBuilder.control(states[key], [Validators.required]),
         })
       })
     })()
 
     const customMembersForm = this.formBuilder.group({
       defaultMembers: this.formBuilder.control(defaultMembersConfig),
-      customMembers: this.formBuilder.array(customMembersConfig)
+      customMembers: this.formBuilder.array(customMembersConfig),
     })
     const contextStatesForm = this.formBuilder.group({
-      contextStates: this.formBuilder.array(contextStatesConfig)
+      contextStates: this.formBuilder.array(contextStatesConfig),
     })
 
     const forms = {
       customMembers: {
         form: customMembersForm,
         controls:
-          customMembersForm.controls as SceneItemHelper['forms']['customMembers']['controls']
+          customMembersForm.controls as SceneItemHelper["forms"]["customMembers"]["controls"],
       },
       contextStates: {
         form: contextStatesForm,
         controls:
-          contextStatesForm.controls as SceneItemHelper['forms']['contextStates']['controls']
-      }
+          contextStatesForm.controls as SceneItemHelper["forms"]["contextStates"]["controls"],
+      },
     }
 
     if (!forms.customMembers.controls.customMembers.length) {
@@ -159,13 +156,13 @@ export class SceneComponent implements OnInit {
         forms.contextStates.controls.contextStates.push(
           new FormGroup({
             context: new FormControl(null, [Validators.required]),
-            state: new FormControl(null, [Validators.required])
+            state: new FormControl(null, [Validators.required]),
           })
         )
       },
       removeContextState: (index: number) => {
         forms.contextStates.controls.contextStates.removeAt(index)
-      }
+      },
     }
   }
 
@@ -173,12 +170,12 @@ export class SceneComponent implements OnInit {
     sceneTriggerItem: Item
   ): SceneTriggerItemHelper {
     const triggerStateConfig =
-      sceneTriggerItem.jsonStorage?.['triggerState'] || {}
+      sceneTriggerItem.jsonStorage?.["triggerState"] || {}
 
     const until = {
       hours: triggerStateConfig.hoursUntilActive,
       seconds: triggerStateConfig.secondsUntilActive,
-      minutes: triggerStateConfig.minutesUntilActive
+      minutes: triggerStateConfig.minutesUntilActive,
     }
 
     const form = this.formBuilder.group({
@@ -186,7 +183,7 @@ export class SceneComponent implements OnInit {
         triggerStateConfig.from !== undefined ? triggerStateConfig.from : null
       ),
       to: this.formBuilder.control(triggerStateConfig.to, [
-        Validators.required
+        Validators.required,
       ]),
       states: this.formBuilder.array(
         (triggerStateConfig.states || []).map(
@@ -194,7 +191,7 @@ export class SceneComponent implements OnInit {
         )
       ),
       targetScene: this.formBuilder.control(triggerStateConfig.targetScene, [
-        Validators.required
+        Validators.required,
       ]),
       untilActive: this.formBuilder.control(
         Object.values(until).find((value: number) => value > 0) || null
@@ -202,11 +199,11 @@ export class SceneComponent implements OnInit {
       untilUnit: this.formBuilder.control(
         Object.keys(until).find(
           (key) => until[key as keyof typeof until] > 0
-        ) || 'hours'
-      )
+        ) || "hours"
+      ),
     })
 
-    const controls = form.controls as SceneTriggerItemHelper['controls']
+    const controls = form.controls as SceneTriggerItemHelper["controls"]
 
     return {
       item: sceneTriggerItem,
@@ -222,7 +219,7 @@ export class SceneComponent implements OnInit {
       },
       removeState: (index: number) => {
         controls.states.removeAt(index)
-      }
+      },
     }
   }
 
@@ -234,29 +231,29 @@ export class SceneComponent implements OnInit {
 
     const customMembers = item.forms.customMembers.form.value.customMembers
     if (item.forms.customMembers.form.value.defaultMembers) {
-      customMembers.push('default:true')
+      customMembers.push("default:true")
     }
 
     const observable =
       customMembers.length == 0
-        ? this.openhabService.scene.deleteCustomMembers(item.item.name)
-        : this.openhabService.scene.updateCustomMembers(item.item.name, [
-            ...new Set<string>(customMembers)
+        ? this.haService.scene.deleteCustomMembers(item.item.name)
+        : this.haService.scene.updateCustomMembers(item.item.name, [
+            ...new Set<string>(customMembers),
           ])
     observable.subscribe({
       next: (response) => {
         if (!response?.success) {
           item.forms.customMembers.form.setErrors({
-            invalid: true
+            invalid: true,
           })
           return
         }
       },
       error: (response) => {
         item.forms.customMembers.form.setErrors({
-          connection: true
+          connection: true,
         })
-      }
+      },
     })
   }
 
@@ -277,8 +274,8 @@ export class SceneComponent implements OnInit {
 
     const observable =
       Object.keys(contextStates).length == 0
-        ? this.openhabService.scene.deleteContextStates(item.item.name)
-        : this.openhabService.scene.updateContextStates(
+        ? this.haService.scene.deleteContextStates(item.item.name)
+        : this.haService.scene.updateContextStates(
             item.item.name,
             contextStates
           )
@@ -286,16 +283,16 @@ export class SceneComponent implements OnInit {
       next: (response) => {
         if (!response?.success) {
           item.forms.contextStates.form.setErrors({
-            invalid: true
+            invalid: true,
           })
           return
         }
       },
       error: (response) => {
         item.forms.contextStates.form.setErrors({
-          connection: true
+          connection: true,
         })
-      }
+      },
     })
   }
 
@@ -306,9 +303,9 @@ export class SceneComponent implements OnInit {
     }
 
     const observable =
-      item.form.controls['targetScene'].value == null
-        ? this.openhabService.scene.deleteTriggerState(item.item.name)
-        : this.openhabService.scene.updateTriggerState(item.item.name, {
+      item.form.controls["targetScene"].value == null
+        ? this.haService.scene.deleteTriggerState(item.item.name)
+        : this.haService.scene.updateTriggerState(item.item.name, {
             targetScene: item.controls.targetScene.value,
             from:
               item.controls.from.value != null
@@ -316,37 +313,37 @@ export class SceneComponent implements OnInit {
                 : undefined,
             to: item.controls.to.value,
             hoursUntilActive:
-              item.controls.untilUnit.value == 'hours' &&
+              item.controls.untilUnit.value == "hours" &&
               item.controls.untilActive.value != null
                 ? Number.parseInt(item.controls.untilActive.value)
                 : undefined,
             minutesUntilActive:
-              item.controls.untilUnit.value == 'minutes' &&
+              item.controls.untilUnit.value == "minutes" &&
               item.controls.untilActive.value != null
                 ? Number.parseInt(item.controls.untilActive.value)
                 : undefined,
             secondsUntilActive:
-              item.controls.untilUnit.value == 'seconds' &&
+              item.controls.untilUnit.value == "seconds" &&
               item.controls.untilActive.value != null
                 ? Number.parseInt(item.controls.untilActive.value)
                 : undefined,
-            states: item.controls.states.value
+            states: item.controls.states.value,
           })
 
     observable.subscribe({
       next: (response) => {
         if (!response?.success) {
           item.form.setErrors({
-            invalid: true
+            invalid: true,
           })
           return
         }
       },
       error: (response) => {
         item.form.setErrors({
-          connection: true
+          connection: true,
         })
-      }
+      },
     })
   }
 }
