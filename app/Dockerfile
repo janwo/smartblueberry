@@ -18,6 +18,7 @@ EXPOSE 8081
 EXPOSE 8082
 HEALTHCHECK --interval=30s --timeout=5s --retries=5 CMD curl -sS localhost:8081/healthcheck
 USER node
+RUN mkdir /data
 WORKDIR /home/node/
 
 COPY --from=base --chown=node:node /home/node/dist/ ./dist/

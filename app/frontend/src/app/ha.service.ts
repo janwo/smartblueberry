@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core'
+import { Injectable, inject } from '@angular/core'
 import { HttpClient } from '@angular/common/http'
 import { catchError, from, map, mergeMap, of, tap, throwError } from 'rxjs'
 import { environment } from 'src/environments/environment'
@@ -460,5 +460,14 @@ export class HAService {
         this.getOptions()
       )
     }
+  }
+}
+
+export const RouteGuard = {
+  isGloballyConnected: () => {
+    return inject(HAService).isGloballyConnected()
+  },
+  isAuthenticated: () => {
+    return inject(HAService).isAuthenticated()
   }
 }

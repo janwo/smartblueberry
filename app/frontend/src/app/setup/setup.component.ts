@@ -16,7 +16,7 @@ import { of } from 'rxjs'
   styleUrls: ['./setup.component.scss']
 })
 export class SetupComponent {
-  constructor(public haService: HAService) {}
+  constructor(protected haService: HAService) {}
 
   authenticate() {
     this.haService.authenticate({ allowOAuthCall: true }).subscribe()

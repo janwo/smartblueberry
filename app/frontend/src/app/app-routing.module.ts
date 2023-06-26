@@ -4,15 +4,11 @@ import { ClimateComponent } from './climate/climate.component'
 import { DashboardComponent } from './dashboard/dashboard.component'
 import { SceneComponent } from './scene/scene.component'
 import { SetupComponent } from './setup/setup.component'
-import { HAService } from './ha.service'
+import { RouteGuard } from './ha.service'
 import { LightComponent } from './light/light.component'
 import { SecurityComponent } from './security/security.component'
 import { PresenceComponent } from './presence/presence.component'
 import { IrrigationComponent } from './irrigation/irrigation.component'
-
-const RouteGuard = () => {
-  return inject(HAService).isGloballyConnected()
-}
 
 export const routes: Routes = [
   {
@@ -22,7 +18,7 @@ export const routes: Routes = [
   },
   {
     path: 'climate',
-    canActivate: [RouteGuard],
+    canActivate: [RouteGuard.isGloballyConnected],
     data: {
       title: $localize`Climate Settings`,
       icon: 'thermometer-outline'
@@ -31,31 +27,31 @@ export const routes: Routes = [
   },
   {
     path: 'scenes',
-    canActivate: [RouteGuard],
+    canActivate: [RouteGuard.isGloballyConnected],
     data: { title: $localize`Scene Settings`, icon: 'film-outline' },
     component: SceneComponent
   },
   {
     path: 'light',
-    canActivate: [RouteGuard],
+    canActivate: [RouteGuard.isGloballyConnected],
     data: { title: $localize`Light Settings`, icon: 'bulb-outline' },
     component: LightComponent
   },
   {
     path: 'security',
-    canActivate: [RouteGuard],
+    canActivate: [RouteGuard.isGloballyConnected],
     data: { title: $localize`Security Settings`, icon: 'shield-outline' },
     component: SecurityComponent
   },
   {
     path: 'presence',
-    canActivate: [RouteGuard],
+    canActivate: [RouteGuard.isGloballyConnected],
     data: { title: $localize`Presence Settings`, icon: 'activity-outline' },
     component: PresenceComponent
   },
   {
     path: 'irrigation',
-    canActivate: [RouteGuard],
+    canActivate: [RouteGuard.isGloballyConnected],
     data: { title: $localize`Irrigation Settings`, icon: 'umbrella-outline' },
     component: IrrigationComponent
   },

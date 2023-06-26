@@ -6,7 +6,7 @@ import { v4 as uuid } from 'uuid'
 import { Auth, AuthData } from 'home-assistant-js-websocket'
 import { env } from '../../index.js'
 import Cryptr from 'cryptr'
-import { UserAuth } from './ha-connect.js'
+import { UserAuth } from './hass-connect.js'
 
 export const API_AUTH_STATEGY = 'API'
 
@@ -22,63 +22,9 @@ export type JWTToken = {
   authData: string
 }
 
-async function authenticate(
-  request: hapi.Request,
-  h: hapi.ResponseToolkit
-): Promise<hapi.ResponseObject | Boom.Boom> {
-  const userAuth =
-    (request.payload && getAuth(request.payload as any)) ||
-    (request.auth.isAuthenticated && request.auth.credentials.user!.auth)
-
-  if (userAuth) {
-    //connect to home assistant
-    let validAuth = false
-    let userConnection
-    try {
-      userConnection = await request.server.plugins['app/ha-connect'].connect(
-        userAuth
-      )
-      validAuth = userConnection.connected
-    } catch (err) {
-      validAuth = false
-    } finally {
-      userConnection?.close()
-    }
-
-    if (validAuth) {
-      const id = uuid()
-      const CryptrInstance = new Cryptr(env.JWT_SECRET)
-      const encryptedAuthData = CryptrInstance.encrypt(
-        JSON.stringify({
-          access_token: userAuth.data.access_token,
-          refresh_token: userAuth.data.refresh_token,
-          expires_in: userAuth.data.expires_in,
-          expires: userAuth.data.expires,
-          id
-        })
-      )
-      const bearer = signJWT({ id, authData: encryptedAuthData })
-      return h
-        .response({
-          success: true,
-          bearer
-        })
-        .code(200)
-    }
-  }
-
-  return h
-    .response({
-      success: false,
-      hassUrl: env.HOMEASSISTANT_URL,
-      error: `Could not connect to Home Assistant via ${env.HOMEASSISTANT_URL}`
-    })
-    .code(request.payload ? 401 : 200)
-}
-
-const authenticatePlugin = {
-  name: 'app/authenticate',
-  dependencies: ['app/storage'],
+const authenticatePlugin: hapi.Plugin<{}> = {
+  name: 'authenticate',
+  dependencies: ['storage'],
   register: async (server: hapi.Server) => {
     // Add jwt scheme
     server.auth.strategy(API_AUTH_STATEGY, 'jwt', {
@@ -124,6 +70,60 @@ const authenticatePlugin = {
       handler: authenticate
     })
   }
+}
+
+async function authenticate(
+  request: hapi.Request,
+  h: hapi.ResponseToolkit
+): Promise<hapi.ResponseObject | Boom.Boom> {
+  const userAuth =
+    (request.payload && getAuth(request.payload as any)) ||
+    (request.auth.isAuthenticated && request.auth.credentials.user!.auth)
+
+  if (userAuth) {
+    //connect to home assistant
+    let validAuth = false
+    let userConnection
+    try {
+      userConnection = await request.server.plugins.hassConnect.connect(
+        userAuth
+      )
+      validAuth = userConnection.connected
+    } catch (err) {
+      validAuth = false
+    } finally {
+      userConnection?.close()
+    }
+
+    if (validAuth) {
+      const id = uuid()
+      const CryptrInstance = new Cryptr(env.JWT_SECRET)
+      const encryptedAuthData = CryptrInstance.encrypt(
+        JSON.stringify({
+          access_token: userAuth.data.access_token,
+          refresh_token: userAuth.data.refresh_token,
+          expires_in: userAuth.data.expires_in,
+          expires: userAuth.data.expires,
+          id
+        })
+      )
+      const bearer = signJWT({ id, authData: encryptedAuthData })
+      return h
+        .response({
+          success: true,
+          bearer
+        })
+        .code(200)
+    }
+  }
+
+  return h
+    .response({
+      success: false,
+      hassUrl: env.HOMEASSISTANT_URL,
+      error: `Could not connect to Home Assistant via ${env.HOMEASSISTANT_URL}`
+    })
+    .code(request.payload ? 401 : 200)
 }
 
 function signJWT(payload: JWTToken): string {

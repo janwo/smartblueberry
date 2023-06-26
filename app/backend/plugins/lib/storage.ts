@@ -1,11 +1,11 @@
 import { Config, JsonDB } from 'node-json-db'
-import * as Hapi from '@hapi/hapi'
+import * as hapi from '@hapi/hapi'
 import path from 'path'
 import { env } from '../../index.js'
 
 declare module '@hapi/hapi' {
   interface PluginProperties {
-    'app/storage': {
+    storage: {
       get(path: string, defaultValue?: any): Promise<any | undefined>
       set(path: string, obj: any): Promise<void>
       delete(path: string): Promise<void>
@@ -13,9 +13,9 @@ declare module '@hapi/hapi' {
   }
 }
 
-const storagePlugin = {
-  name: 'app/storage',
-  register: async (server: Hapi.Server, options: { port?: number }) => {
+const storagePlugin: hapi.Plugin<{}> = {
+  name: 'storage',
+  register: async (server: hapi.Server, options: { port?: number }) => {
     const filePath = path.resolve(env.CONFIG_DIR, './json-storage.json')
 
     const db = new JsonDB(

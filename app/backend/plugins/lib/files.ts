@@ -1,8 +1,8 @@
-import inertPlugin from "@hapi/inert"
-import Accept from "@hapi/accept"
-import fs from "fs"
-import Hapi from "@hapi/hapi"
-import path from "path"
+import inertPlugin from '@hapi/inert'
+import Accept from '@hapi/accept'
+import fs from 'fs'
+import hapi from '@hapi/hapi'
+import path from 'path'
 
 function fileTree(directory: string, tree: { [key: string]: any } = {}) {
   const files = fs.readdirSync(directory)
@@ -15,35 +15,35 @@ function fileTree(directory: string, tree: { [key: string]: any } = {}) {
   return tree
 }
 
-const filesPlugin = {
-  name: "app/files",
-  register: async (server: Hapi.Server) => {
-    const locales = fileTree(path.join(process.cwd() + "/dist/frontend"))
+const filesPlugin: hapi.Plugin<{}> = {
+  name: 'files',
+  register: async (server: hapi.Server) => {
+    const locales = fileTree(path.join(process.cwd() + '/dist/frontend'))
     await server.register(inertPlugin)
     server.route({
-      method: "GET",
+      method: 'GET',
       options: { auth: false },
-      path: "/{p*}",
+      path: '/{p*}',
       handler: (request, h) => {
         const locale =
           Accept.language(
-            request.headers["accept-language"],
+            request.headers['accept-language'],
             Object.keys(locales)
-          ) || "en"
+          ) || 'en'
 
         let path = locales[locale]
-        for (const param of request.params.p.split("/")) {
+        for (const param of request.params.p.split('/')) {
           path = path[param]
           if (path === undefined) {
             break
           }
         }
         return h
-          .file(typeof path !== "string" ? locales[locale]["index.html"] : path)
+          .file(typeof path !== 'string' ? locales[locale]['index.html'] : path)
           .code(200)
-      },
+      }
     })
-  },
+  }
 }
 
 export default filesPlugin

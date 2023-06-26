@@ -1,8 +1,8 @@
-import * as Hapi from '@hapi/hapi'
+import * as hapi from '@hapi/hapi'
 
-const healthcheckPlugin = {
-  name: 'app/healthcheck',
-  register: async (server: Hapi.Server) => {
+const healthcheckPlugin: hapi.Plugin<{}> = {
+  name: 'healthcheck',
+  register: async (server: hapi.Server) => {
     server.route({
       options: { auth: false },
       method: 'GET',

@@ -14,13 +14,23 @@ interface DashboardItem {
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent {
-  dashboardItem: DashboardItem[] = []
+  constructor(private haService: HAService) {}
 
-  constructor() {
-    this.dashboardItem = routes
+  get dashboardItems() {
+    return routes
       .filter((r) => !!r.data?.['title'] && !!r.data?.['icon'])
       .map((r) => {
-        const hide = r.canActivate?.some((ca) => !ca())
+        const hide = r.canActivate?.some((canActivate) => {
+          switch (canActivate.name) {
+            case 'isGloballyConnected':
+              return !this.haService.isGloballyConnected()
+            case 'isAuthenticated':
+              return !this.haService.isAuthenticated()
+            default:
+              return false
+          }
+        })
+
         return {
           title: r.data?.['title'],
           icon: r.data?.['icon'],

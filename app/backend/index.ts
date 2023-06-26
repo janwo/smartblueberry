@@ -12,11 +12,12 @@ import presencePlugin from './plugins/presence.js'
 import securityPlugin from './plugins/security.js'
 import lightPlugin from './plugins/light.js'
 import irrigationPlugin from './plugins/irrigation.js'
-import haConnectPlugin from './plugins/lib/ha-connect.js'
+import haConnectPlugin from './plugins/lib/hass-connect.js'
+import haRegistryPlugin from './plugins/lib/hass-registry.js'
 
 export const env = {
-  THEMES_DIR: process.env.THEMES_DIR || `/config/themes/`,
-  CONFIG_DIR: process.env.CONFIG_DIR || `/config/`,
+  THEMES_DIR: process.env.THEMES_DIR || `data/themes/`,
+  CONFIG_DIR: process.env.CONFIG_DIR || `data/`,
   HTTP_PORT: process.env.HTTP_PORT || 8234,
   BUILD: process.env.BUILD || 'production',
   JWT_SECRET: process.env.JWT_SECRET || 'SUPER_SECRET_JWT_SECRET',
@@ -43,22 +44,23 @@ server.validator(Joi)
 await server.register([
   jwtPlugin,
   storagePlugin,
+  authenticatePlugin,
+  haConnectPlugin,
+  haRegistryPlugin,
+  themeBuilderPlugin,
   healthcheckPlugin,
   filesPlugin,
   heatingPlugin,
   presencePlugin,
   securityPlugin,
   lightPlugin,
-  irrigationPlugin,
-  authenticatePlugin,
-  themeBuilderPlugin,
-  haConnectPlugin
+  irrigationPlugin
 ])
 
 await server.start()
 console.log('Server running on %s', server.info.uri)
 
 process.on('unhandledRejection', (err) => {
-  console.error(err)
+  console.error('unhandledRejection', err)
   process.exit(1)
 })
