@@ -16,10 +16,11 @@ RUN deluser --remove-home node \
   && adduser -S -g node -u 9001 node
 EXPOSE 8081
 EXPOSE 8082
-HEALTHCHECK --interval=30s --timeout=5s --retries=5 CMD curl -sS localhost:8081/healthcheck
-USER node
-RUN mkdir /data
+HEALTHCHECK --interval=30s --timeout=5s --retries=5 CMD curl -sS localhost:8234/healthcheck
+
+RUN mkdir /data &&  chown node:node /data 
 WORKDIR /home/node/
+USER node
 
 COPY --from=base --chown=node:node /home/node/dist/ ./dist/
 COPY --from=base --chown=node:node /home/node/package*.json ./
