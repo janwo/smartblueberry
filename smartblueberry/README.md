@@ -33,7 +33,7 @@ All features are easily configurable without using a single line of code! Smart 
 
 It is recommend to use Smart Blueberry in a docker container using `docker compose`. The easiest way to do so, is a deployment of Smart Blueberry via [balenaCloud](https://www.balena.io/cloud/). Just add the project to your balena applications and select a supported device. You also like to change the hostname of your device to `Smart Blueberry` - to do so, study these [notes](https://www.balena.io/docs/learn/develop/runtime/#change-the-device-hostname).
 
-[![balena deploy button](https://www.balena.io/deploy.svg)](https://dashboard.balena-cloud.com/deploy?repoUrl=https%3A//github.com/janwo/Smart Blueberry)
+[![balena deploy button](https://www.balena.io/deploy.svg)](https://dashboard.balena-cloud.com/deploy?repoUrl=https%3A//github.com/janwo/SmartBlueberry)
 
 In order to adjust general settings of your Smart Blueberry instance, you may add the following environment variables.
 

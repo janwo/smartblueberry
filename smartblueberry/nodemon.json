@@ -1,0 +1,7 @@
+{
+    "env": {
+        "BUILD": "development",
+        "THEMES_DIR": "./tmp/data/themes/",
+        "CONFIG_DIR": "./tmp/data/"
+    }
+}

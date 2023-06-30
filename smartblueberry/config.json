@@ -1,0 +1,30 @@
+{
+  "slug": "smartblueberry",
+  "name": "Smart Blueberry 🫐",
+  "version": "1.0.0",
+  "description": "Smart Blueberry is a Home Assistant environment providing multiple extensions to simplify the configuration of scenes, climate and security management.",
+  "url": "https://github.com/janwo/smartblueberry",
+  "arch": [
+    "armhf",
+    "armv7",
+    "aarch64",
+    "amd64",
+    "i386"
+  ],
+  "webui": "[PROTO]://[HOST]:[PORT:8099]",
+  "watchdog": "http://[HOST]:[PORT:8099]/healthcheck",
+  "stage": "stable",
+  "hassio_role": "default",
+  "homeassistant_api": true,
+  "startup": "application",
+  "boot": "auto",
+  "ingress": true,
+  "init": false,
+  "map": [],
+  "options": {
+    "some_option": "Test"
+  },
+  "schema": {
+    "some_option": "str"
+  }
+}
