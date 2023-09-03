@@ -13,6 +13,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           cache: 'npm'
+          cache-dependency-path: 'smartblueberry'
       - uses: actions/checkout@v3
       - run: |
           cd smartblueberry
