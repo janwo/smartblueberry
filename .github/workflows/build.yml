@@ -11,16 +11,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          cache: 'npm'
-          cache-dependency-path: './smartblueberry'
-      - run: |
-          cd smartblueberry
-          npm ci
-          npm run frontend:build
-          npm run backend:build
-      - name: Test build
+      - name: Build images
         uses: home-assistant/builder@master
         with:
           args: |
