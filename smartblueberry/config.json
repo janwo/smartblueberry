@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "description": "Smart Blueberry is a Home Assistant environment providing multiple extensions to simplify the configuration of scenes, climate and security management.",
   "url": "https://github.com/janwo/smartblueberry",
+  "image": "janwo/smartblueberry-{arch}",
   "arch": [
     "armhf",
     "armv7",
