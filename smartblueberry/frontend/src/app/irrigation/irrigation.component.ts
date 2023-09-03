@@ -43,6 +43,7 @@ export class IrrigationComponent {
   irrigationValveItems: { item: Item; form: FormGroup }[] = []
 
   ngOnInit(): void {
+    /*
     this.haService.irrigation.apiSettings().subscribe({
       next: (apiSettings) => {
         this.apiSettings = apiSettings.body!.data
@@ -98,7 +99,7 @@ export class IrrigationComponent {
           })
         }))
       }
-    })
+    })*/
   }
 
   apiTokenForm = this.formBuilder.group({
@@ -132,7 +133,7 @@ export class IrrigationComponent {
         return
       }
     }
-
+    /*
     this.haService.irrigation.updateApiSettings(apiSettings).subscribe({
       next: ({ body }) => {
         if (!body?.success) {
@@ -170,10 +171,11 @@ export class IrrigationComponent {
           connection: true
         })
       }
-    })
+    })*/
   }
 
   deleteAPISettings() {
+    /*
     this.haService.irrigation.deleteApiSettings().subscribe({
       next: () => {
         this.apiSettings = {
@@ -181,10 +183,11 @@ export class IrrigationComponent {
           syncedLocation: false
         }
       }
-    })
+    })*/
   }
 
   updateItem(item: { item: Item; form: FormGroup }) {
+    /*
     item.form.markAllAsTouched()
     const { temperatureUnit, ...irrigationValues } = item.form.value
     irrigationValues.minimalTemperature += temperatureUnit
@@ -232,6 +235,6 @@ export class IrrigationComponent {
           connection: true
         })
       }
-    })
+    })*/
   }
 }

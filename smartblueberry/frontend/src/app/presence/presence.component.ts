@@ -39,6 +39,7 @@ export class PresenceComponent implements OnInit {
   presenceItems: PresenceItemHelper[] = []
 
   ngOnInit(): void {
+    /*
     this.haService.presence.items().subscribe({
       next: (items) => {
         this.presenceItems = items.body!.data.map((item) => {
@@ -83,7 +84,7 @@ export class PresenceComponent implements OnInit {
           }
         })
       }
-    })
+    })*/
   }
 
   updateStates(item: PresenceItemHelper) {
@@ -91,37 +92,5 @@ export class PresenceComponent implements OnInit {
     if (item.form.invalid) {
       return
     }
-
-    const states = {
-      presence:
-        item.form.value.presenceStates.length != 0
-          ? item.form.value.presenceStates
-          : undefined,
-      absence:
-        item.form.value.absenceStates.length != 0
-          ? item.form.value.absenceStates
-          : undefined
-    }
-
-    const observable = Object.values(states).every(
-      (state) => state === undefined
-    )
-      ? this.haService.presence.deleteStates(item.item.name)
-      : this.haService.presence.updateStates(item.item.name, states)
-    observable.subscribe({
-      next: ({ body }) => {
-        if (!body?.success) {
-          item.form.setErrors({
-            invalid: true
-          })
-          return
-        }
-      },
-      error: (response) => {
-        item.form.setErrors({
-          connection: true
-        })
-      }
-    })
   }
 }

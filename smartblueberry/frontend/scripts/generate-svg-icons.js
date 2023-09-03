@@ -10,7 +10,7 @@ const icons = [
     inputDir: './node_modules/eva-icons/outline/svg/',
     outputFile: './frontend/src/tmp/assets/svg-icons.svg',
     nameList: [
-      'thermometer-outline',
+      'unlock-outline',
       'film-outline',
       'alert-circle-outline',
       'link-2-outline',
@@ -20,6 +20,7 @@ const icons = [
       'checkmark-outline',
       'grid-outline',
       'bulb-outline',
+      'plus-outline',
       'activity-outline',
       'shield-outline',
       'question-mark-circle-outline'

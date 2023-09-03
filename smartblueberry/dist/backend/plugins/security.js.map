@@ -1,1 +1,0 @@
-{"version":3,"file":"security.js","sourceRoot":"","sources":["../../../backend/plugins/security.ts"],"names":[],"mappings":"AAqVA,MAAM,cAAc,GAAoB;IACtC,IAAI,EAAE,UAAU;IAChB,YAAY,EAAE,CAAC,SAAS,CAAC;IACzB,QAAQ,EAAE,KAAK,EAAE,MAAmB,EAAE,EAAE,GAAE,CAAC;CAC5C,CAAA;AAED,eAAe,cAAc,CAAA"}

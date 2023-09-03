@@ -1,0 +1,9 @@
+@import '../../variables.scss';
+
+:host {
+  font-weight: bold;
+
+  .domain:after {
+    content: '.';
+  }
+}

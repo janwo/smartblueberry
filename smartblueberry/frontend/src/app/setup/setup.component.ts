@@ -1,14 +1,5 @@
-import {
-  getAuth,
-  createConnection,
-  subscribeEntities,
-  ERR_HASS_HOST_REQUIRED
-} from 'home-assistant-js-websocket'
-import { Component, OnInit } from '@angular/core'
-import { FormBuilder, FormGroup, Validators } from '@angular/forms'
+import { Component } from '@angular/core'
 import { HAService } from '../ha.service'
-import { environment } from 'src/environments/environment'
-import { of } from 'rxjs'
 
 @Component({
   selector: 'app-setup',

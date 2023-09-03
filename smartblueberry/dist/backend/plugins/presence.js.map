@@ -1,1 +1,0 @@
-{"version":3,"file":"presence.js","sourceRoot":"","sources":["../../../backend/plugins/presence.ts"],"names":[],"mappings":"AAyOA,MAAM,cAAc,GAAoB;IACtC,IAAI,EAAE,UAAU;IAChB,YAAY,EAAE,CAAC,SAAS,CAAC;IACzB,QAAQ,EAAE,KAAK,EAAE,MAAmB,EAAE,EAAE,GAAE,CAAC;CAC5C,CAAA;AAED,eAAe,cAAc,CAAA"}

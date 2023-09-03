@@ -1,7 +1,7 @@
-@import "./fonts.scss";
-@import "../../node_modules/bulma/sass/utilities/initial-variables.sass";
+@import './fonts.scss';
+@import '../../node_modules/bulma/sass/utilities/initial-variables.sass';
 
-$family-sans-serif: "Lato";
+$family-sans-serif: 'Lato';
 
 $radius: 0.5rem;
 $radius-small: $radius * 0.5;
@@ -19,9 +19,9 @@ $navbar-height: 2.75rem;
 
 $body-background-color: $white-ter;
 
-@import "../../node_modules/bulma/sass/utilities/derived-variables.sass";
+@import '../../node_modules/bulma/sass/utilities/derived-variables.sass';
 
 $block-spacing: $size-medium;
 $shadow: 0 0.1em 0.5em -0.125em rgba($scheme-invert, 0.1);
 
-@import "../../node_modules/bulma/sass/utilities/mixins.sass";
+@import '../../node_modules/bulma/sass/utilities/mixins.sass';

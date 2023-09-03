@@ -9,18 +9,29 @@ declare module '@hapi/hapi' {
   }
 }
 
+export enum EVENT_STORAGE {
+  STORAGE_UPDATED = 'storage#storage-updated'
+}
+
 const storagePlugin: hapi.Plugin<{}> = {
   name: 'storage',
-  register: async (server: hapi.Server, options: { port?: number }) => {
-    const filePath = path.resolve(env.CONFIG_DIR, './json-storage.json')
-    console.log(`Storage location is set to "${filePath}"`)
-    server.expose(Storage(filePath))
+  register: async (server: hapi.Server) => {
+    server.event(Object.values(EVENT_STORAGE))
+    const storage = Storage({
+      onChange: () => {
+        server.events.emit(EVENT_STORAGE.STORAGE_UPDATED)
+      }
+    })
+    server.expose(storage)
   }
 }
 
 export default storagePlugin
 
-function Storage(filePath: string) {
+function Storage({ onChange }: { onChange?: () => void }) {
+  const filePath = path.resolve(env.CONFIG_DIR, './json-storage.json')
+  console.log(`Storage location is set to "${filePath}"`)
+
   const db = new JsonDB(
     new Config(filePath, true, env.BUILD != 'production', '/')
   )
@@ -30,19 +41,41 @@ function Storage(filePath: string) {
   }
 
   return {
-    get: async (path: string) => {
+    /**
+     * Gets the storage value at the given path.
+     * @param path The storage path.
+     * @returns The value at the given path.
+     */
+    get: async <T = any>(path: string): Promise<T> => {
       const fullPath = createPath(path)
       return (await db.exists(fullPath)) ? db.getData(fullPath) : undefined
     },
-    delete: async (path: string) => {
+
+    /**
+     * Deletes the storage value at the given path.
+     * @param path The storage path.
+     * @param silentChange True, if no change event should be triggered.
+     * @returns Promise that resolves when the storage value has been deleted.
+     */
+    delete: async (path: string, silentChange = false) => {
       const fullPath = createPath(path)
       if (await db.exists(fullPath)) {
-        return db.delete(fullPath)
+        await db.delete(fullPath)
+        !silentChange && onChange && onChange()
       }
     },
-    set: async (path: string, obj: any) => {
+
+    /**
+     * Updates the storage value at the given path.
+     * @param path The storage path.
+     * @param obj The value to update.
+     * @param silentChange True, if no change event should be triggered.
+     * @returns Promise that resolves when the storage value has been updated.
+     */
+    set: async (path: string, obj: any, silentChange = false) => {
       const fullPath = createPath(path)
-      return db.push(fullPath, obj, true)
+      await db.push(fullPath, obj, true)
+      !silentChange && onChange && onChange()
     }
   }
 }

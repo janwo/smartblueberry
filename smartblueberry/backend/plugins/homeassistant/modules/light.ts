@@ -1,710 +1,477 @@
 import * as hapi from '@hapi/hapi'
-import { EntityObject, HOMEASSISTANT_EVENT_TAGS } from '../registry/registry.js'
-/*const { rules, items, triggers, time } = require('openhab')
-const { uniq, uniqBy } = require('lodash')
-const {
-  get_items_of_any_tags,
-  create_helper_item,
-  get_childs_with_condition,
-  has_same_location,
-  stringifiedFloat,
-  json_storage,
-  DATETIME_FORMAT,
-  sync_group_with_semantic_items,
-  get_location
-} = require(__dirname + '/core-helpers')
-const { PresenceState } = require(__dirname + '/core-presence')
-const {
-  trigger_scene_items,
-  get_scene_items,
-  SceneTriggerStyle
-} = require(__dirname + '/core-scenes')
+import { EVENT_HASSREGISTRY, State, StatePayloadFilter } from '../registry.js'
+import Joi from 'joi'
+import { randomUUID } from 'crypto'
+import { EVENT_STORAGE } from '../../storage.js'
+import { EVENT_HASSPRESENCE } from './presence.js'
+import dayjs from 'dayjs'
+import { EVENT_HASSCONNECT } from '../connect.js'
 
-const LightMode = {
-  OFF: 0,
-  ON: 1,
-  AUTO_ON: 2,
-  UNCHANGED: 3,
-  SIMULATE: 4
+const OBJECT_IDS = {
+  lightCondition: (server: hapi.Server) =>
+    server.app.hassSelect.getEntityId('light_condition'),
+  lightMode: (server: hapi.Server, areaId: string) =>
+    server.app.hassSelect.getEntityId(`light_mode_${areaId}`)
 }
 
-const AmbientLightCondition = {
-  DARK: 0,
-  OBSCURED: 1,
-  BRIGHT: 2
-}
-
-const LIGHTS_EQUIPMENT_TAGS = ['Lightbulb', 'PowerOutlet', 'WallSwitch']
-const LIGHTS_POINT_TAGS = ['Switch']
-const LIGHT_MEASUREMENT_POINT_TAGS = [['Light', 'Measurement']]
-const LIGHT_MEASUREMENT_ASTRO_SUNPHASE = ['CoreAstroSun']
-
-function get_light_mode_group() {
-  const condition = Number.parseFloat(
-    items.getItem('Core_Lights_AmbientLightCondition').state
-  )
-  switch (condition) {
-    case AmbientLightCondition.DARK:
-      return items.getItem('gCore_Lights_DarkMode')
-    case AmbientLightCondition.OBSCURED:
-      return items.getItem('gCore_Lights_ObscuredMode')
-    default:
-    case AmbientLightCondition.BRIGHT:
-      return items.getItem('gCore_Lights_BrightMode')
+type LightMode = {
+  name: string
+  obscuredCondition: LIGHT_MODE
+  brightCondition: LIGHT_MODE
+  darkCondition: LIGHT_MODE
+  options: {
+    brightness: number
+    duration: number
   }
 }
 
-function convert_to_light_condition(luminance) {
-  const darkTresholdItem = items.getItem(
-    'Core_Lights_AmbientLightCondition_LuminanceTreshold_Dark'
-  )
-  const obscuredTresholdItem = items.getItem(
-    'Core_Lights_AmbientLightCondition_LuminanceTreshold_Obscured'
-  )
-
-  luminance = Number.parseFloat(luminance)
-  if (luminance < darkTresholdItem.state) {
-    return AmbientLightCondition.DARK
-  }
-  if (luminance < obscuredTresholdItem.state) {
-    return AmbientLightCondition.OBSCURED
-  }
-  return AmbientLightCondition.BRIGHT
+enum LIGHT_MODE {
+  AUTO_ON = 'auto-on',
+  ON = 'on',
+  OFF = 'off',
+  SIMULATE = 'simulate',
+  UNCHANGED = 'unchanged'
 }
-
-function get_astro_light_condition() {
-  for (const astroItem of items.getItemsByTag(
-    ...LIGHT_MEASUREMENT_ASTRO_SUNPHASE
-  )) {
-    if (astroItem.state == 'NIGHT') {
-      return AmbientLightCondition.DARK
-    }
-    if (astroItem.state == 'DAYLIGHT') {
-      return AmbientLightCondition.BRIGHT
-    }
-
-    return AmbientLightCondition.OBSCURED
-  }
-  return undefined
-}
-
-function get_light_condition() {
-  const conditionItem = items.getItem('Core_Lights_AmbientLightCondition')
-  return conditionItem.state
-}
-
-function set_light_condition(condition, luminance) {
-  const conditionItem = items.getItem('Core_Lights_AmbientLightCondition')
-  if (conditionItem.state != condition) {
-    conditionItem.postUpdate(stringifiedFloat(condition))
-  }
-
-  if (luminance !== undefined) {
-    json_storage(conditionItem).set('lights', 'luminance', luminance)
-  }
-}
-
-function get_darkest_light_condition(conditions) {
-  const orderedConditions = [
-    AmbientLightCondition.DARK,
-    AmbientLightCondition.OBSCURED,
-    AmbientLightCondition.BRIGHT
-  ]
-  for (const orderedCondition of orderedConditions) {
-    if (conditions.some((condition) => orderedCondition == condition)) {
-      return orderedCondition
-    }
-  }
-}
-
-function set_location_as_activated(switchable) {
-  const location = get_location(switchable)
-  if (location) {
-    json_storage(location).set(
-      'lights',
-      'last-activation',
-      time.ZonedDateTime.now().format(DATETIME_FORMAT)
-    )
-  }
-}
-
-function is_on(state) {
-  if (state == 'ON') {
-    return true
-  } else if (/\d{1,3},\d{1,3},(\d{1,3})/.test(state)) {
-    return /\d{1,3},\d{1,3},(\d{1,3})/.exec(state)[1] > 0
-  } else {
-    return Number.parseFloat(state) > 0
-  }
-}
-
-function is_elapsed(item) {
-  const location = get_location(item)
-  if (location) {
-    const lastActivation = json_storage(location).get(
-      'lights',
-      'last-activation'
-    )
-    if (lastActivation) {
-      const durationItem = items.getItem('Core_Lights_DefaultDuration')
-
-      return (
-        durationItem.state &&
-        time.ZonedDateTime.parse(lastActivation, DATETIME_FORMAT).until(
-          time.ZonedDateTime.now(),
-          time.ChronoUnit.MINUTES
-        ) > durationItem.state
-      )
-    }
-  }
-  return false
-}
-
-function turn_on_switchable_point(point) {
-  if (!is_on(point.state)) {
-    point.sendCommand('ON')
-    point.postUpdate('ON')
-  } else {
-    point.postUpdate(point.state)
-  }
-}
-
-function turn_off_switchable_point(point) {
-  if (is_on(point.state)) {
-    point.sendCommand('OFF')
-    point.postUpdate('OFF')
-  } else {
-    point.postUpdate(point.state)
-  }
-}
-
-function scriptLoaded() {
-  rules.JSRule({
-    name: 'sync_lights_helpers',
-    description: 'Core (JS) - Sync helper items of lights',
-    tags: ['core', 'core-lights'],
-    triggers: [
-      triggers.GenericCronTrigger('30 0/5 * ? * * *'),
-      triggers.SystemStartlevelTrigger(100)
-    ],
-    execute: (event) => {
-      // Sync group gCore_Lights_Measurements with measurement items - it's needed to create triggers on it
-      sync_group_with_semantic_items(
-        'gCore_Lights_Measurements',
-        undefined,
-        LIGHT_MEASUREMENT_POINT_TAGS
-      )
-
-      // Sync group gCore_Lights_Switchables with switchable items - it's needed to create triggers on it
-      const members = sync_group_with_semantic_items(
-        'gCore_Lights_Switchables',
-        LIGHTS_EQUIPMENT_TAGS,
-        LIGHTS_POINT_TAGS
-      )
-
-      // Get locations
-      const locations = uniqBy(
-        members.map((l) => get_location(l)).filter((l) => l),
-        (l) => l.name
-      )
-
-      // Create helper items for each location
-      //TODO language
-      const helperItems = [
-        {
-          suffix: 'dark',
-          label: (label) => `Lichtmodus (Dunkel) in ${label}`,
-          groups: ['gCore_Lights_DarkMode'],
-          icon: 'f7:moon'
-        },
-        {
-          suffix: 'bright',
-          label: (label) => `Lichtmodus (Hell) in ${label}`,
-          groups: ['gCore_Lights_BrightMode'],
-          icon: 'f7:sun_max'
-        },
-        {
-          suffix: 'obscured',
-          label: (label) => `Lichtmodus (Verdunkelt) in ${label}`,
-          groups: ['gCore_Lights_ObscuredMode'],
-          icon: 'f7:sun_dust'
-        }
-      ]
-
-      for (const location of locations) {
-        //TODO language
-        const helperGroupItem = create_helper_item(
-          location,
-          ['lights', 'light-mode-group'],
-          'Group',
-          'colorlight',
-          `Lichtmodus in ${location.label}`,
-          [location.name],
-          ['Equipment']
-        )
-
-        for (const item of helperItems) {
-          const helperItem = create_helper_item(
-            location,
-            ['lights', `light-mode-${item.suffix}`],
-            'Number',
-            item.icon,
-            item.label(location.label),
-            item.groups.concat([helperGroupItem.name]),
-            ['Point'],
-            (helperItemName) => {
-              let metadata = {
-                stateDescription: {
-                  config: {
-                    pattern: '%d',
-                    options:
-                      '0.0=Aus,1.0=An,2.0=Auto-An,3.0=Unveraendert,4.0=Simulierend'
-                  }
-                }
-              }
-
-              for (const path of ['listWidget', 'cellWidget']) {
-                metadata[path] = {
-                  config: {
-                    label: `=items.${helperItemName}.title`,
-                    icon: item.icon,
-                    action: 'options',
-                    actionItem: helperItemName,
-                    subtitle: `=items.${helperItemName}.displayState`
-                  }
-                }
-              }
-              return metadata
-            }
-          )
-
-          if (!helperItem.groupNames.includes(helperGroupItem.name)) {
-            helperItem.addGroups(helperGroupItem)
-          }
-        }
-      }
-    }
-  })
-
-  rules.JSRule({
-    name: 'set_last_light_activation',
-    description: 'Core (JS) - Keep last light activation update.',
-    tags: ['core', 'core-lights'],
-    triggers: [triggers.GroupStateUpdateTrigger('gCore_Lights_Switchables')],
-    execute: (event) => {
-      const item = items.getItem(event.itemName)
-      if (is_on(item.state)) {
-        set_location_as_activated(item)
-      }
-    }
-  })
-
-  rules.JSRule({
-    name: 'check_daylight',
-    description: 'Core (JS) - Manage daylight status changes.',
-    tags: ['core', 'core-lights'],
-    triggers: [
-      triggers.ItemStateChangeTrigger(
-        'Core_Lights_AmbientLightCondition_LuminanceTreshold_Dark'
-      ),
-      triggers.ItemStateChangeTrigger(
-        'Core_Lights_AmbientLightCondition_LuminanceTreshold_Obscured'
-      ),
-      triggers.GenericCronTrigger('0 0/30 * ? * * *')
-    ],
-    execute: (event) => {
-      const sensors = items
-        .getItem('gCore_Lights_Measurements')
-        .members.filter(
-          (sensor) => !Number.isNaN(Number.parseFloat(sensor.state))
-        )
-
-      const activeSwitchables = items
-        .getItem('gCore_Lights_Switchables')
-        .members.filter((switchable) => is_on(switchable.state))
-
-      const activeRoomNames = activeSwitchables
-        .map((switchable) => get_location(switchable))
-        .filter((r) => r)
-        .map((r) => r.name)
-
-      const isNotActiveRoom = (location) => {
-        return location && !activeRoomNames.includes(location.name)
-      }
-
-      const sensorsOfInactiveRooms = sensors
-        .filter((sensor) => isNotActiveRoom(get_location(sensor)))
-        .sort((sensor1, sensor2) => sensor1.state - sensor2.state)
-
-      if (sensorsOfInactiveRooms.length == 0) {
-        const astroLightCondition = get_astro_light_condition()
-        if (astroLightCondition) {
-          set_light_condition(astroLightCondition)
-        }
-        return
-      }
-
-      const medianSensorItem =
-        sensorsOfInactiveRooms[Math.floor(sensorsOfInactiveRooms.length / 2)]
-      const luminance = medianSensorItem.state
-      const newCondition = get_darkest_light_condition([
-        get_astro_light_condition(),
-        convert_to_light_condition(luminance)
-      ])
-      set_light_condition(newCondition, luminance)
-    }
-  })
-
-  rules.JSRule({
-    name: 'manage_light_state',
-    description: 'Core (JS) - Manage lights according to light conditions.',
-    tags: ['core', 'core-lights'],
-    triggers: [
-      triggers.GroupStateUpdateTrigger('gCore_Lights_DarkMode'),
-      triggers.GroupStateUpdateTrigger('gCore_Lights_BrightMode'),
-      triggers.GroupStateUpdateTrigger('gCore_Lights_ObscuredMode'),
-      triggers.ItemStateUpdateTrigger('Core_Lights_AmbientLightCondition'),
-      triggers.ItemStateUpdateTrigger('Core_Presence')
-    ],
-    execute: (event) => {
-      const lightModeGroup = get_light_mode_group()
-      const switchOnRoomNames = lightModeGroup.members
-        .filter((groupMember) => groupMember.state == LightMode.ON)
-        .map((groupMember) => get_location(groupMember))
-        .filter((r) => r)
-        .map((r) => r.name)
-
-      const switchOffRoomNames = lightModeGroup.members
-        .filter((groupMember) => groupMember.state == LightMode.OFF)
-        .map((groupMember) => get_location(groupMember))
-        .filter((r) => r)
-        .map((r) => r.name)
-
-      for (const point of items.getItem('gCore_Lights_Switchables').members) {
-        const location = get_location(point)
-        if (location && switchOnRoomNames.includes(location.name)) {
-          turn_on_switchable_point(point)
-        }
-        if (location && switchOffRoomNames.includes(location.name)) {
-          turn_off_switchable_point(point)
-        }
-      }
-    }
-  })
-
-  rules.JSRule({
-    name: 'manage_presence',
-    description: 'Core (JS) - Manage lights on presence.',
-    tags: ['core', 'core-lights'],
-    triggers: [
-      triggers.GroupStateUpdateTrigger('gCore_Presence_PresenceTrigger', 'ON'),
-      triggers.GroupStateUpdateTrigger('gCore_Presence_PresenceTrigger', 'OPEN')
-    ],
-    execute: (event) => {
-      const item = items.getItem(event.itemName)
-      const location = get_location(item)
-      const lightModeGroup = get_light_mode_group()
-      const switchOnSwitchableNames = items
-        .getItem('gCore_Lights_Switchables')
-        .members.filter((item) => is_on(item.state))
-        .map((s) => s.name)
-
-      for (const member of lightModeGroup.members) {
-        if (
-          member.state == LightMode.AUTO_ON &&
-          has_same_location(member, location)
-        ) {
-          const scene = items
-            .getItem('gCore_Scenes')
-            .members.find((scene) => has_same_location(scene, location))
-          if (scene) {
-            trigger_scene_items(
-              scene,
-              !get_scene_items(scene).find((item) =>
-                switchOnSwitchableNames.includes(item.name)
-              )
-                ? SceneTriggerStyle.COMMAND_AND_UPDATE
-                : SceneTriggerStyle.POKE
-            )
-          } else if (
-            get_childs_with_condition(location, (point) =>
-              switchOnSwitchableNames.includes(point.name)
-            ).length == 0
-          ) {
-            for (const point of items.getItem('gCore_Lights_Switchables')
-              .members) {
-              if (has_same_location(point, location)) {
-                turn_on_switchable_point(point)
-              }
-            }
-          }
-          break
-        }
-      }
-    }
-  })
-
-  rules.JSRule({
-    name: 'welcome_light',
-    description: 'Core (JS) - Manage lights when come back home.',
-    tags: ['core', 'core-lights'],
-    triggers: [
-      triggers.ItemStateChangeTrigger('Core_Presence', PresenceState.HOME)
-    ],
-    execute: (event) => {
-      const condition = items.getItem('Core_Lights_AmbientLightCondition')
-      const welcomeLightModeMapping = {}
-      welcomeLightModeMapping[AmbientLightCondition.DARK] =
-        'Core_Lights_WelcomeLight_DarkMode'
-      welcomeLightModeMapping[AmbientLightCondition.OBSCURED] =
-        'Core_Lights_WelcomeLight_ObscuredMode'
-      welcomeLightModeMapping[AmbientLightCondition.BRIGHT] =
-        'Core_Lights_WelcomeLight_BrightMode'
-
-      const welcomeLightMode =
-        welcomeLightModeMapping[condition.state] &&
-        items.getItem(welcomeLightModeMapping[condition.state])
-      if (welcomeLightMode.state == 'ON') {
-        const lightModeGroup = get_light_mode_group()
-        const switchOnRoomNames = lightModeGroup.members
-          .filter((mode) => mode.state == LightMode.AUTO_ON)
-          .map((mode) => get_location(mode))
-          .filter((r) => r)
-          .map((r) => r.name)
-
-        for (const point of items.getItem('gCore_Lights_Switchables').members) {
-          const location = get_location(point)
-          if (location && switchOnRoomNames.includes(location.name)) {
-            turn_on_switchable_point(point)
-          }
-        }
-      }
-    }
-  })
-
-  rules.JSRule({
-    name: 'elapsed_lights',
-    description: 'Core (JS) - Manage elapsed lights.',
-    tags: ['core', 'core-lights'],
-    triggers: [
-      triggers.GenericCronTrigger('0 * * ? * * *'),
-      triggers.ItemStateUpdateTrigger('Core_Lights_DefaultDuration')
-    ],
-    execute: (event) => {
-      const lightModeGroup = get_light_mode_group()
-      const switchOffRoomNames = uniq(
-        lightModeGroup.members
-          .filter((mode) =>
-            [LightMode.AUTO_ON, LightMode.OFF].some(
-              (state) => state == mode.state
-            )
-          )
-          .map((mode) => get_location(mode))
-          .filter((r) => r && is_elapsed(r))
-          .map((r) => r.name)
-      )
-
-      for (const point of items.getItem('gCore_Lights_Switchables').members) {
-        const location = get_location(point)
-        if (location && switchOffRoomNames.includes(location.name)) {
-          turn_off_switchable_point(point)
-        }
-      }
-    }
-  })
-
-  rules.JSRule({
-    name: 'simulate_presence',
-    description: 'Core (JS) - Simulate lights.',
-    tags: ['core', 'core-lights'],
-    triggers: [triggers.GenericCronTrigger('0 0/15 0 ? * * *')],
-    execute: (event) => {
-      const historicDateTime = time.ZonedDateTime.now().minusWeeks(3)
-      const lightModeGroup = get_light_mode_group()
-      const simulateLocations = uniqBy(
-        lightModeGroup.members
-          .filter((mode) => mode.state == LightMode.SIMULATE)
-          .map((mode) => get_location(mode))
-          .filter((l) => l),
-        (l) => l.name
-      )
-
-      for (const point of items.getItem('gCore_Lights_Switchables').members) {
-        const location = get_location(point)
-        if (location && simulateLocations.includes(location.name)) {
-          const historicState = point.history.historicState(historicDateTime)
-          if (is_on(historicState) && !is_on(point.state)) {
-            turn_on_switchable_point(point)
-          }
-          if (!is_on(historicState) && is_on(point.state)) {
-            turn_off_switchable_point(point)
-          }
-        }
-      }
-    }
-  })
-}
-
-module.exports = {
-  get_light_mode_group,
-  get_light_condition,
-  convert_to_light_condition,
-  get_astro_light_condition,
-  set_light_condition,
-  get_darkest_light_condition,
-  set_location_as_activated,
-  is_elapsed,
-  is_on,
-  turn_on_switchable_point,
-  turn_off_switchable_point,
-  LightMode,
-  AmbientLightCondition,
-  LIGHTS_EQUIPMENT_TAGS,
-  LIGHTS_POINT_TAGS,
-  LIGHT_MEASUREMENT_POINT_TAGS,
-  LIGHT_MEASUREMENT_ASTRO_SUNPHASE
-}
-
-
-
-Number Core_Lights_DefaultDuration "Standard Lichtdauer" (gCore_Lights) ["Point"]  {
-    stateDescription=""[
-        pattern="%dm",
-        min="1",
-        max="500",
-        step="1"
-    ],
-    listWidget="oh-stepper-item"[
-        raised="true",
-        round="true",
-        icon="f7:timer"
-    ]
-}
-
-Number Core_Lights_AmbientLightCondition "Lichtwert-Einstufung" (gCore_Lights) /*Core_Lights_AmbientLightCondition_LuminanceTreshold as subtitle "Aktueller Lichtwert" */ /* ["Point"]  {
-     stateDescription=""[
-        options="0.0=Dunkel,1.0=Verdunkelt,2.0=Hell"
-    ]
-}
-
-Number Core_Lights_AmbientLightCondition_LuminanceTreshold_Obscured "Lichtwert bis Verdunkelt" (gCore_Lights) ["Point"]  {
-    stateDescription=""[
-        pattern="%d%%",
-        min="1",
-        max="100",
-        step="1"
-    ],
-    listWidget="oh-stepper-item"[
-        raised="true",
-        round="true",
-        icon="f7:sun_dust"
-    ]
-}
-
-Number Core_Lights_AmbientLightCondition_LuminanceTreshold_Dark "Lichtwert bis Dunkel" (gCore_Lights) ["Point"] {
-    stateDescription=""[
-        pattern="%d%%",
-        min="1",
-        max="100",
-        step="1"
-    ],
-    listWidget="oh-stepper-item"[
-        raised="true",
-        round="true",
-        icon="f7:moon_stars"
-    ]
-*/
 
 enum ILLUMINANCE_CLASSIFCIATION {
-  DARK = 3,
-  DIMMED = 2,
-  DAYLIGHT = 1
+  DARK = 'dark',
+  OBSCURED = 'obscured',
+  BRIGHT = 'bright'
 }
 
-declare module '@hapi/hapi' {
-  interface PluginProperties {
-    light: { illumination: () => ILLUMINANCE_CLASSIFCIATION }
+const ILLUMINANCE_ENTITY: StatePayloadFilter = {
+  entity_id: (value: string) => /sensor\..*illuminance.*/.test(value),
+  attributes: {
+    state_class: 'measurement'
   }
 }
 
-const ILLUMINANCE_DEVICE = {
-  deviceClass: 'illuminance',
-  stateClass: 'measurement'
-}
-
-const MOTION_DEVICE = {
-  deviceClass: 'motion',
-  stateClass: 'measurement'
-}
-
-function illuminance(server: hapi.Server) {
-  const classify = (value: number) => {
-    if (value < 0.2) {
-      return ILLUMINANCE_CLASSIFCIATION.DARK
-    } else if (value < 0.7) {
-      return ILLUMINANCE_CLASSIFCIATION.DIMMED
-    } else {
-      return ILLUMINANCE_CLASSIFCIATION.DAYLIGHT
-    }
-  }
-
-  const illuminanceSensors =
-    server.app.hassRegistry.getEntities(ILLUMINANCE_DEVICE)
-  const values = Object.values(illuminanceSensors)
-    .map(({ state }) => Math.min(1, Math.max(0, parseFloat(state) / 100)))
-    .filter((value) => !Number.isNaN(value))
-
-  const sun = server.app.hassRegistry.getEntity('sun.elevation')
-  if (sun) {
-    values.push(Math.max(0, Math.min(parseFloat(sun.state) + 40, 100)) / 100)
-  }
-
-  return classify(values.sort()[values.length / 2])
+const LIGHT_ENTITY: StatePayloadFilter = {
+  entity_id: (value: string) => /light\..*/.test(value)
 }
 
 const lightPlugin: hapi.Plugin<{}> = {
   name: 'light',
-  dependencies: ['storage'],
+  dependencies: ['storage', 'hassSelect', 'hassConnect', 'hassRegistry'],
   register: async (server: hapi.Server) => {
-    /* const cache = server.cache<any>({
-      segment: 'test',
-      expiresIn: 5 * 1000
-    })
+    // Setup Routes
+    await setupLightModeRoutes(server)
 
-    server.expose('illumination', async () => {
-      let illumination = await cache.get('illumination')
-      if (!illumination) {
-        illumination = illuminance(server)
-        cache.set('illumination', illumination)
-      }
-
-      return illumination
-    })
-    */
-
-    server.plugins.schedule.addJob('every minute', async () => {
-      const result = await server.plugins.hassConnect.rest.post(
-        '/states/input_select.light_state',
-        {
-          state: '1'
-        }
-      )
-      console.log(result)
-
-      //  server.plugins.hassRegistry.getEntities({ deviceClass: '' })
-    })
-
-    server.app.hassRegistry.on(
-      [
-        HOMEASSISTANT_EVENT_TAGS.STATE_CHANGED,
-        HOMEASSISTANT_EVENT_TAGS.REGISTRY_UPDATED
-      ],
-      async (entity?: EntityObject) => {
-        // Register rule "checkOpenStates"
-        //console.log(entity, entity?.getArea(), entity?.getDevice())
-      }
-    )
+    // Setup Home Assistant Helper Entities
+    await setupLightCondition(server)
+    await setupLightModeEntities(server)
   }
 }
 
+/**
+ * Setup Light Condition entity
+ * @param server The Hapi server instance.
+ * @returns A Promise that resolves when light conditions had been set up.
+ */
+async function setupLightCondition(server: hapi.Server) {
+  const entityId = OBJECT_IDS.lightCondition(server)
+
+  const initialize = async () => {
+    try {
+      await server.app.hassSelect.upsert(entityId, {
+        name: 'Light Condition',
+        icon: 'mdi:brightness-6',
+        options: Object.values(ILLUMINANCE_CLASSIFCIATION)
+      })
+    } catch (err) {
+      console.error(`Could not upsert "${entityId}"...`)
+    }
+  }
+
+  const update = async () => {
+    const lightCondition = await getLightCondition(server)
+    try {
+      await server.app.hassSelect.select(
+        OBJECT_IDS.lightCondition(server),
+        lightCondition
+      )
+    } catch (err) {
+      console.error(`Could not select "${lightCondition}" for "${entityId}"...`)
+    }
+  }
+
+  server.plugins.schedule.addJob('every 5 minutes', update)
+  server.events.on(EVENT_STORAGE.STORAGE_UPDATED, update)
+  server.events.on(EVENT_HASSCONNECT.CONNECTED, initialize)
+}
+
+/**
+ * Retrieves the current light condition based on sensor values and sun elevation.
+ *
+ * @async
+ * @param server The Hapi server instance.
+ * @returns The current light condition.
+ */
+async function getLightCondition(server: hapi.Server) {
+  const darkest = (conditions: (ILLUMINANCE_CLASSIFCIATION | undefined)[]) => {
+    const orderedConditions = [
+      ILLUMINANCE_CLASSIFCIATION.DARK,
+      ILLUMINANCE_CLASSIFCIATION.OBSCURED,
+      ILLUMINANCE_CLASSIFCIATION.BRIGHT
+    ]
+    for (const orderedCondition of orderedConditions) {
+      if (conditions.some((condition) => orderedCondition === condition)) {
+        return orderedCondition
+      }
+    }
+
+    return ILLUMINANCE_CLASSIFCIATION.BRIGHT
+  }
+
+  const classify = (value: number, obscured: number, bright: number) => {
+    if (value < obscured) {
+      return ILLUMINANCE_CLASSIFCIATION.DARK
+    } else if (value < bright) {
+      return ILLUMINANCE_CLASSIFCIATION.OBSCURED
+    } else {
+      return ILLUMINANCE_CLASSIFCIATION.BRIGHT
+    }
+  }
+
+  const { obscured, bright } =
+    (await server.plugins.storage.get('light/tresholds')) || {}
+
+  const illuminanceSensors =
+    server.app.hassRegistry.getStates(ILLUMINANCE_ENTITY)
+
+  const sensorValues = Object.values(illuminanceSensors)
+    .map(({ state }) => Math.min(1, Math.max(0, parseFloat(state) / 100)))
+    .filter((value) => !Number.isNaN(value))
+    .map((value) =>
+      classify(
+        value,
+        obscured !== undefined ? obscured : 0.2,
+        bright !== undefined ? bright : 0.7
+      )
+    )
+
+  const sensorValue = sensorValues.sort()[sensorValues.length / 2]
+  const sun = server.app.hassRegistry.getState('sensor.sun_solar_elevation')
+  const sunValue = sun && classify(parseFloat(sun.state), 0, 20)
+
+  return darkest([sensorValue, sunValue])
+}
+
+/**
+ * Setup Light Mode entities
+ * @param server The Hapi server instance.
+ * @returns A Promise that resolves when light modes had been set up.
+ */
+async function setupLightModeEntities(server: hapi.Server) {
+  const callback = async () => {
+    console.log('Update light mode entities...')
+    const areas = server.app.hassRegistry.getAreas()
+    for (const { area_id } of areas) {
+      try {
+        const select = await server.app.hassSelect.upsert(
+          OBJECT_IDS.lightMode(server, area_id),
+          {
+            name: `Light Mode`,
+            icon: 'mdi:home-lightbulb',
+            options: (
+              Object.values(
+                (await server.plugins.storage.get('light/modes')) || [
+                  'Not configured'
+                ]
+              ) as {
+                name: string
+              }[]
+            ).map((lightMode) => lightMode.name)
+          }
+        )
+
+        select &&
+          (await server.app.hassRegistry.updateEntity(
+            `input_select.${select.id}`,
+            {
+              area_id
+            }
+          ))
+      } catch {
+        console.log(`Could not upset light mode entity for area "${area_id}"`)
+      }
+    }
+  }
+
+  for (const event of [
+    EVENT_HASSREGISTRY.AREA_UPDATED,
+    EVENT_STORAGE.STORAGE_UPDATED,
+    EVENT_HASSCONNECT.CONNECTED
+  ]) {
+    server.events.on(event, callback)
+  }
+
+  // Setup light actions for different light modes
+  await setupConstantLightModes(server)
+  await setupAutoOnLightMode(server)
+  await setupSimulateLightMode(server)
+}
+
+/**
+ * React on condition changes [lightModes: on, off]
+ * @param server The Hapi server instance.
+ * @returns A Promise that resolves when listening of constant light modes start.
+ */
+async function setupConstantLightModes(server: hapi.Server) {
+  const callback = async () => {
+    for (const { area_id } of server.app.hassRegistry.getAreas()) {
+      const lightMode = await getAreaLightMode(server, area_id)
+      switch (lightMode?.mode) {
+        case 'on':
+          await server.app.hassRegistry.callService('light', 'turn_on', {
+            target: { area_id },
+            service_data: { brightness: lightMode.options.brightness }
+          })
+          break
+
+        case 'off':
+          await server.app.hassRegistry.callService('light', 'turn_off', {
+            target: { area_id }
+          })
+          break
+      }
+    }
+  }
+
+  server.events.on(EVENT_STORAGE.STORAGE_UPDATED, callback)
+  server.events.on(
+    EVENT_HASSREGISTRY.ENTITY_UPDATED,
+    async (entityId: string) => {
+      if (
+        entityId == OBJECT_IDS.lightCondition(server) ||
+        entityId.startsWith(OBJECT_IDS.lightMode(server, ''))
+      ) {
+        await callback()
+      }
+    }
+  )
+}
+
+/**
+ * React on motion [lightModes: auto-on]
+ * @param server The Hapi server instance.
+ * @returns A Promise that resolves when listening of auto-on light modes start.
+ */
+async function setupAutoOnLightMode(server: hapi.Server) {
+  server.events.on(
+    EVENT_HASSPRESENCE.PRESENCE_EVENT,
+    async (areaId: string) => {
+      const { mode, options } = (await getAreaLightMode(server, areaId)) || {}
+      switch (mode) {
+        case 'auto-on':
+          await server.app.hassRegistry.callService('light', 'turn_on', {
+            target: { area_id: areaId },
+            service_data: { brightness: options?.brightness }
+          })
+          break
+      }
+    }
+  )
+
+  server.plugins.schedule.addJob('every minute', async () => {
+    try {
+      for (const { area_id } of server.app.hassRegistry.getAreas()) {
+        const lightMode = await getAreaLightMode(server, area_id)
+        switch (lightMode?.mode) {
+          case 'auto-on':
+            const elapsedTime = dayjs(dayjs()).subtract(
+              lightMode.options.duration,
+              'minute'
+            )
+
+            const elapsedEntities = server.app.hassRegistry
+              .getStates({
+                ...LIGHT_ENTITY,
+                area_id,
+                last_updated: (last_updated: string) =>
+                  elapsedTime.isAfter(last_updated),
+                state: 'off'
+              })
+              .map(({ entity_id }) => entity_id)
+
+            if (elapsedEntities.length > 0) {
+              await server.app.hassRegistry.callService('light', 'turn_off', {
+                target: { entity_id: elapsedEntities }
+              })
+            }
+            break
+        }
+      }
+    } catch (err) {}
+  })
+}
+
+/**
+ * Simulate lights [lightModes: simulate]
+ * @param server The Hapi server instance.
+ * @returns A Promise that resolves when listening of simulate light modes start.
+ */
+async function setupSimulateLightMode(server: hapi.Server) {
+  server.plugins.schedule.addJob('every 5 minutes', async () => {
+    try {
+      for (const { area_id } of server.app.hassRegistry.getAreas()) {
+        const lightMode = await getAreaLightMode(server, area_id)
+        switch (lightMode?.mode) {
+          case 'simulate':
+            const historyTimestamp = dayjs(dayjs())
+              .subtract(1, 'month')
+              .toISOString()
+
+            const lightEntityNames = server.app.hassRegistry
+              .getStates({
+                ...LIGHT_ENTITY,
+                area_id
+              })
+              .map(({ entity_id }) => entity_id)
+
+            if (lightEntityNames.length > 0) {
+              const { ok, json } = await server.plugins.hassConnect.rest.get<
+                Pick<State, 'entity_id' | 'state'>[][]
+              >(
+                `/history/period/${historyTimestamp}?${[
+                  `end_time=${historyTimestamp}`,
+                  `minimal_response=true`,
+                  `filter_entity_id=${lightEntityNames.join(',')}`
+                ].join('&')}`
+              )
+
+              const hadActiveLight =
+                ok &&
+                !!json?.some((entityHistory) => {
+                  return entityHistory.some(
+                    (entityHistoryRecord) => entityHistoryRecord.state == 'on'
+                  )
+                })
+
+              const service = hadActiveLight ? 'turn_on' : 'turn_off'
+              await server.app.hassRegistry.callService('light', service, {
+                target: { entity_id: lightEntityNames }
+              })
+            }
+            break
+        }
+      }
+    } catch (err) {}
+  })
+}
+
+/**
+ * Retrieves the light mode for a specific area based on the current light condition.
+ * @param server The Hapi server instance.
+ * @param areaId The unique identifier of the area.
+ * @returns The light mode and its options, or undefined if data is missing.
+ */
+async function getAreaLightMode(server: hapi.Server, areaId: string) {
+  const lightConditionMap: {
+    [key: string]: 'darkCondition' | 'obscuredCondition' | 'brightCondition'
+  } = {
+    [ILLUMINANCE_CLASSIFCIATION.BRIGHT]: 'brightCondition',
+    [ILLUMINANCE_CLASSIFCIATION.DARK]: 'darkCondition',
+    [ILLUMINANCE_CLASSIFCIATION.OBSCURED]: 'obscuredCondition'
+  }
+  const lightConditionEntity = server.app.hassRegistry.getState(
+    OBJECT_IDS.lightCondition(server)
+  )
+  const lightModeEntity = server.app.hassRegistry.getState(
+    OBJECT_IDS.lightMode(server, areaId)
+  )
+
+  if (!lightConditionEntity || !lightModeEntity) {
+    return undefined
+  }
+
+  const lightModes = await server.plugins.storage.get<{
+    [key: string]: LightMode
+  }>('light/modes')
+  const lightMode = Object.values(lightModes).find(
+    ({ name }) => name == lightModeEntity?.state
+  )
+
+  return (
+    lightMode && {
+      mode: lightMode[lightConditionMap[lightConditionEntity.state]],
+      options: lightMode.options
+    }
+  )
+}
+
+/**
+ * Set up the light-related routes for the Hapi server.
+ * @param server The Hapi server instance.
+ * @returns A Promise that resolves when the routes are set up.
+ */
+async function setupLightModeRoutes(server: hapi.Server) {
+  server.route({
+    method: 'GET',
+    path: '/api/light-modes',
+    handler: async (request, h) => {
+      const lightModeMap =
+        (await request.server.plugins.storage.get('light/modes')) || {}
+      const lightModes = (Object.entries(lightModeMap) as [string, any][]).map(
+        ([id, lightMode]) => ({ id, ...lightMode })
+      )
+      return h.response({ data: lightModes }).code(200)
+    }
+  })
+
+  const LightModeSchema = {
+    name: Joi.string().min(1).required(),
+    obscuredCondition: Joi.string()
+      .pattern(/(?:on)|(?:off)|(?:auto-on)|(?:simulate)|(?:unchanged)/)
+      .required(),
+    darkCondition: Joi.string()
+      .pattern(/(?:on)|(?:off)|(?:auto-on)|(?:simulate)|(?:unchanged)/)
+      .required(),
+    brightCondition: Joi.string()
+      .pattern(/(?:on)|(?:off)|(?:auto-on)|(?:simulate)|(?:unchanged)/)
+      .required(),
+    options: Joi.object({
+      brightness: Joi.number().min(0).max(1).optional(),
+      duration: Joi.number().min(0).required()
+    }).required()
+  }
+
+  server.route({
+    method: 'POST',
+    path: '/api/light-modes',
+    options: {
+      validate: {
+        payload: {
+          id: Joi.string()
+            .uuid()
+            .optional()
+            .default(() => randomUUID()),
+          ...LightModeSchema
+        }
+      }
+    },
+    handler: async (request, h) => {
+      const { id, ...lightMode } = request.payload as any
+      await server.plugins.storage.set(`light/modes/${id}`, lightMode)
+      return h.response({ success: true, data: { id, ...lightMode } }).code(200)
+    }
+  })
+
+  server.route({
+    method: 'DELETE',
+    path: '/api/light-modes',
+    options: {
+      validate: {
+        payload: {
+          id: Joi.string().uuid().required()
+        }
+      }
+    },
+    handler: async (request, h) => {
+      const { id } = request.payload as any
+      await server.plugins.storage.delete(`light/modes/${id}`)
+      return h.response({ success: true }).code(200)
+    }
+  })
+}
 export default lightPlugin

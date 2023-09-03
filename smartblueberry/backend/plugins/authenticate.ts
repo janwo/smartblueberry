@@ -2,11 +2,11 @@ import * as hapi from '@hapi/hapi'
 import Joi from 'joi'
 import * as Jwt from '@hapi/jwt'
 import * as Boom from '@hapi/boom'
-import { v4 as uuid } from 'uuid'
 import { Auth, AuthData } from 'home-assistant-js-websocket'
 import { env } from '../index.js'
 import Cryptr from 'cryptr'
-import { UserAuth } from './homeassistant/ha-connect.js'
+import { UserAuth } from './homeassistant/connect.js'
+import { randomUUID } from 'crypto'
 
 export const API_AUTH_STATEGY = 'API'
 
@@ -37,6 +37,11 @@ const authenticatePlugin: hapi.Plugin<{}> = {
   }
 }
 
+/**
+ * Register the bearer authentication strategy.
+ * @param server The Hapi server instance.
+ * @returns Promise that resolves when authentication is complete.
+ */
 async function registerBearer(server: hapi.Server) {
   server.auth.strategy(API_AUTH_STATEGY, 'jwt', {
     keys: env.JWT_SECRET,
@@ -81,6 +86,12 @@ async function registerBearer(server: hapi.Server) {
   })
 }
 
+/**
+ * Handler of the bearer authentication strategy.
+ * @param request The hapi.Request object.
+ * @param h The hapi.ResponseToolkit object.
+ * @returns The hapi.Response object.
+ */
 async function authenticateBearer(
   request: hapi.Request,
   h: hapi.ResponseToolkit
@@ -105,7 +116,7 @@ async function authenticateBearer(
     }
 
     if (validAuth) {
-      const id = uuid()
+      const id = randomUUID()
       const CryptrInstance = new Cryptr(env.JWT_SECRET)
       const encryptedAuthData = CryptrInstance.encrypt(
         JSON.stringify({
@@ -136,6 +147,11 @@ async function authenticateBearer(
     .code(request.payload ? 401 : 200)
 }
 
+/**
+ * Signs a JWT with the given payload.
+ * @param payload The payload to sign.
+ * @returns The signed JWT.
+ */
 function signJWT(payload: JWTToken): string {
   return Jwt.token.generate(
     payload,
@@ -149,6 +165,11 @@ function signJWT(payload: JWTToken): string {
   )
 }
 
+/**
+ * Register the supervised authentication strategy.
+ * @param server The Hapi server instance.
+ * @returns Promise that resolves when authentication is complete.
+ */
 async function registerSupervised(server: hapi.Server) {
   server.route({
     method: 'POST',
@@ -157,6 +178,12 @@ async function registerSupervised(server: hapi.Server) {
   })
 }
 
+/**
+ * Handler of the supervisor authentication strategy.
+ * @param request The hapi.Request object.
+ * @param h The hapi.ResponseToolkit object.
+ * @returns The hapi.Response object.
+ */
 async function authenticateSupervised(
   request: hapi.Request,
   h: hapi.ResponseToolkit
@@ -169,6 +196,11 @@ async function authenticateSupervised(
     .code(200)
 }
 
+/**
+ * Generates a new auth object for home-assistant-js-websocket.
+ * @param authData Saved authentication data.
+ * @returns The new auth object for home-assistant-js-websocket.
+ */
 function generateAuth(authData: {
   access_token: AuthData['access_token']
   expires: AuthData['expires']

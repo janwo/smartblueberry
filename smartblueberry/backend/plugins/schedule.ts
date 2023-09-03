@@ -29,8 +29,12 @@ function ScheduleClient() {
   }> = []
 
   return {
+    /**
+     * Stops all scheduled jobs
+     * @returns Finishes when all jobs are stopped.
+     */
     stop: () =>
-      schedules.map(({ timeout, interval }) => {
+      schedules.forEach(({ timeout, interval }, index) => {
         if (timeout) {
           clearTimeout(timeout)
         }
@@ -38,7 +42,15 @@ function ScheduleClient() {
         if (interval) {
           clearTimeout(interval)
         }
+
+        delete schedules[index]
       }),
+
+    /**
+     * Executes the specified function at the specified time.
+     * @param time The time desciption of the job, e.g. 'every 10 seconds'.
+     * @param callback The function to execute.
+     */
     addJob: (time: string, callback: () => void) => {
       const [match, isInterval, humanTime] =
         time.match(/^(every)?\s?(.*)$/) || []

@@ -6,20 +6,21 @@ import filesPlugin from './plugins/files.js'
 import healthcheckPlugin from './plugins/healthcheck.js'
 import storagePlugin from './plugins/storage.js'
 import authenticatePlugin from './plugins/authenticate.js'
-import themeBuilderPlugin from './plugins/homeassistant/modules/dashboard.js'
-import heatingPlugin from './plugins/homeassistant/modules/heating.js'
+import dashboardPlugin from './plugins/homeassistant/modules/dashboard.js'
+import doorsWindowsPlugin from './plugins/homeassistant/modules/doors-windows.js'
 import presencePlugin from './plugins/homeassistant/modules/presence.js'
 import lightPlugin from './plugins/homeassistant/modules/light.js'
 import irrigationPlugin from './plugins/homeassistant/modules/irrigation.js'
-import haConnectPlugin from './plugins/homeassistant/ha-connect.js'
-import haRegistryPlugin from './plugins/homeassistant/registry/index.js'
+import hassConnectPlugin from './plugins/homeassistant/connect.js'
+import hassRegistryPlugin from './plugins/homeassistant/registry.js'
 import { randomUUID } from 'crypto'
 import schedulePlugin from './plugins/schedule.js'
+import hassSelectPlugin from './plugins/homeassistant/entities/select.js'
+import optionsPlugin from './plugins/homeassistant/options.js'
 
 export const env = {
   HTTP_PORT: process.env.HTTP_PORT || 8099,
   BUILD: process.env.BUILD || 'production',
-  THEMES_DIR: process.env.THEMES_DIR || `data/themes/`,
   CONFIG_DIR: process.env.CONFIG_DIR || `data/`,
   JWT_SECRET: process.env.JWT_SECRET || randomUUID(),
   HOMEASSISTANT_URL: process.env.HOMEASSISTANT_URL || 'http://localhost:8123',
@@ -49,24 +50,27 @@ server.validator(Joi)
 
 await server.register([
   jwtPlugin,
+  optionsPlugin,
   storagePlugin,
   authenticatePlugin,
-  haConnectPlugin,
-  haRegistryPlugin,
-  themeBuilderPlugin,
+  hassConnectPlugin,
+  hassRegistryPlugin,
+  hassSelectPlugin,
+  dashboardPlugin,
   healthcheckPlugin,
   filesPlugin,
   schedulePlugin,
-  heatingPlugin,
+  doorsWindowsPlugin,
   presencePlugin,
   lightPlugin,
   irrigationPlugin
 ])
 
+await server.start()
+console.log('Server [%s] running on %s', env.BUILD, server.info.uri)
+
 await server.plugins.hassConnect.globalConnect()
 
-await server.start()
-console.log('Server running on %s', server.info.uri)
 
 process.on('unhandledRejection', (err) => {
   console.error('unhandledRejection', err)

@@ -22,9 +22,9 @@
   "init": false,
   "map": [],
   "options": {
-    "some_option": "Test"
+    "entityPrefix": "smartblueberry_"
   },
   "schema": {
-    "some_option": "str"
+    "entityPrefix": "str"
   }
 }

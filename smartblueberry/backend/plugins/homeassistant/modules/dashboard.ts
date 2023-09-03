@@ -1,6 +1,4 @@
-import { Config, JsonDB } from 'node-json-db'
 import * as hapi from '@hapi/hapi'
-import * as Joi from 'joi'
 import fs from 'fs'
 import path from 'path'
 import yaml from 'yaml'
@@ -21,7 +19,7 @@ interface Theme {
 
 const themes: Theme[] = [
   {
-    filename: 'main',
+    filename: 'themes/main',
     yamlJson: (server) => ({
       number: 3,
       plain: 'string',
@@ -31,14 +29,14 @@ const themes: Theme[] = [
   }
 ]
 
-const themeBuilderPlugin: hapi.Plugin<{}> = {
-  name: 'themeBuilder',
+const dashboardPlugin: hapi.Plugin<{}> = {
+  name: 'dashboard',
   register: async (server: hapi.Server, options: { port?: number }) => {
     const updateThemeFiles = () => {
       for (const { yamlJson, filename } of themes) {
         const contents = yaml.stringify(yamlJson(server))
         fs.writeFileSync(
-          path.resolve(process.cwd(), env.THEMES_DIR, filename),
+          path.resolve(process.cwd(), env.CONFIG_DIR, filename),
           contents,
           'utf8'
         )
@@ -49,4 +47,4 @@ const themeBuilderPlugin: hapi.Plugin<{}> = {
   }
 }
 
-export default themeBuilderPlugin
+export default dashboardPlugin

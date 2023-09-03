@@ -1,12 +1,10 @@
 import { NgModule, inject } from '@angular/core'
 import { RouterModule, Routes } from '@angular/router'
-import { ClimateComponent } from './climate/climate.component'
+import { DoorsWindowsComponent as DoorsWindowsComponent } from './doors-windows/doors-windows.component'
 import { DashboardComponent } from './dashboard/dashboard.component'
-import { SceneComponent } from './scene/scene.component'
 import { SetupComponent } from './setup/setup.component'
 import { RouteGuard } from './ha.service'
 import { LightComponent } from './light/light.component'
-import { SecurityComponent } from './security/security.component'
 import { PresenceComponent } from './presence/presence.component'
 import { IrrigationComponent } from './irrigation/irrigation.component'
 
@@ -17,37 +15,25 @@ export const routes: Routes = [
     component: SetupComponent
   },
   {
-    path: 'climate',
+    path: 'presence',
     canActivate: [RouteGuard.isGloballyConnected],
-    data: {
-      title: $localize`Climate Settings`,
-      icon: 'thermometer-outline'
-    },
-    component: ClimateComponent
+    data: { title: $localize`Presence Settings`, icon: 'activity-outline' },
+    component: PresenceComponent
   },
   {
-    path: 'scenes',
+    path: 'doors+windows',
     canActivate: [RouteGuard.isGloballyConnected],
-    data: { title: $localize`Scene Settings`, icon: 'film-outline' },
-    component: SceneComponent
+    data: {
+      title: $localize`Doors & Windows`,
+      icon: 'unlock-outline'
+    },
+    component: DoorsWindowsComponent
   },
   {
     path: 'light',
     canActivate: [RouteGuard.isGloballyConnected],
     data: { title: $localize`Light Settings`, icon: 'bulb-outline' },
     component: LightComponent
-  },
-  {
-    path: 'security',
-    canActivate: [RouteGuard.isGloballyConnected],
-    data: { title: $localize`Security Settings`, icon: 'shield-outline' },
-    component: SecurityComponent
-  },
-  {
-    path: 'presence',
-    canActivate: [RouteGuard.isGloballyConnected],
-    data: { title: $localize`Presence Settings`, icon: 'activity-outline' },
-    component: PresenceComponent
   },
   {
     path: 'irrigation',

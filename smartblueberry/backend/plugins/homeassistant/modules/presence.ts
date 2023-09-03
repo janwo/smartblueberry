@@ -1,240 +1,146 @@
 import * as hapi from '@hapi/hapi'
-import Joi from 'joi'
-/*Group:Number:COUNT("ON") gCore_Presence_PresenceTrigger
+import { EVENT_HASSREGISTRY, State, StatePayloadFilter } from '../registry.js'
+import { EVENT_STORAGE } from '../../storage.js'
+import { EVENT_HASSCONNECT } from '../connect.js'
+import dayjs from 'dayjs'
 
-Group gCore_Presence "Anwesenheit" (gCore_Home) ["Equipment"]
-
-Number Core_Presence "Anwesenheit" (gCore_Presence) ["Point"] {
-    stateDescription=""[
-        options="1.0=Anwesend,0.0=Kurz abwesend,2.0=Lange abwesend"
-    ],
-    cellWidget=""[
-        label="\u003ditems.Core_Presence.title",
-        icon="f7:house_alt",
-        action="options"
-    ],
-    listWidget=""[
-        icon="f7:house_alt",
-        action="options"
-    ]
+export enum EVENT_HASSPRESENCE {
+  PRESENCEMODE_UPDATED = 'hasspresence#presence-mode',
+  PRESENCE_EVENT = 'hasspresence#presence-event'
 }
 
-Number Core_Presence_HoursUntilAwayShort "Stunden bis kurze Abwesenheit" (gCore_Presence) ["Point"] {
-    stateDescription="oh-stepper-item"[
-        pattern="%dh",
-        min="1",
-        max="100",
-        step="1"
-    ],
-    listWidget="oh-stepper-item"[
-        raised="true",
-        round="true",
-        icon="f7:lightbulb"
-    ]
+enum PRESENCEMODE {
+  PRESENT = 'present',
+  AWAY = 'away',
+  ABANDONED = 'abandoned'
 }
 
-Number Core_Presence_HoursUntilAwayLong "Stunden bis lange Abwesenheit" (gCore_Presence) ["Point"] {
-    stateDescription=""[
-        pattern="%dh",
-        min="1",
-        max="100",
-        step="1"
-    ],
-    listWidget="oh-stepper-item"[
-        raised="true",
-        round="true",
-        icon="f7:lightbulb"
-    ]
-}*/
-/*
-const { rules, items, triggers, time } = require('openhab')
-const {
-  json_storage,
-  DATETIME_FORMAT,
-  stringifiedFloat,
-  sync_group_with_semantic_items,
-  get_location
-} = require(__dirname + '/core-helpers')
-
-const PresenceState = {
-  AWAY_SHORT: 0,
-  HOME: 1,
-  AWAY_LONG: 2
-}
-
-const PRESENCE_POINT_TAGS = [['Measurement', 'Presence']]
-
-function get_presence_provider_item(item) {
-  if (!item) {
-    return items.getItem('Core_Presence')
-  }
-
-  const location = get_location(item)
-  return location ? location : items.getItem('Core_Presence')
-}
-
-function get_presence(item) {
-  const presenceProvider = get_presence_provider_item(item)
-  const lastUpdate = json_storage(presenceProvider).get(
-    'presence',
-    'last-update'
-  )
-
-  if (lastUpdate) {
-    let skipExpireCheck = true
-    const hours_away_long = items.getItem('Core_Presence_HoursUntilAwayLong')
-    if (hours_away_long.state > 0) {
-      skipExpireCheck = false
-      if (
-        time.ZonedDateTime.parse(lastUpdate, DATETIME_FORMAT).until(
-          time.ZonedDateTime.now(),
-          time.ChronoUnit.HOURS
-        ) > hours_away_long.state
-      ) {
-        return PresenceState.AWAY_LONG
-      }
-    }
-
-    const hours_away_short = items.getItem('Core_Presence_HoursUntilAwayShort')
-    if (hours_away_short.state > 0) {
-      skipExpireCheck = false
-      if (
-        time.ZonedDateTime.parse(lastUpdate, DATETIME_FORMAT).until(
-          time.ZonedDateTime.now(),
-          time.ChronoUnit.HOURS
-        ) > hours_away_short.state
-      ) {
-        return PresenceState.AWAY_SHORT
-      }
-    }
-
-    if (!skipExpireCheck) {
-      return PresenceState.HOME
-    }
-  }
-
-  if (presenceProvider.name == 'Core_Presence') {
-    return Object.values(PresenceState).find(
-      (state) => state == presenceProvider.state
-    )
-  } else {
-    // Try again with root presence item.
-    return get_presence()
+const MOTION_ENTITY: StatePayloadFilter = {
+  entity_id: (value: string) => /^binary_sensor\./.test(value),
+  attributes: {
+    device_class: 'motion'
   }
 }
 
-function trigger_presence(item) {
-  let presenceProvider = get_presence_provider_item(item)
-  json_storage(presenceProvider).set(
-    'presence',
-    'last-update',
-    time.ZonedDateTime.now().format(DATETIME_FORMAT)
-  )
-
-  if (presenceProvider.name != 'Core_Presence') {
-    presenceProvider = items.getItem('Core_Presence')
-    json_storage(presenceProvider).set(
-      'presence',
-      'last-update',
-      time.ZonedDateTime.now().format(DATETIME_FORMAT)
-    )
-  }
-
-  if (presenceProvider.state != PresenceState.HOME) {
-    presenceProvider.postUpdate(stringifiedFloat(PresenceState.HOME))
-  }
+const OBJECT_IDS = {
+  presenceMode: (server: hapi.Server) =>
+    server.app.hassSelect.getEntityId('presence_mode')
 }
 
-function trigger_absence() {
-  if (get_presence() == PresenceState.HOME) {
-    const presenceProvider = items.getItem('Core_Presence')
-    presenceProvider.postUpdate(stringifiedFloat(PresenceState.AWAY_SHORT))
-  }
-}
-
-function scriptLoaded() {
-  rules.JSRule({
-    name: 'sync_presence_helpers',
-    description: 'Core (JS) - Sync helper items of presence',
-    tags: ['core', 'core-presence'],
-    triggers: [
-      triggers.GenericCronTrigger('30 0/5 * ? * * *'),
-      triggers.SystemStartlevelTrigger(100)
-    ],
-    execute: (event) => {
-      // Sync group gCore_Presence_PresenceTrigger with presence items - it's needed to create triggers on it
-      sync_group_with_semantic_items(
-        'gCore_Presence_PresenceTrigger',
-        undefined,
-        PRESENCE_POINT_TAGS
-      )
-    }
-  })
-
-  rules.JSRule({
-    name: 'trigger_presence_on_motion',
-    description: 'Core (JS) - Trigger presence on motion.',
-    tags: ['core', 'core-presence'],
-    triggers: [
-      triggers.GroupStateUpdateTrigger('gCore_Presence_PresenceTrigger')
-    ],
-    execute: (event) => {
-      const item = items.getItem(event.itemName)
-      const presenceStates = json_storage(item)
-        .get('presence', 'presence-states')
-        ?.map((s) => s.trim()) || ['ON', 'OPEN']
-
-      const absenceStates =
-        json_storage(item)
-          .get('presence', 'absence-states')
-          ?.map((s) => s.trim()) || []
-
-      if (presenceStates.some((state) => state == item.state)) {
-        trigger_presence(item)
-      }
-
-      if (absenceStates.some((state) => state == item.state)) {
-        trigger_absence(item)
-      }
-    }
-  })
-
-  rules.JSRule({
-    name: 'check_presence',
-    description:
-      'Core (JS) - Check for an absence presence state and update Core_Presence.',
-    tags: ['core', 'core-presence'],
-    triggers: [triggers.GenericCronTrigger('0 0 * ? * * *')],
-    execute: (event) => {
-      const presence = get_presence()
-      const presenceManagement = items.getItem('Core_Presence')
-
-      // Do not update to HOME as we only want to update to absence presence states.
-      if (presence == PresenceState.HOME) {
-        return
-      }
-
-      // Update presence state, if it changed.
-      if (presence != presenceManagement.state) {
-        presenceManagement.postUpdate(stringifiedFloat(presence))
-      }
-    }
-  })
-}
-
-module.exports = {
-  get_presence_provider_item,
-  get_presence,
-  trigger_presence,
-  trigger_absence,
-  PresenceState,
-  PRESENCE_POINT_TAGS
-}
-*/
 const presencePlugin: hapi.Plugin<{}> = {
   name: 'presence',
-  dependencies: ['storage'],
-  register: async (server: hapi.Server) => {}
+  dependencies: ['storage', 'hassSelect', 'hassConnect', 'hassRegistry'],
+
+  register: async (server: hapi.Server) => {
+    server.event(Object.values(EVENT_HASSPRESENCE))
+
+    // Setup Routes
+    await setupPresenceRoutes(server)
+
+    // Setup Home Assistant Helper Entities
+    await setupPresenceModeEntity(server)
+  }
+}
+
+/**
+ * Setup Presence Mode entity
+ * @param server The Hapi server instance.
+ * @returns A Promise that resolves when presence modes had been set up.
+ */
+async function setupPresenceModeEntity(server: hapi.Server) {
+  const entityId = OBJECT_IDS.presenceMode(server)
+
+  const initialize = async () => {
+    try {
+      await server.app.hassSelect.upsert(entityId, {
+        name: 'Presence Mode',
+        icon: 'mdi:motion-sensor',
+        options: Object.values(PRESENCEMODE)
+      })
+    } catch (err) {
+      console.error(`Could not upsert "${entityId}"...`)
+    }
+  }
+
+  const update = async () => {
+    const classify = (
+      motionUnixTime: number,
+      awayHours: number,
+      abandonedHours: number
+    ) => {
+      const motion = dayjs.unix(motionUnixTime)
+      const now = dayjs()
+      if (motion.add(abandonedHours, 'hour').isBefore(now)) {
+        return PRESENCEMODE.ABANDONED
+      } else if (motion.add(awayHours, 'hour').isBefore(now)) {
+        return PRESENCEMODE.AWAY
+      } else {
+        return PRESENCEMODE.PRESENT
+      }
+    }
+
+    const recentMotionUnixTime = server.app.hassRegistry
+      .getStates(MOTION_ENTITY)
+      .map(({ last_updated }) => dayjs(last_updated).unix())
+      .reduce((previous, next) => Math.max(previous, next), 0)
+
+    const { away, abandoned } =
+      (await server.plugins.storage.get('presence/tresholds')) || {}
+
+    const presenceMode = classify(
+      recentMotionUnixTime,
+      away !== undefined ? away : 3,
+      abandoned !== undefined ? abandoned : 24
+    )
+
+    try {
+      await server.app.hassSelect.select(
+        OBJECT_IDS.presenceMode(server),
+        presenceMode
+      )
+    } catch (err) {
+      console.error(`Could not select "${presenceMode}" for "${entityId}"...`)
+    }
+  }
+
+  const trigger = async (state: State) => {
+    if (
+      server.app.hassRegistry.matchesStateFilter(state, {
+        ...MOTION_ENTITY,
+        state: 'on'
+      })
+    ) {
+      const { areaId } = state
+      await update()
+
+      if (areaId !== null) {
+        console.log(`New motion triggered in area "${areaId}"...`)
+        server.events.emit(EVENT_HASSPRESENCE.PRESENCE_EVENT, areaId)
+      }
+    }
+  }
+
+  server.events.on(EVENT_HASSCONNECT.CONNECTED, initialize)
+  server.plugins.schedule.addJob('every 15 minutes', update)
+  server.events.on(EVENT_STORAGE.STORAGE_UPDATED, update)
+  server.events.on(EVENT_HASSREGISTRY.STATE_UPDATED, trigger)
+}
+
+/**
+ * Set up the presence-related routes for the Hapi server.
+ * @param server The Hapi server instance.
+ * @returns A Promise that resolves when the routes are set up.
+ */
+async function setupPresenceRoutes(server: hapi.Server) {
+  server.route({
+    method: 'GET',
+    path: '/api/presence',
+    handler: async (request, h) => {
+      // TODO
+
+      return h.response({ data: {} }).code(200)
+    }
+  })
 }
 
 export default presencePlugin

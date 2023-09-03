@@ -1,8 +1,8 @@
-import { Pipe, PipeTransform } from "@angular/core"
-import { Item } from "./ha.service"
+import { Pipe, PipeTransform } from '@angular/core'
+import { Item } from './ha.service'
 
 @Pipe({
-  name: "statedescription",
+  name: 'statedescription'
 })
 export class StateDescriptionPipe implements PipeTransform {
   transform(item: Item) {

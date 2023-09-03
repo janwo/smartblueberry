@@ -1,574 +1,432 @@
 import * as hapi from '@hapi/hapi'
+import dayjs, { Dayjs } from 'dayjs'
 import Joi from 'joi'
+import { EVENT_HASSREGISTRY, State, StatePayloadFilter } from '../registry.js'
 
-/*
-        const { rules, items, triggers, time, actions } = require('openhab')
-const {
-  json_storage,
-  DATETIME_FORMAT,
-  sync_group_with_semantic_items
-} = require(__dirname + '/core-helpers')
-
-let timers = {}
-const IRRIGATION_TRIGGER_TAGS = ['CoreIrrigationTrigger']
-const IRRIGATION_VALVE_TAGS = ['CoreIrrigationValve']
-const TIMEOUT = 5000
-
-function irrigated_today(item) {
-  const now = time.ZonedDateTime.now()
-  const lastActivationCompleted = json_storage(
-    typeof item == 'string' ? item : item.name
-  ).get('irrigation', 'last-activation-completed')
-
-  return (
-    lastActivationCompleted &&
-    time.ZonedDateTime.parse(lastActivationCompleted, DATETIME_FORMAT).until(
-      now,
-      time.ChronoUnit.DAYS
-    ) <= 0
-  )
+interface HydroRecord {
+  datetime: string
+  evaporation: number
+  precipitation: number
 }
 
-function set_as_activated(item) {
-  const now = time.ZonedDateTime.now()
-  json_storage(typeof item == 'string' ? item : item.name).set(
-    'irrigation',
-    'last-activation',
-    now.format(DATETIME_FORMAT)
-  )
+const VALVE_ENTITY: StatePayloadFilter = {
+  entity_id: (entity_id) => /^switch\..*valve.*$/.test(entity_id)
 }
 
-function set_as_completed(item) {
-  item = typeof item == 'string' ? item : item.name
-
-  const lastActivation = json_storage(item).get('irrigation', 'last-activation')
-  const waterVolumePerMinute = json_storage(item).get(
-    'irrigation',
-    'irrigation-level-per-minute'
-  )
-
-  const now = time.ZonedDateTime.now()
-  json_storage(item).set(
-    'irrigation',
-    'last-activation-completed',
-    now.format(DATETIME_FORMAT)
-  )
-
-  if (lastActivation && waterVolumePerMinute) {
-    const irrigationMillis = time.ZonedDateTime.parse(
-      lastActivation,
-      DATETIME_FORMAT
-    ).until(now, time.ChronoUnit.MILLIS)
-    const irrigationAmount =
-      (irrigationMillis / 60 / 1000) * waterVolumePerMinute
-
-    let irrigationHistory =
-      json_storage(item).get('irrigation', 'history') || {}
-    const today = time.LocalDate.now()
-    irrigationHistory = Object.keys(irrigationHistory)
-      .filter(
-        (date) =>
-          time.LocalDate.parse(date).until(today, time.ChronoUnit.DAYS) <= 30
-      )
-      .reduce((newHistory, date) => {
-        newHistory[date] = irrigationHistory[date]
-        return newHistory
-      }, {})
-    const todayKey = today.toString()
-    irrigationHistory[todayKey] =
-      (irrigationHistory[todayKey] || 0) + irrigationAmount
-    json_storage(item).set('irrigation', 'history', irrigationHistory)
+const FORECAST_ENTITY: StatePayloadFilter = {
+  entity_id: (value: string) => /^weather\./.test(value),
+  attributes: {
+    temperature_unit: (v) => v !== undefined,
+    precipitation_unit: (v) => v !== undefined,
+    forecast: (forecast) =>
+      typeof forecast == 'object' &&
+      !Array.isArray(forecast) &&
+      ![
+        forecast?.datetime,
+        forecast?.templow,
+        forecast?.temperature,
+        forecast?.humidity,
+        forecast?.precipitation
+      ].some((v) => v === undefined)
   }
 }
-
-function may_irrigate(item) {
-  item = typeof item == 'string' ? item : item.name
-
-  const observedDays = json_storage(item).get('irrigation', 'observed-days')
-
-  const overshootDays = json_storage(item).get('irrigation', 'overshoot-days')
-
-  const waterVolumePerMinute = json_storage(item).get(
-    'irrigation',
-    'irrigation-level-per-minute'
-  )
-
-  if (
-    [overshootDays, observedDays, waterVolumePerMinute].some(
-      (value) => value === undefined
-    )
-  ) {
-    console.log(
-      'check_irrigation_valves',
-      `Some irrigation values of item ${item} are missing.`
-    )
-    return false
-  }
-
-  const minimalKelvin = (() => {
-    const storage =
-      json_storage(item).get('irrigation', 'minimal-temperature') || 'C'
-
-    const value = Number.parseInt(storage.substring(0, storage.length - 1))
-    if (Number.isNaN(value)) {
-      return undefined
-    }
-
-    const unit = storage.substring(storage.length - 1).toUpperCase()
-    return unit == 'C' ? value + 273.15 : () => 1.8 * (value + 273.15) + 32
-  })()
-
-  const weatherForecast =
-    json_storage('gCore_Irrigation').get('irrigation', 'weather-forecast') || []
-
-  const weatherHistory =
-    json_storage('gCore_Irrigation').get('irrigation', 'weather-history') || []
-
-  const irrigationHistory =
-    json_storage(item).get('irrigation', 'history') || {}
-
-  const evaporationFactor =
-    json_storage(item).get('irrigation', 'evaporation-factor') || 1
-
-  const series = [
-    ...weatherHistory,
-    ...weatherForecast.slice(0, Math.min(weatherForecast.length, 7))
-  ]
-
-  const minimalTemperatureSeriesIndex = series.findIndex(
-    (s) => s.temperature.min < minimalKelvin
-  )
-
-  if (minimalTemperatureSeriesIndex >= 0) {
-    console.log(
-      'check_irrigation_valves',
-      `Minimal temperature was missed on ${series[minimalTemperatureSeriesIndex].date}.`
-    )
-    return false
-  }
-
-  const pastPrecipitationLevels = weatherHistory
-    .slice(Math.max(0, weatherHistory.length - observedDays))
-    .reduce(
-      (level, wh) =>
-        level +
-        wh.rain +
-        (irrigationHistory[wh.date] || 0) -
-        wh.eto * evaporationFactor,
-      0
-    )
-  const futurePrecipitationLevels = weatherForecast
-    .slice(0, overshootDays)
-    .reduce(
-      (level, wf) =>
-        level +
-        wf.rain +
-        (irrigationHistory[wf.date] || 0) -
-        wf.eto * evaporationFactor,
-      0
-    )
-
-  if (
-    weatherHistory.length >= observedDays &&
-    pastPrecipitationLevels < 0 &&
-    pastPrecipitationLevels + futurePrecipitationLevels < 0
-  ) {
-    const irrigationAmount = -pastPrecipitationLevels
-    const irrigationMillis =
-      (irrigationAmount / waterVolumePerMinute) * 60 * 1000
-
-    add_timer(item, irrigationMillis)
-    return true
-  }
-
-  return false
-}
-
-function add_timer(itemName, millis) {
-  clear_timer(itemName)
-
-  items.getItem(itemName).sendCommand('ON')
-  console.log(
-    'check_irrigation_valves',
-    `Start irrigation via valve ${itemName} for ${millis} ms...`
-  )
-
-  timers[itemName] = setTimeout(
-    (itemName) => {
-      items.getItem(itemName).sendCommand('OFF')
-      console.log(
-        'check_irrigation_valves',
-        `Stopped irrigation via valve ${itemName}.`
-      )
-    },
-    Number.parseInt(millis),
-    itemName
-  )
-}
-
-function clear_timer(itemName) {
-  if (timers[itemName] !== undefined) {
-    clearTimeout(timers[itemName])
-    delete timers[itemName]
-  }
-}
-
-function scriptLoaded() {
-  rules.JSRule({
-    name: 'sync_irrigation_helpers',
-    description: 'Core (JS) - Sync helper items of irrigation',
-    tags: ['core', 'core-irrigation'],
-    triggers: [
-      triggers.GenericCronTrigger('30 0/5 * ? * * *'),
-      triggers.SystemStartlevelTrigger(100)
-    ],
-    execute: (event) => {
-      // Sync group gCore_Irrigation_Triggers with irrigation items - it's needed to create triggers on it
-      sync_group_with_semantic_items(
-        'gCore_Irrigation_Triggers',
-        undefined,
-        IRRIGATION_TRIGGER_TAGS
-      )
-
-      // Sync group gCore_Irrigation_Valves with irrigation items - it's needed to create triggers on it
-      sync_group_with_semantic_items(
-        'gCore_Irrigation_Valves',
-        undefined,
-        IRRIGATION_VALVE_TAGS
-      )
-    }
-  })
-
-  rules.JSRule({
-    name: 'check_irrigation_valves',
-    description: 'Core (JS) - Check for irrigation values',
-    tags: ['core', 'core-irrigation'],
-    triggers: [
-      triggers.GroupStateUpdateTrigger('gCore_Irrigation_Triggers'),
-      triggers.GroupStateChangeTrigger('gCore_Irrigation_Valves')
-    ],
-    execute: (event) => {
-      if (
-        event.triggerType == 'ItemStateChangeTrigger' &&
-        event.oldState == 'OFF' &&
-        event.newState == 'ON'
-      ) {
-        set_as_activated(event.itemName)
-      }
-
-      if (
-        event.triggerType == 'ItemStateChangeTrigger' &&
-        event.oldState == 'ON' &&
-        event.newState == 'OFF'
-      ) {
-        set_as_completed(event.itemName)
-      }
-
-      const valves = items.getItem('gCore_Irrigation_Valves').members
-      if (valves.some((valve) => valve.state == 'ON')) {
-        return
-      }
-
-      for (let valve of valves) {
-        if (!irrigated_today(valve) && may_irrigate(valve)) {
-          break
-        }
-      }
-    }
-  })
-
-  const hargreavesSamani = (
-    date = time.LocalDate.now(),
-    tempMin,
-    tempMax,
-    humidity,
-    latitude
-  ) => {
-    tempMin = Number.parseFloat(tempMin)
-    tempMax = Number.parseFloat(tempMax)
-    humidity = Number.parseFloat(humidity)
-    latitude = Number.parseFloat(tempMax)
-
-    /**
-     * Equations taken from:
-     * Shuttleworth, W. J. Evaporation. In: Handbook of hydrology, D. R. Maidment, ed., McGraw-Hill, New York, 1993.
-     * Valiantzas, J. D. (2018). Modification of the Hargreaves–Samani model for estimating solar radiation from temperature and humidity data. Journal of Irrigation and Drainage Engineering, 144(1), 06017014.
-     */
-/*
-
-    const julianDate = Math.floor(
-      date.atStartOfDay(time.ZoneId.SYSTEM).toEpochSecond() / 86400 + 2440587.5
-    )
-    const radians = latitude * (Math.PI / 180)
-
-    // See equation 4.4.3
-    const solarDeclination =
-      0.4093 * Math.sin((2 * Math.PI * julianDate) / 365 - 1.405)
-
-    // See equation 4.4.2
-    const sunsetHourAngle = Math.acos(
-      -Math.tan(radians) * Math.tan(solarDeclination)
-    )
-
-    // See equation 4.4.5
-    const relativeEarthSunDistance =
-      1 + 0.033 * Math.cos((2 * Math.PI * julianDate) / 365)
-
-    // See equation 4.4.4
-    const solarRadiation =
-      15.392 *
-      relativeEarthSunDistance *
-      (sunsetHourAngle * Math.sin(radians) * Math.sin(solarDeclination) +
-        Math.cos(radians) *
-          Math.cos(solarDeclination) *
-          Math.sin(sunsetHourAngle))
-
-    // See equation 4.2.44
-    const evaporation =
-      0.0023 *
-      solarRadiation *
-      Math.sqrt(tempMax - tempMin) *
-      ((tempMax + tempMin) / 2 + 17.8)
-
-    // Apply modification to take humidity into account
-    return evaporation * Math.pow(1.001 - humidity / 100, 0.2)
-  }
-
-  rules.JSRule({
-    name: 'check_weather_forecast',
-    description: 'Core (JS) - Check for weather forecast',
-    tags: ['core', 'core-irrigation'],
-    triggers: [
-      triggers.TimeOfDayTrigger('3:00'),
-      triggers.SystemStartlevelTrigger(100)
-    ],
-    execute: (event) => {
-      let weatherForecast = (
-        json_storage('gCore_Irrigation').get(
-          'irrigation',
-          'weather-forecast'
-        ) || []
-      ).map((f) => ({
-        ...f,
-        date: time.LocalDate.parse(f.date)
-      }))
-
-      let weatherHistory = (
-        json_storage('gCore_Irrigation').get('irrigation', 'weather-history') ||
-        []
-      ).map((f) => ({
-        ...f,
-        date: time.LocalDate.parse(f.date)
-      }))
-
-      const apiKey = json_storage('gCore_Irrigation').get(
-        'irrigation',
-        'api-key'
-      )
-
-      const latitude = json_storage('gCore_Irrigation').get(
-        'irrigation',
-        'latitude'
-      )
-
-      const longitude = json_storage('gCore_Irrigation').get(
-        'irrigation',
-        'longitude'
-      )
-
-      if (!apiKey || longitude === undefined || latitude === undefined) {
-        console.log(
-          'check_weather_forecast',
-          `No API Token or location coordinates set.`
-        )
-        return
-      }
-
-      const today = time.LocalDate.now()
-      const lastWeatherForecast =
-        weatherHistory[weatherHistory.length - 1]?.date
-      const pastForecasts = weatherForecast.filter(
-        (f) =>
-          (!lastWeatherForecast || f.date.isAfter(lastWeatherForecast)) &&
-          f.date.isBefore(today)
-      )
-
-      if (pastForecasts.length > 0) {
-        json_storage('gCore_Irrigation').set(
-          'irrigation',
-          'weather-history',
-          [
-            ...weatherHistory.slice(
-              Math.max(0, weatherHistory.length + pastForecasts.length - 7)
-            ),
-            ...pastForecasts
-          ].map((f) => ({ ...f, date: f.date.toString() }))
-        )
-      }
-
-      if (!weatherForecast[0] || weatherForecast[0].date.isBefore(today)) {
-        const url = `https://api.openweathermap.org/data/3.0/onecall?lat=${latitude}&lon=${longitude}&exclude=hourly,minutely,current,alerts&appid=${apiKey}&units=standard`
-        weatherForecast = JSON.parse(
-          actions.HTTP.sendHttpGetRequest(url, TIMEOUT)
-        ).daily.map((data) => {
-          const date = time.LocalDate.ofInstant(
-            time.Instant.ofEpochSecond(data.dt),
-            time.ZoneId.SYSTEM
-          )
-
-          return {
-            date: date.toString(),
-            rain: data.rain || 0,
-            temperature: {
-              max: data.temp.max,
-              min: data.temp.min
-            },
-            humidity: data.humidity,
-            eto: hargreavesSamani(
-              date,
-              data.temp.min - 273.15,
-              data.temp.max - 273.15,
-              data.humidity,
-              latitude
-            )
-          }
-        })
-
-        json_storage('gCore_Irrigation').set(
-          'irrigation',
-          'weather-forecast',
-          weatherForecast
-        )
-      }
-    }
-  })
-}
-
-function scriptUnloaded() {
-  // Close valves
-  for (const timer in timers) {
-    clear_timer(timer)
-  }
-}
-*/
-/*
-        const apiKey = await server.plugins["app/json-storage"].get(
-          "gCore_Irrigation",
-          "irrigation/api-key"
-        )
-
-        const latitude = await server.plugins["app/json-storage"].get(
-          "gCore_Irrigation",
-          "irrigation/latitude"
-        )
-
-        const longitude = await server.plugins["app/json-storage"].get(
-          "gCore_Irrigation",
-          "irrigation/longitude"
-        )
-
-        const locale = await server.plugins["app/openhab"].getLocale(request)
-
-        return h
-          .response({
-            data: {
-              hasApiKey: !!apiKey,
-              latitude,
-              longitude,
-              syncedLocation:
-                latitude == locale.latitude && longitude == locale.longitude,
-            },
-          })
-          .code(200)
-          */
 
 const irrigationPlugin: hapi.Plugin<{}> = {
   name: 'irrigation',
-  dependencies: ['storage'],
+  dependencies: ['storage', 'hassSelect', 'hassConnect', 'hassRegistry'],
   register: async (server: hapi.Server) => {
-    server.route({
-      method: 'GET',
-      path: '/api/irrigation-api',
-      handler: async (request, h) => {
-        server.route({
-          method: 'POST',
-          path: '/api/irrigation-api',
-          options: {
-            validate: {
-              payload: {
-                apiSettings: Joi.object({
-                  syncLocation: Joi.boolean().optional(),
-                  apiKey: Joi.string()
-                    .pattern(/^[a-zA-Z_0-9]+$/)
-                    .optional()
-                }).min(1)
+    // Setup Routes
+    await setupIrrigationRoutes(server)
+
+    // Setup Home Assistant Helper Entities
+    await setupWeatherCheck(server)
+  }
+}
+
+/**
+ * Calculates potential evaporation using the Hargreaves-Samani method.
+ *
+ * Equations taken from: Shuttleworth, W. J. Evaporation. In: Handbook of hydrology, D. R. Maidment, ed., McGraw-Hill, New York, 1993. Valiantzas, J. D. (2018). Modification of the Hargreaves–Samani model for estimating solar radiation from temperature and humidity data. Journal of Irrigation and Drainage Engineering, 144(1), 06017014.
+ * @param date The date for which the calculation is performed.
+ * @param tempMin The minimum temperature in Celsius.
+ * @param tempMax The maximum temperature in Celsius.
+ * @param humidity The relative humidity in percentage.
+ * @param latitude The geographical latitude of the location.
+ * @returns The calculated potential evaporation in mm per day.
+ *
+ */
+const hargreavesSamani = (
+  date = dayjs(),
+  tempMin: number,
+  tempMax: number,
+  humidity: number,
+  latitude: number
+) => {
+  const julianDate = Math.floor(date.startOf('day').unix() / 86400 + 2440587.5)
+  const radians = latitude * (Math.PI / 180)
+
+  // See equation 4.4.3
+  const solarDeclination =
+    0.4093 * Math.sin((2 * Math.PI * julianDate) / 365 - 1.405)
+
+  // See equation 4.4.2
+  const sunsetHourAngle = Math.acos(
+    -Math.tan(radians) * Math.tan(solarDeclination)
+  )
+
+  // See equation 4.4.5
+  const relativeEarthSunDistance =
+    1 + 0.033 * Math.cos((2 * Math.PI * julianDate) / 365)
+
+  // See equation 4.4.4
+  const solarRadiation =
+    15.392 *
+    relativeEarthSunDistance *
+    (sunsetHourAngle * Math.sin(radians) * Math.sin(solarDeclination) +
+      Math.cos(radians) *
+        Math.cos(solarDeclination) *
+        Math.sin(sunsetHourAngle))
+
+  // See equation 4.2.44
+  const evaporation =
+    0.0023 *
+    solarRadiation *
+    Math.sqrt(tempMax - tempMin) *
+    ((tempMax + tempMin) / 2 + 17.8)
+
+  // Apply modification to take humidity into account
+  return evaporation * Math.pow(1.001 - humidity / 100, 0.2)
+}
+
+/**
+ * Transforms a text value to another unit using the provided transformation functions.
+ * @param textValue The text value to transform, e.g., "30 C" or "2.5 in".
+ * @param transforms An object containing transformation functions for various units.
+ * @returns The transformed value or undefined if the unit is not recognized.
+ */
+function transformValue(
+  textValue: string,
+  transforms: { [value: string]: (value: number) => number }
+) {
+  const [, value, unit] = textValue.match(/^(\d+)\s*(.*)$/) || []
+  if (unit !== undefined && transforms[unit]) {
+    const transformed = transforms[unit](Number.parseFloat(value))
+    return Number.isNaN(transformed) ? undefined : transformed
+  }
+}
+
+/**
+ * Converts concatenated text segments to Kelvin temperature.
+ * @param textValues The text segments to concatenate and convert, e.g., "30", "C" or "75", "F".
+ * @returns The converted temperature in Kelvin or undefined if the unit is not recognized.
+ */
+function toKelvin(...textValues: (string | undefined)[]) {
+  return transformValue(textValues.join(''), {
+    C: (value: number) => value + 273.15,
+    F: (value: number) => (value - 32) / 1.8 + 273.15
+  })
+}
+
+/**
+ * Converts concatenated text segments to millimeters.
+ * @param textValues The text segments to concatenate and convert, e.g., "3", "in" or "75", "mm".
+ * @returns The converted length in millimeters or undefined if the unit is not recognized.
+ */
+function toMillimeters(...textValues: (string | undefined)[]) {
+  return transformValue(textValues.join(''), {
+    in: (value: number) => value * 25.4,
+    mm: (value: number) => value
+  })
+}
+
+/**
+ * Set up weather checking functionality for the Hapi server.
+ * @param server The Hapi server instance.
+ * @returns A Promise that resolves when the weather check is set up.
+ */
+async function setupWeatherCheck(server: hapi.Server) {
+  let runningValves: { entityId: string; until: string }[] = []
+
+  const irrigateSeconds = async (entityId: string) => {
+    const valveParams = (await server.plugins.storage.get(
+      `irrigation/valves/${entityId}`
+    )) as {
+      'observed-days': number
+      'overshoot-days': number
+      'volume-per-minute': string
+      'evaporation-factor': number
+      'minimal-temperature': string
+    }
+
+    const [
+      irrigationVolumePerMinute,
+      minimalKelvin,
+      observedDays,
+      overshootDays,
+      evaporationFactor
+    ] = [
+      toMillimeters(valveParams?.['volume-per-minute']),
+      toKelvin(valveParams?.['minimal-temperature']),
+      valveParams?.['observed-days'],
+      valveParams?.['overshoot-days'],
+      valveParams?.['evaporation-factor']
+    ]
+
+    if (
+      [
+        irrigationVolumePerMinute,
+        minimalKelvin,
+        observedDays,
+        overshootDays,
+        evaporationFactor
+      ].some((value) => value === undefined)
+    ) {
+      console.log(`Some irrigation values of item ${entityId} are missing...`)
+      return 0
+    }
+
+    // Get irrigation amounts of valve
+    const now = dayjs()
+    const historyDate = now.subtract(valveParams['observed-days'], 'day')
+    const [irrigatedToday, historyIrrigationAmount] =
+      await server.plugins.hassConnect.rest
+        .get<Pick<State, 'entity_id' | 'state' | 'last_changed'>[][]>(
+          `/history/period/${historyDate.toISOString()}?${[
+            `end_time=${now.toISOString()}`,
+            `filter_entity_id=${entityId}`
+          ].join('&')}`
+        )
+        .then(({ ok, json }): [boolean, number] => {
+          if (!ok) {
+            // Do not irrigate without history
+            return [true, 0]
+          }
+
+          const { irrigatedToday, volume } = json!.flat().reduce(
+            ({ irrigatedToday, volume, state, last_changed }, record) => {
+              const recordDate = dayjs(record.last_changed)
+              irrigatedToday ||= state == 'on' && recordDate.isSame(now, 'day')
+
+              if (state == record.state) {
+                // Skip
+                return {
+                  irrigatedToday,
+                  volume,
+                  state,
+                  last_changed
+                }
               }
+
+              const addedVolume =
+                record.state == 'off'
+                  ? ((recordDate.unix() - dayjs(last_changed).unix()) / 60) *
+                    irrigationVolumePerMinute!
+                  : 0
+
+              return {
+                irrigatedToday,
+                volume: volume + addedVolume,
+                state: record.state,
+                last_changed: record.last_changed
+              }
+            },
+            {
+              irrigatedToday: false,
+              volume: 0,
+              state: 'off',
+              last_changed: now.toISOString()
             }
-          },
-          handler: async (request, h) => {
-            /*
-        const { apiSettings } = request.payload as any
-        const locale = await server.plugins["app/openhab"].getLocale(request)
-        const latitude = await server.plugins["app/json-storage"].get(
-          "gCore_Irrigation",
-          "irrigation/latitude"
-        )
-        const longitude = await server.plugins["app/json-storage"].get(
-          "gCore_Irrigation",
-          "irrigation/longitude"
-        )
-
-        if (
-          latitude == undefined ||
-          longitude === undefined ||
-          apiSettings.syncLocation === true
-        ) {
-          if (locale.latitude === undefined || locale.longitude === undefined) {
-            return h.response({ success: false, error: "nolocation" }).code(200)
-          }
-
-          await server.plugins["app/json-storage"].set(
-            "gCore_Irrigation",
-            "irrigation/latitude",
-            locale.latitude
           )
-          await server.plugins["app/json-storage"].set(
-            "gCore_Irrigation",
-            "irrigation/longitude",
-            locale.longitude
-          )
-        }
 
-        if (apiSettings.apiKey) {
-          const url = `https://api.openweathermap.org/data/3.0/onecall?lat=${latitude}&lon=${longitude}&exclude=hourly,minutely,current,alerts&appid=${apiSettings.apiKey}`
-          const authenticated = await axios
-            .get(url)
-            .then(() => true)
-            .catch(() => false)
-
-          if (!authenticated) {
-            return h
-              .response({ success: false, error: "unauthenticated" })
-              .code(200)
-          }
-
-          await server.plugins["app/json-storage"].set(
-            "gCore_Irrigation",
-            "irrigation/api-key",
-            apiSettings.apiKey
-          )
-        }
-
-        return h.response({ success: true }).code(200)
-        */
-          }
+          return [irrigatedToday, volume]
         })
 
-        server.route({
-          method: 'GET',
-          path: '/api/irrigation-valve-items',
-          handler: async (request, h) => {
-            /*
+    if (irrigatedToday) {
+      console.log(`Skip ${entityId} as it had irrigated today...`)
+      return 0
+    }
+
+    // Get past hydro amounts
+    const historyHydroRecords = await server.plugins.storage
+      .get(`irrigation/history`)
+      .then((records: HydroRecord[]) =>
+        (records || []).filter(({ datetime }) => {
+          const recordDate = dayjs(datetime)
+          return (
+            !recordDate.isBefore(historyDate, 'day') &&
+            recordDate.isAfter(now, 'day')
+          )
+        })
+      )
+    const historyHydroAmount = historyHydroRecords.reduce(
+      (summed: number, history) => {
+        return (
+          summed +
+          history.precipitation -
+          history.evaporation * valveParams['evaporation-factor']
+        )
+      },
+      0
+    )
+
+    // Get future hydro amounts
+    const { latitude } = server.app.hassRegistry.getConfig()
+    const weatherForecasts = server.app.hassRegistry.getStates(FORECAST_ENTITY)
+    for (const weatherForecast of weatherForecasts) {
+      const { temperature_unit, precipitation_unit, forecast } =
+        weatherForecast.attributes as {
+          temperature_unit: 'C' | 'F'
+          precipitation_unit: 'in' | 'mm'
+          forecast: any[]
+        }
+
+      type EvaporationRecordMap = {
+        [key: string]: Pick<HydroRecord, 'evaporation' | 'precipitation'>
+      }
+
+      const forecastDate = now.add(valveParams['overshoot-days'], 'day')
+      const [reachedMinTemp, forecastHydroRecords] = forecast
+        .filter(({ datetime }) => !dayjs(datetime).isAfter(forecastDate, 'day'))
+        .reduce<[boolean, EvaporationRecordMap]>(
+          ([reachedMinTemp, records], forecast) => {
+            const key = dayjs(forecast.datetime).format('YYYY-MM-DD')
+            if (records[key] === undefined) {
+              records[key] = {
+                evaporation: 0,
+                precipitation: 0
+              }
+            }
+
+            const convertedTemplow = toKelvin(
+              forecast.templow,
+              temperature_unit
+            )!
+
+            records[key].evaporation += hargreavesSamani(
+              forecast.datetime,
+              convertedTemplow - 273.15,
+              toKelvin(forecast.temperature, temperature_unit)! - 273.15,
+              forecast.humidity,
+              latitude
+            )
+
+            records[key].precipitation += toMillimeters(
+              forecast.precipitation,
+              precipitation_unit
+            )!
+
+            return [
+              reachedMinTemp && convertedTemplow >= minimalKelvin!,
+              records
+            ]
+          },
+          [true, {}]
+        )
+      const forecastHydroAmount = Object.values(forecastHydroRecords).reduce(
+        (summed, { evaporation: e, precipitation: p }) =>
+          summed + p - e * valveParams['evaporation-factor'],
+        0
+      )
+
+      // Save current hydro record
+      const todayRecord = forecastHydroRecords[now.format('YYYY-MM-DD')]
+      if (todayRecord) {
+        await server.plugins.storage.set('irrigation/history', [
+          todayRecord,
+          historyHydroRecords.filter(
+            ({ datetime }) => !dayjs(datetime).isSame(now, 'day')
+          )
+        ])
+      }
+
+      // Decide if irrigation is needed
+      const level =
+        historyHydroAmount + historyIrrigationAmount + forecastHydroAmount
+      if (
+        reachedMinTemp &&
+        historyHydroRecords.length >= valveParams['observed-days'] &&
+        level < 0
+      ) {
+        return (-level / irrigationVolumePerMinute!) * 60
+      }
+    }
+
+    return 0
+  }
+
+  const updateRunners = (entityId: string, irrigationSeconds: number) => {
+    if (irrigationSeconds == 0) {
+      runningValves = runningValves.filter(
+        (valve) => valve.entityId != entityId
+      )
+    } else {
+      runningValves = runningValves.map((valve) => {
+        if (valve.entityId != entityId) {
+          return valve
+        }
+
+        return {
+          ...valve,
+          until: dayjs().add(irrigationSeconds, 'seconds').toISOString()
+        }
+      })
+    }
+  }
+
+  server.plugins.schedule.addJob('every 5 minutes', async () => {
+    const now = dayjs()
+    for (const { entityId, until } of runningValves) {
+      if (dayjs(until).isBefore(now)) {
+        updateRunners(entityId, 0)
+        await server.app.hassRegistry.callService('homeassistant', 'turn_off', {
+          service_data: { entity_id: entityId }
+        })
+      }
+    }
+  })
+
+  server.events.on(EVENT_HASSREGISTRY.STATE_UPDATED, async (state: State) => {
+    if (
+      [{ ...VALVE_ENTITY, state: 'off' }, FORECAST_ENTITY].some((criteria) =>
+        server.app.hassRegistry.matchesStateFilter(state, criteria)
+      )
+    ) {
+      const valves = server.app.hassRegistry.getStates(VALVE_ENTITY)
+      if (valves.some((valve) => valve.state == 'on')) {
+        console.log(
+          `Skip irrigation check as there is at least one valve irrigating...`
+        )
+        return
+      }
+
+      for (const { entity_id } of valves) {
+        const irrigationSeconds = await irrigateSeconds(entity_id)
+        updateRunners(entity_id, irrigationSeconds)
+        irrigationSeconds &&
+          (await server.app.hassRegistry.callService(
+            'homeassistant',
+            'turn_on',
+            {
+              service_data: { entity_id }
+            }
+          ))
+        break
+      }
+    }
+  })
+}
+
+/**
+ * Set up the irrigation-related routes for the Hapi server.
+ * @param server The Hapi server instance.
+ * @returns A Promise that resolves when the routes are set up.
+ */
+async function setupIrrigationRoutes(server: hapi.Server) {
+  server.route({
+    method: 'GET',
+    path: '/api/irrigation-valve-items',
+    handler: async (request, h) => {
+      /*
         const weatherHistory =
           (await server.plugins["app/json-storage"].get(
             "gCore_Irrigation",
@@ -652,32 +510,32 @@ const irrigationPlugin: hapi.Plugin<{}> = {
         })
         return h.response({ data: await Promise.all(result) }).code(200)
         */
-          }
-        })
+    }
+  })
 
-        server.route({
-          method: 'POST',
-          path: '/api/irrigation-valve-items/{item}',
-          options: {
-            validate: {
-              params: {
-                item: Joi.string().pattern(/^[a-zA-Z_0-9]+$/)
-              },
-              payload: {
-                irrigationValues: Joi.object({
-                  irrigationLevelPerMinute: Joi.number().min(0).required(),
-                  overshootDays: Joi.number().min(0).required(),
-                  evaporationFactor: Joi.number().min(0).required(),
-                  minimalTemperature: Joi.string()
-                    .regex(/\d*[FC]/)
-                    .optional(),
-                  observedDays: Joi.number().min(0).required()
-                }).required()
-              }
-            }
-          },
-          handler: async (request, h) => {
-            /*
+  server.route({
+    method: 'POST',
+    path: '/api/irrigation-valve-items/{item}',
+    options: {
+      validate: {
+        params: {
+          item: Joi.string().pattern(/^[a-zA-Z_0-9]+$/)
+        },
+        payload: {
+          irrigationValues: Joi.object({
+            irrigationLevelPerMinute: Joi.number().min(0).required(),
+            overshootDays: Joi.number().min(0).required(),
+            evaporationFactor: Joi.number().min(0).required(),
+            minimalTemperature: Joi.string()
+              .regex(/\d*[FC]/)
+              .optional(),
+            observedDays: Joi.number().min(0).required()
+          }).required()
+        }
+      }
+    },
+    handler: async (request, h) => {
+      /*
         const { irrigationValues } = request.payload as any
         const {
           irrigationLevelPerMinute,
@@ -718,11 +576,8 @@ const irrigationPlugin: hapi.Plugin<{}> = {
         )
         return h.response({ success: true }).code(200)
         */
-          }
-        })
-      }
-    })
-  }
+    }
+  })
 }
 
 export default irrigationPlugin
