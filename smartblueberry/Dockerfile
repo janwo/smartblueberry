@@ -11,7 +11,7 @@ RUN npm i
 from base as builder
 COPY --from=base /node_modules ./node_modules
 COPY . .
-RUN npm run build
+RUN npm run frontend:build && npm run backend:build
 
 FROM base AS runner
 COPY --from=builder ./dist/ /dist/
