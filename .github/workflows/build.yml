@@ -22,5 +22,7 @@ jobs:
           npm run backend:build
           git checkout -b build
           git add -f dist/**/*
+          git config --global user.name "CI/CD"
+          git config --global user.email "ci@github.com"
           git commit -m "update dist folder"
           git push origin build --force
