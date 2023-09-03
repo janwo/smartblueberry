@@ -1,9 +1,5 @@
 import { Component, OnInit } from '@angular/core'
-import {
-  FormControl,
-  FormGroup,
-  Validators
-} from '@angular/forms'
+import { FormControl, FormGroup, Validators } from '@angular/forms'
 import { forkJoin } from 'rxjs'
 import { HAService } from '../ha.service'
 
