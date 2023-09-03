@@ -10,11 +10,11 @@ jobs:
     timeout-minutes: 15
 
     steps:
+      - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           cache: 'npm'
-          cache-dependency-path: 'smartblueberry'
-      - uses: actions/checkout@v3
+          cache-dependency-path: './smartblueberry'
       - run: |
           cd smartblueberry
           npm ci
