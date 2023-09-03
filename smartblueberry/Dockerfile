@@ -1,5 +1,6 @@
 ARG BUILD_FROM
 FROM $BUILD_FROM as base
+WORKDIR /
 RUN apk add --no-cache \
   nodejs \
   npm \ 
@@ -8,7 +9,7 @@ COPY package.json package-lock.json*  ./
 RUN npm i
 
 from base as builder
-COPY --from=base /app/node_modules ./node_modules
+COPY --from=base /node_modules ./node_modules
 COPY . .
 RUN npm run build
 
