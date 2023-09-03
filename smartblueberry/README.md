@@ -1,6 +1,6 @@
 # <center>Smart Blueberry 🫐 - Smart Home 🏡</center>
 
-_<center>Smart Blueberry is a Home Assistant environment providing multiple extensions to simplify the configuration of scenes, climate and security management.</center>_
+_<center>Smart Blueberry is a Home Assistant environment providing multiple extensions to simplify the configuration of light, presence and irrigation management.</center>_
 
 ## Features
 
@@ -11,16 +11,10 @@ Make use of the following features:
   - Auto-on lights on presence
   - Simulate lights when away
   - Easy location-dependant configuration
-- Heating Management 🔥
-  - Different heating configurations for sleep, home and away states
+- Door and Window Management 🚪
   - Turn off all radiators automatically on open windows
 - Presence Management 👋
-  - Update your presence automatically
-  - Apply your presence state to security, light and heating
-- Security Features 🔒
-  - Smoke and assault detection
-  - Supports alarm and siren items
-  - Close lock items automatically by window or door sensors
+  - Update your presence automatically based on motion devices.
 - Irrigation Management 🏡
   - Automatically irrigate an unlimited number of irrigation valves
   - Takes the weather forecast into account
@@ -31,17 +25,6 @@ All features are easily configurable without using a single line of code! Smart 
 
 ## Getting Started
 
-It is recommend to use Smart Blueberry in a docker container using `docker compose`. The easiest way to do so, is a deployment of Smart Blueberry via [balenaCloud](https://www.balena.io/cloud/). Just add the project to your balena applications and select a supported device. You also like to change the hostname of your device to `Smart Blueberry` - to do so, study these [notes](https://www.balena.io/docs/learn/develop/runtime/#change-the-device-hostname).
+Add Smart Blueberry to your Home Assistant instance by adding the repository to your Addon-Store. To do so, just click on the button below.
 
-[![balena deploy button](https://www.balena.io/deploy.svg)](https://dashboard.balena-cloud.com/deploy?repoUrl=https%3A//github.com/janwo/SmartBlueberry)
-
-In order to adjust general settings of your Smart Blueberry instance, you may add the following environment variables.
-
-| Environment variable       | Description                                             |
-| :------------------------- | :------------------------------------------------------ |
-|                            |
-| `JWT_SECRET` (recommended) | Set a secret to salt your connection of openhab-helper. |
-
-After starting up, Smart Blueberry is available on port `8123`. To make Smart Blueberry manage your home in its full potential, access the helper application on port `8234`. Please also refer to the documentation of [Home Assistant](https://www.openhab.org/docs/).
-
-If you have any questions, join our [Discord server](https://discord.gg/xYypJZYYPY) or just let us know in the _Issues_.
+[![Open your Home Assistant instance and show the add add-on repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fjanwo%2Fsmartblueberry)

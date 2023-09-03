@@ -8,7 +8,7 @@ COPY package.json package-lock.json*  ./
 RUN npm i
 
 from base as builder
-COPY --from=deps /app/node_modules ./node_modules
+COPY --from=base /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
