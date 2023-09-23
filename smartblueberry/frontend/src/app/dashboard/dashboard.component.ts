@@ -16,7 +16,7 @@ interface DashboardItem {
 export class DashboardComponent {
   constructor(private haService: HAService) {}
 
-  get dashboardItems() {
+  get dashboardItems(): DashboardItem[] {
     return routes
       .filter((r) => !!r.data?.['title'] && !!r.data?.['icon'])
       .map((r) => {

@@ -1,9 +1,12 @@
 <div class="buttons">
   <button
-  type="button"
+    type="button"
     *ngFor="let option of options | keyvalue"
     class="button is-light"
-    [ngClass]="{ 'is-info is-selected': option.key == value }"
+    [ngClass]="{
+      'is-info is-selected': option.key == value,
+      'is-danger': error
+    }"
     [disabled]="disabled"
     [value]="option.key"
     (blur)="onTouched()"

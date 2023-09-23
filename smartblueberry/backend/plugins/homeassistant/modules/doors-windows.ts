@@ -33,34 +33,34 @@ const doorsWindowsPlugin: hapi.Plugin<{}> = {
 async function setupDoorsWindowsRoutes(server: hapi.Server) {
   server.route({
     method: 'POST',
-    path: '/api/doors+windows/climate',
+    path: '/api/doors-windows-features',
     options: {
       validate: {
         payload: {
-          activate: Joi.boolean().required()
+          climate: Joi.boolean().required()
         }
       }
     },
     handler: async (request, h) => {
-      const { activate } = request.payload as any
+      const { climate } = request.payload as any
       await server.plugins.storage.set(
         'doors+windows/climate/activate',
-        activate
+        climate
       )
 
-      return h.response({ success: true }).code(200)
+      return h.response({ climate }).code(200)
     }
   })
 
   server.route({
     method: 'GET',
-    path: '/api/doors+windows/climate',
+    path: '/api/doors-windows-features',
     handler: async (request, h) => {
-      const climate = (await server.plugins.storage.get(
-        'doors+windows/climate'
-      )) || { activate: false }
+      const climate =
+        (await server.plugins.storage.get('doors+windows/climate/activate')) ||
+        false
 
-      return h.response({ success: true, data: climate }).code(200)
+      return h.response({ climate }).code(200)
     }
   })
 }
@@ -77,12 +77,15 @@ async function setupClimate(server: hapi.Server) {
         ...OPENABLE_ENTITY
       })
     ) {
-      const service = state.state == 'on' ? 'turn_off' : 'turn_on'
-      await server.app.hassRegistry.callService('climate', service, {
-        service_data: {
-          entity_id: 'all'
-        }
-      })
+      // Turn on / off climate on open windows / doors
+      if (await server.plugins.storage.get('doors+windows/climate/activate')) {
+        const service = state.state == 'on' ? 'turn_off' : 'turn_on'
+        await server.app.hassRegistry.callService('climate', service, {
+          service_data: {
+            entity_id: 'all'
+          }
+        })
+      }
     }
   })
 }

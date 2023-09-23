@@ -1,12 +1,32 @@
 import * as hapi from '@hapi/hapi'
-import dayjs, { Dayjs } from 'dayjs'
+import dayjs from 'dayjs'
 import Joi from 'joi'
 import { EVENT_HASSREGISTRY, State, StatePayloadFilter } from '../registry.js'
+import { EVENT_HASSCONNECT } from '../connect.js'
 
-interface HydroRecord {
-  datetime: string
-  evaporation: number
-  precipitation: number
+interface HydroRecordMap {
+  [key: string]: {
+    evaporation: number
+    precipitation: number
+    temperature: { max: number; min: number }
+  }
+}
+
+interface IrrigationRecordMap {
+  [key: string]: {
+    irrigation: number
+    lastChanged: string
+    lastState: string
+  }
+}
+
+interface ValveParams {
+  entityId: string
+  'observed-days': number
+  'overshoot-days': number
+  'evaporation-factor': number
+  'volume-per-minute': string
+  'minimal-temperature': string
 }
 
 const VALVE_ENTITY: StatePayloadFilter = {
@@ -18,17 +38,34 @@ const FORECAST_ENTITY: StatePayloadFilter = {
   attributes: {
     temperature_unit: (v) => v !== undefined,
     precipitation_unit: (v) => v !== undefined,
-    forecast: (forecast) =>
-      typeof forecast == 'object' &&
-      !Array.isArray(forecast) &&
-      ![
-        forecast?.datetime,
-        forecast?.templow,
-        forecast?.temperature,
-        forecast?.humidity,
-        forecast?.precipitation
-      ].some((v) => v === undefined)
+    forecast: (forecasts: unknown) => {
+      return (
+        Array.isArray(forecasts) &&
+        forecasts.every((forecast: any) => {
+          return ![
+            'datetime',
+            'templow',
+            'temperature',
+            'humidity',
+            'precipitation'
+          ].some((attribute) => forecast[attribute] === undefined)
+        })
+      )
+    }
   }
+}
+
+const DEFAULTS = {
+  overshootDays: 3,
+  observedDays: 3,
+  evaporationFactor: 1,
+  volumePerMinute: '1mm',
+  minimalTemperature: '5C'
+}
+
+const EVENTS = {
+  checkIrrigation: (server: hapi.Server) =>
+    `${server.plugins.options.prefix}_check_irrigation`
 }
 
 const irrigationPlugin: hapi.Plugin<{}> = {
@@ -48,8 +85,8 @@ const irrigationPlugin: hapi.Plugin<{}> = {
  *
  * Equations taken from: Shuttleworth, W. J. Evaporation. In: Handbook of hydrology, D. R. Maidment, ed., McGraw-Hill, New York, 1993. Valiantzas, J. D. (2018). Modification of the Hargreaves–Samani model for estimating solar radiation from temperature and humidity data. Journal of Irrigation and Drainage Engineering, 144(1), 06017014.
  * @param date The date for which the calculation is performed.
- * @param tempMin The minimum temperature in Celsius.
- * @param tempMax The maximum temperature in Celsius.
+ * @param tempMin The minimum temperature in Kelvin.
+ * @param tempMax The maximum temperature in Kelvin.
  * @param humidity The relative humidity in percentage.
  * @param latitude The geographical latitude of the location.
  * @returns The calculated potential evaporation in mm per day.
@@ -62,8 +99,13 @@ const hargreavesSamani = (
   humidity: number,
   latitude: number
 ) => {
-  const julianDate = Math.floor(date.startOf('day').unix() / 86400 + 2440587.5)
+  // Conversions
+  tempMin -= 273.15
+  tempMax -= 273.15
   const radians = latitude * (Math.PI / 180)
+  const julianDate = Math.floor(
+    dayjs(date).startOf('day').unix() / 86400 + 2440587.5
+  )
 
   // See equation 4.4.3
   const solarDeclination =
@@ -108,7 +150,7 @@ function transformValue(
   textValue: string,
   transforms: { [value: string]: (value: number) => number }
 ) {
-  const [, value, unit] = textValue.match(/^(\d+)\s*(.*)$/) || []
+  const [, value, unit] = textValue.match(/^(\d+\.?\d*)\s*°?(.*)$/) || []
   if (unit !== undefined && transforms[unit]) {
     const transformed = transforms[unit](Number.parseFloat(value))
     return Number.isNaN(transformed) ? undefined : transformed
@@ -140,6 +182,343 @@ function toMillimeters(...textValues: (string | undefined)[]) {
 }
 
 /**
+ * Retrieve the valve parameters for a given valve entity.
+ * @param server The Hapi server instance.
+ * @param entityId The entityId of the valve.
+ * @returns The valve parameters of that entity.
+ */
+async function getValveParams(server: hapi.Server, entityId: string) {
+  return await server.plugins.storage
+    .get<ValveParams[]>(`irrigation/valves`)
+    .then((params) => {
+      return (params || []).find((v) => v.entityId === entityId)
+    })
+    .then((valveParams) => {
+      const params = {
+        irrigationVolumePerMinute:
+          valveParams?.['volume-per-minute'] !== undefined
+            ? valveParams['volume-per-minute']
+            : DEFAULTS.volumePerMinute,
+        minimalTemperature:
+          valveParams?.['minimal-temperature'] !== undefined
+            ? valveParams['minimal-temperature']
+            : DEFAULTS.minimalTemperature,
+        observedDays:
+          valveParams?.['observed-days'] !== undefined
+            ? valveParams['observed-days']
+            : DEFAULTS.observedDays,
+        overshootDays:
+          valveParams?.['overshoot-days'] !== undefined
+            ? valveParams['overshoot-days']
+            : DEFAULTS.overshootDays,
+        evaporationFactor:
+          valveParams?.['evaporation-factor'] !== undefined
+            ? valveParams['evaporation-factor']
+            : DEFAULTS.evaporationFactor
+      }
+
+      const calculated = {
+        irrigationVolumePerMinute: toMillimeters(
+          params.irrigationVolumePerMinute
+        )!,
+        minimalKelvin: toKelvin(params.minimalTemperature)!
+      }
+
+      return [params, calculated] as [typeof params, typeof calculated]
+    })
+}
+
+/**
+ * Get the past irrigation values for a given valve entity.
+ * @param server  The Hapi server instance.
+ * @param entityId The entityId of the valve.
+ * @param sinceDay Oldest date for which to retrieve data.
+ * @param irrigationVolumePerMinute The irrigation volume per minute of the valve in mm/min.
+ * @returns The past irrigation data of the valve in mm/day.
+ */
+async function getPastIrrigationRecords(
+  server: hapi.Server,
+  entityId: string,
+  sinceDay: string,
+  irrigationVolumePerMinute: number
+) {
+  // Get irrigation amounts of valve
+  const now = dayjs()
+  return await server.plugins.hassConnect.rest
+    .get<Pick<State, 'entity_id' | 'state' | 'last_changed'>[][]>(
+      `/history/period/${dayjs(sinceDay).startOf('day').toISOString()}?${[
+        `end_time=${now.toISOString()}`,
+        `filter_entity_id=${entityId}`
+      ].join('&')}`
+    )
+    .then(({ ok, json }) => {
+      const recordMap = (ok ? json! : [])
+        .flat()
+        .reduce((recordMap: IrrigationRecordMap, newRecord, index, array) => {
+          const recordDate = dayjs(newRecord.last_changed)
+          const recordKey = recordDate.format('YYYY-MM-DD')
+          let isFirstOfDay = recordMap[recordKey] === undefined
+          recordMap[recordKey] = isFirstOfDay
+            ? {
+                irrigation: 0,
+                lastChanged: recordDate.startOf('day').toISOString(),
+                lastState: newRecord.state === 'off' ? 'on' : 'off'
+              }
+            : {
+                ...recordMap[recordKey],
+                lastChanged: newRecord.last_changed,
+                lastState: newRecord.state
+              }
+
+          recordMap[recordKey].irrigation +=
+            newRecord.state === 'off'
+              ? ((recordDate.unix() -
+                  dayjs(recordMap[recordKey].lastChanged).unix()) /
+                  60) *
+                irrigationVolumePerMinute
+              : 0
+
+          let isLastRecord = array.length - 1 === index
+          if (isLastRecord) {
+            recordMap = Object.fromEntries(
+              Object.entries(recordMap).map(([key, value]) => {
+                if (value.lastState === 'on') {
+                  const recordDate = dayjs(value.lastChanged)
+                  const recordDateEndOfDay = recordDate.endOf('day')
+                  value.irrigation +=
+                    ((recordDateEndOfDay.unix() - recordDate.unix()) / 60) *
+                    irrigationVolumePerMinute
+                }
+                return [key, value]
+              })
+            )
+          }
+
+          return recordMap
+        }, {})
+
+      const amount = Object.values(recordMap).reduce(
+        (summed, next) => summed + next.irrigation,
+        0
+      )
+
+      return [amount, recordMap] as [number, IrrigationRecordMap]
+    })
+}
+
+/**
+ * Retreive the past hydro information of a given interval and evaporation factor.
+ * @param server The Hapi server instance.
+ * @param sinceDay Oldest date for which to retrieve data.
+ * @param evaporationFactor The evaporation factor of the valves soil.
+ * @returns The past hydro data in mm/day and K.
+ */
+async function getPastHydroRecords(
+  server: hapi.Server,
+  sinceDay: string,
+  evaporationFactor: number
+) {
+  const today = dayjs()
+  const historyDate = dayjs(sinceDay)
+  // Get past hydro amounts
+  return await server.plugins.storage
+    .get('irrigation/history')
+    .then((recordMap: HydroRecordMap) => {
+      recordMap = Object.fromEntries(
+        Object.entries(recordMap || {})
+          .filter(([key]) => {
+            const recordDate = dayjs(key)
+            return (
+              recordDate.isBefore(historyDate, 'day') &&
+              !recordDate.isAfter(today, 'day')
+            )
+          })
+          .map(([key, value]) => [
+            key,
+            { ...value, evaporation: value.evaporation * evaporationFactor }
+          ])
+      )
+
+      const amount = Object.values(recordMap).reduce(
+        (summed: number, history) => {
+          return summed + history.precipitation - history.evaporation
+        },
+        0
+      )
+      return [amount, recordMap] as [number, HydroRecordMap]
+    })
+}
+
+/**
+ * Retreive the future hydro information of a given interval and evaporation factor.
+ * @param server The Hapi server instance.
+ * @param untilDay Date until the data should be retrieved.
+ * @param evaporationFactor The evaporation factor of the valves soil.
+ * @returns The future hydro data in mm/day and K.
+ */
+async function getFutureHydroRecords(
+  server: hapi.Server,
+  untilDay: string,
+  evaporationFactor: number
+) {
+  const futureDate = dayjs(untilDay)
+  const { latitude } = server.app.hassRegistry.getConfig()
+  const weatherForecasts = server.app.hassRegistry.getStates(FORECAST_ENTITY)
+  const recordMaps = weatherForecasts.map((weatherForecast) => {
+    const { temperature_unit, precipitation_unit, forecast } =
+      weatherForecast.attributes as {
+        temperature_unit: '°C' | '°F'
+        precipitation_unit: 'in' | 'mm'
+        forecast: any[]
+      }
+
+    const recordMap = forecast
+      .filter(({ datetime }) => !dayjs(datetime).isAfter(futureDate, 'day'))
+      .reduce((recordMap, forecast) => {
+        const recordKey = dayjs(forecast.datetime).format('YYYY-MM-DD')
+        if (recordMap[recordKey] === undefined) {
+          recordMap[recordKey] = {
+            evaporation: 0,
+            precipitation: 0,
+            temperature: { min: Number.MAX_VALUE, max: -Number.MAX_VALUE }
+          }
+        }
+
+        const minTemperature =
+          toKelvin(forecast.templow, temperature_unit) || Number.MAX_VALUE
+        recordMap[recordKey].temperature.min = Math.min(
+          minTemperature,
+          recordMap[recordKey].temperature.min
+        )
+
+        const maxTemperature =
+          toKelvin(forecast.temperature, temperature_unit) || -Number.MAX_VALUE
+        recordMap[recordKey].temperature.max = Math.max(
+          maxTemperature,
+          recordMap[recordKey].temperature.max
+        )
+
+        recordMap[recordKey].evaporation +=
+          hargreavesSamani(
+            forecast.datetime,
+            minTemperature,
+            maxTemperature,
+            forecast.humidity,
+            latitude
+          ) * evaporationFactor
+
+        recordMap[recordKey].precipitation =
+          toMillimeters(forecast.precipitation, precipitation_unit) || 0
+
+        return recordMap
+      }, {}) as HydroRecordMap
+
+    return {
+      recordMap,
+      amount: Object.values(recordMap).reduce(
+        (summed: number, future) =>
+          summed + future.precipitation - future.evaporation,
+        0
+      )
+    }
+  })
+
+  const classified = recordMaps.sort((a, b) => b.amount - a.amount).pop() || {
+    amount: 0,
+    recordMap: {}
+  }
+  return [classified.amount, classified.recordMap] as [number, HydroRecordMap]
+}
+
+/**
+ * Retrieve the needed irrigation time of a given valve to counter the evaporation.
+ * @param server The Hapi server instance.
+ * @param entityId The entityId of the valve.
+ * @returns The number of seconds of irrigation time.
+ */
+async function irrigateSeconds(server: hapi.Server, entityId: string) {
+  const [valveParams, calculatedValveParams] = await getValveParams(
+    server,
+    entityId
+  )
+
+  if (!valveParams || !calculatedValveParams) {
+    console.log(`Some irrigation values of item ${entityId} are missing...`)
+    return 0
+  }
+
+  const now = dayjs()
+  const sinceDay = now.subtract(valveParams.observedDays, 'day')
+  const untilDay = now.add(valveParams.overshootDays, 'day')
+  const [nowRecordKey, sinceDayRecordKey, untilDayRecordKey] = [
+    now,
+    sinceDay,
+    untilDay
+  ].map((d) => d.format('YYYY-MM-DD'))
+
+  // Get past irrigation amounts of valve
+  const [pastIrrigationAmount, pastIrrigationRecords] =
+    await getPastIrrigationRecords(
+      server,
+      entityId,
+      sinceDay.toISOString(),
+      calculatedValveParams.irrigationVolumePerMinute
+    )
+  if (pastIrrigationRecords[nowRecordKey]?.irrigation) {
+    console.log(`Skip ${entityId} as it had irrigated today...`)
+    return 0
+  }
+
+  // Get hydro amounts
+  const [pastHydroAmount, pastHydroRecords] = await getPastHydroRecords(
+    server,
+    sinceDay.toISOString(),
+    valveParams.evaporationFactor
+  )
+  const [maxFutureHydroAmount, maxFutureHydroRecord] =
+    await getFutureHydroRecords(
+      server,
+      untilDay.toISOString(),
+      valveParams.evaporationFactor
+    )
+
+  // Save current hydro record
+  if (maxFutureHydroRecord[nowRecordKey]) {
+    await server.plugins.storage.set('irrigation/history', {
+      ...maxFutureHydroRecord[nowRecordKey],
+      ...Object.fromEntries(
+        Object.entries(pastHydroRecords).filter(
+          ([key]) => !dayjs(key).isSame(now, 'day')
+        )
+      )
+    })
+  }
+
+  // Decide if irrigation is needed
+  const irrigationAmount = -(
+    pastHydroAmount +
+    pastIrrigationAmount +
+    maxFutureHydroAmount
+  )
+  const reachedMinimalTemperature =
+    Math.min(
+      ...Object.values(maxFutureHydroRecord).map((mfr) => mfr.temperature.min)
+    ) > calculatedValveParams.minimalKelvin
+  if (
+    reachedMinimalTemperature &&
+    pastHydroRecords[sinceDayRecordKey] !== undefined &&
+    maxFutureHydroRecord[untilDayRecordKey] !== undefined &&
+    irrigationAmount > 0
+  ) {
+    return (
+      (irrigationAmount / calculatedValveParams.irrigationVolumePerMinute) * 60
+    )
+  }
+
+  return 0
+}
+
+/**
  * Set up weather checking functionality for the Hapi server.
  * @param server The Hapi server instance.
  * @returns A Promise that resolves when the weather check is set up.
@@ -147,211 +526,25 @@ function toMillimeters(...textValues: (string | undefined)[]) {
 async function setupWeatherCheck(server: hapi.Server) {
   let runningValves: { entityId: string; until: string }[] = []
 
-  const irrigateSeconds = async (entityId: string) => {
-    const valveParams = (await server.plugins.storage.get(
-      `irrigation/valves/${entityId}`
-    )) as {
-      'observed-days': number
-      'overshoot-days': number
-      'volume-per-minute': string
-      'evaporation-factor': number
-      'minimal-temperature': string
-    }
-
-    const [
-      irrigationVolumePerMinute,
-      minimalKelvin,
-      observedDays,
-      overshootDays,
-      evaporationFactor
-    ] = [
-      toMillimeters(valveParams?.['volume-per-minute']),
-      toKelvin(valveParams?.['minimal-temperature']),
-      valveParams?.['observed-days'],
-      valveParams?.['overshoot-days'],
-      valveParams?.['evaporation-factor']
-    ]
-
-    if (
-      [
-        irrigationVolumePerMinute,
-        minimalKelvin,
-        observedDays,
-        overshootDays,
-        evaporationFactor
-      ].some((value) => value === undefined)
-    ) {
-      console.log(`Some irrigation values of item ${entityId} are missing...`)
-      return 0
-    }
-
-    // Get irrigation amounts of valve
-    const now = dayjs()
-    const historyDate = now.subtract(valveParams['observed-days'], 'day')
-    const [irrigatedToday, historyIrrigationAmount] =
-      await server.plugins.hassConnect.rest
-        .get<Pick<State, 'entity_id' | 'state' | 'last_changed'>[][]>(
-          `/history/period/${historyDate.toISOString()}?${[
-            `end_time=${now.toISOString()}`,
-            `filter_entity_id=${entityId}`
-          ].join('&')}`
-        )
-        .then(({ ok, json }): [boolean, number] => {
-          if (!ok) {
-            // Do not irrigate without history
-            return [true, 0]
-          }
-
-          const { irrigatedToday, volume } = json!.flat().reduce(
-            ({ irrigatedToday, volume, state, last_changed }, record) => {
-              const recordDate = dayjs(record.last_changed)
-              irrigatedToday ||= state == 'on' && recordDate.isSame(now, 'day')
-
-              if (state == record.state) {
-                // Skip
-                return {
-                  irrigatedToday,
-                  volume,
-                  state,
-                  last_changed
-                }
-              }
-
-              const addedVolume =
-                record.state == 'off'
-                  ? ((recordDate.unix() - dayjs(last_changed).unix()) / 60) *
-                    irrigationVolumePerMinute!
-                  : 0
-
-              return {
-                irrigatedToday,
-                volume: volume + addedVolume,
-                state: record.state,
-                last_changed: record.last_changed
-              }
-            },
-            {
-              irrigatedToday: false,
-              volume: 0,
-              state: 'off',
-              last_changed: now.toISOString()
-            }
-          )
-
-          return [irrigatedToday, volume]
-        })
-
-    if (irrigatedToday) {
-      console.log(`Skip ${entityId} as it had irrigated today...`)
-      return 0
-    }
-
-    // Get past hydro amounts
-    const historyHydroRecords = await server.plugins.storage
-      .get(`irrigation/history`)
-      .then((records: HydroRecord[]) =>
-        (records || []).filter(({ datetime }) => {
-          const recordDate = dayjs(datetime)
-          return (
-            !recordDate.isBefore(historyDate, 'day') &&
-            recordDate.isAfter(now, 'day')
-          )
-        })
+  const checkValves = async () => {
+    console.log('Checking irrigation valves...')
+    const valves = server.app.hassRegistry.getStates(VALVE_ENTITY)
+    if (valves.some((valve) => valve.state == 'on')) {
+      console.log(
+        `Skip irrigation check as there is at least one valve irrigating...`
       )
-    const historyHydroAmount = historyHydroRecords.reduce(
-      (summed: number, history) => {
-        return (
-          summed +
-          history.precipitation -
-          history.evaporation * valveParams['evaporation-factor']
-        )
-      },
-      0
-    )
-
-    // Get future hydro amounts
-    const { latitude } = server.app.hassRegistry.getConfig()
-    const weatherForecasts = server.app.hassRegistry.getStates(FORECAST_ENTITY)
-    for (const weatherForecast of weatherForecasts) {
-      const { temperature_unit, precipitation_unit, forecast } =
-        weatherForecast.attributes as {
-          temperature_unit: 'C' | 'F'
-          precipitation_unit: 'in' | 'mm'
-          forecast: any[]
-        }
-
-      type EvaporationRecordMap = {
-        [key: string]: Pick<HydroRecord, 'evaporation' | 'precipitation'>
-      }
-
-      const forecastDate = now.add(valveParams['overshoot-days'], 'day')
-      const [reachedMinTemp, forecastHydroRecords] = forecast
-        .filter(({ datetime }) => !dayjs(datetime).isAfter(forecastDate, 'day'))
-        .reduce<[boolean, EvaporationRecordMap]>(
-          ([reachedMinTemp, records], forecast) => {
-            const key = dayjs(forecast.datetime).format('YYYY-MM-DD')
-            if (records[key] === undefined) {
-              records[key] = {
-                evaporation: 0,
-                precipitation: 0
-              }
-            }
-
-            const convertedTemplow = toKelvin(
-              forecast.templow,
-              temperature_unit
-            )!
-
-            records[key].evaporation += hargreavesSamani(
-              forecast.datetime,
-              convertedTemplow - 273.15,
-              toKelvin(forecast.temperature, temperature_unit)! - 273.15,
-              forecast.humidity,
-              latitude
-            )
-
-            records[key].precipitation += toMillimeters(
-              forecast.precipitation,
-              precipitation_unit
-            )!
-
-            return [
-              reachedMinTemp && convertedTemplow >= minimalKelvin!,
-              records
-            ]
-          },
-          [true, {}]
-        )
-      const forecastHydroAmount = Object.values(forecastHydroRecords).reduce(
-        (summed, { evaporation: e, precipitation: p }) =>
-          summed + p - e * valveParams['evaporation-factor'],
-        0
-      )
-
-      // Save current hydro record
-      const todayRecord = forecastHydroRecords[now.format('YYYY-MM-DD')]
-      if (todayRecord) {
-        await server.plugins.storage.set('irrigation/history', [
-          todayRecord,
-          historyHydroRecords.filter(
-            ({ datetime }) => !dayjs(datetime).isSame(now, 'day')
-          )
-        ])
-      }
-
-      // Decide if irrigation is needed
-      const level =
-        historyHydroAmount + historyIrrigationAmount + forecastHydroAmount
-      if (
-        reachedMinTemp &&
-        historyHydroRecords.length >= valveParams['observed-days'] &&
-        level < 0
-      ) {
-        return (-level / irrigationVolumePerMinute!) * 60
-      }
+      return
     }
 
-    return 0
+    for (const { entity_id } of valves) {
+      const irrigationSeconds = await irrigateSeconds(server, entity_id)
+      updateRunners(entity_id, irrigationSeconds)
+      irrigationSeconds &&
+        (await server.app.hassRegistry.callService('homeassistant', 'turn_on', {
+          service_data: { entity_id }
+        }))
+      break
+    }
   }
 
   const updateRunners = (entityId: string, irrigationSeconds: number) => {
@@ -385,35 +578,96 @@ async function setupWeatherCheck(server: hapi.Server) {
     }
   })
 
+  server.events.on(EVENT_HASSCONNECT.CONNECTED, async () => {
+    const connection = await server.plugins.hassConnect.globalConnect()
+    await connection?.subscribeMessage(checkValves, {
+      type: 'subscribe_events',
+      event_type: EVENTS.checkIrrigation(server)
+    })
+  })
+
   server.events.on(EVENT_HASSREGISTRY.STATE_UPDATED, async (state: State) => {
     if (
-      [{ ...VALVE_ENTITY, state: 'off' }, FORECAST_ENTITY].some((criteria) =>
-        server.app.hassRegistry.matchesStateFilter(state, criteria)
-      )
+      server.app.hassRegistry.matchesStateFilter(state, {
+        ...VALVE_ENTITY,
+        state: 'off'
+      }) ||
+      (server.app.hassRegistry.matchesStateFilter(state, FORECAST_ENTITY) &&
+        (await server.plugins.storage.get(
+          'irrigation/triggers/forecast-updates'
+        )))
     ) {
-      const valves = server.app.hassRegistry.getStates(VALVE_ENTITY)
-      if (valves.some((valve) => valve.state == 'on')) {
-        console.log(
-          `Skip irrigation check as there is at least one valve irrigating...`
-        )
-        return
-      }
-
-      for (const { entity_id } of valves) {
-        const irrigationSeconds = await irrigateSeconds(entity_id)
-        updateRunners(entity_id, irrigationSeconds)
-        irrigationSeconds &&
-          (await server.app.hassRegistry.callService(
-            'homeassistant',
-            'turn_on',
-            {
-              service_data: { entity_id }
-            }
-          ))
-        break
-      }
+      checkValves()
     }
   })
+}
+
+async function irrigationValvePayload(server: hapi.Server, entityId: string) {
+  const valveState = server.app.hassRegistry.getState(entityId)
+  const [valveParam, calculatedValveParams] = await getValveParams(
+    server,
+    entityId
+  )
+
+  if (!valveState || !valveParam || !calculatedValveParams) {
+    return { entityId, params: {}, series: [], amounts: {} }
+  }
+
+  const now = dayjs()
+  const untilDay = now.add(valveParam.overshootDays, 'days')
+  const sinceDay = now.subtract(valveParam.observedDays, 'days')
+
+  const [
+    [pastHydroAmount, pastHydroRecords],
+    [futureHydroAmount, futureHydroRecords],
+    [pastIrrigationAmount, irrigationRecords],
+    futureIrrigationAmount
+  ] = await Promise.all([
+    getPastHydroRecords(
+      server,
+      sinceDay.toISOString(),
+      valveParam.evaporationFactor
+    ),
+    getFutureHydroRecords(
+      server,
+      untilDay.toISOString(),
+      valveParam.evaporationFactor
+    ),
+    getPastIrrigationRecords(
+      server,
+      entityId,
+      sinceDay.toISOString(),
+      calculatedValveParams.irrigationVolumePerMinute
+    ),
+    irrigateSeconds(server, entityId)
+  ])
+
+  const series = Object.entries({
+    ...pastHydroRecords,
+    ...futureHydroRecords
+  }).map(([datetime, value]) => ({
+    datetime,
+    precipitation: value.precipitation,
+    temperature: {
+      max: value.temperature.max,
+      min: value.temperature.min
+    },
+    evaporation: value.evaporation,
+    irrigation: irrigationRecords[datetime]?.irrigation || 0
+  }))
+
+  return {
+    entityId,
+    entityName: valveState.attributes.friendly_name,
+    params: valveParam,
+    amounts: {
+      pastHydro: pastHydroAmount,
+      futureHydro: futureHydroAmount,
+      pastIrrigation: pastIrrigationAmount,
+      futureIrrigation: futureIrrigationAmount
+    },
+    series
+  }
 }
 
 /**
@@ -424,158 +678,104 @@ async function setupWeatherCheck(server: hapi.Server) {
 async function setupIrrigationRoutes(server: hapi.Server) {
   server.route({
     method: 'GET',
-    path: '/api/irrigation-valve-items',
+    path: '/api/irrigation-valves',
     handler: async (request, h) => {
-      /*
-        const weatherHistory =
-          (await server.plugins["app/json-storage"].get(
-            "gCore_Irrigation",
-            "irrigation/weather-history"
-          )) || []
+      const valves = server.app.hassRegistry.getStates(VALVE_ENTITY)
+      const valvePayloads = await Promise.all(
+        valves.map(({ entity_id }) => irrigationValvePayload(server, entity_id))
+      )
 
-        const weatherForecast =
-          (await server.plugins["app/json-storage"].get(
-            "gCore_Irrigation",
-            "irrigation/weather-forecast"
-          )) || []
-
-        const items = await request.server.plugins["app/openhab"].getItem(
-          request,
-          "gCore_Irrigation_Valves",
-          true
-        )
-
-        const result = (items.members || []).map(async (item) => {
-          const irrigationLevelPerMinute = await server.plugins[
-            "app/json-storage"
-          ].get(item.name, "irrigation/irrigation-level-per-minute")
-
-          const observedDays = await server.plugins["app/json-storage"].get(
-            item.name,
-            "irrigation/observed-days"
-          )
-
-          const overshootDays = await server.plugins["app/json-storage"].get(
-            item.name,
-            "irrigation/overshoot-days"
-          )
-
-          const evaporationFactor = await server.plugins[
-            "app/json-storage"
-          ].get(item.name, "irrigation/evaporation-factor")
-
-          const minimalTemperature = await server.plugins[
-            "app/json-storage"
-          ].get(item.name, "irrigation/minimal-temperature")
-
-          const irrigationHistory =
-            (await server.plugins["app/json-storage"].get(
-              item.name,
-              "irrigation/history"
-            )) || {}
-
-          const lastActivation = await server.plugins["app/json-storage"].get(
-            item.name,
-            "irrigation/last-activation"
-          )
-
-          const lastActivationCompleted = await server.plugins[
-            "app/json-storage"
-          ].get(item.name, "irrigation/last-activation-completed")
-
-          item.jsonStorage = {
-            irrigationLevelPerMinute,
-            overshootDays,
-            evaporationFactor,
-            minimalTemperature,
-            observedDays,
-            series: [
-              ...weatherHistory,
-              ...weatherForecast
-                .slice(0, Math.min(8, weatherForecast.length))
-                .map((wf: any) => ({ ...wf, forecast: true })),
-            ].map((s) => {
-              const irrigation = irrigationHistory[s.date]
-              return irrigation ? { ...s, irrigation } : s
-            }),
-            totalMonthlyIrrigation: Object.keys(irrigationHistory).reduce(
-              (amount, date) => amount + irrigationHistory[date],
-              0
-            ),
-            lastActivation,
-            lastActivationCompleted,
-          }
-
-          return item
-        })
-        return h.response({ data: await Promise.all(result) }).code(200)
-        */
+      return h.response(valvePayloads).code(200)
     }
   })
 
   server.route({
     method: 'POST',
-    path: '/api/irrigation-valve-items/{item}',
+    path: '/api/irrigation-valves',
     options: {
       validate: {
-        params: {
-          item: Joi.string().pattern(/^[a-zA-Z_0-9]+$/)
-        },
         payload: {
-          irrigationValues: Joi.object({
-            irrigationLevelPerMinute: Joi.number().min(0).required(),
+          entityId: Joi.string().required(),
+          params: Joi.object({
+            irrigationVolumePerMinute: Joi.string()
+              .regex(/^\d+\s?(in|mm)$/i)
+              .required(),
             overshootDays: Joi.number().min(0).required(),
             evaporationFactor: Joi.number().min(0).required(),
             minimalTemperature: Joi.string()
-              .regex(/\d*[FC]/)
-              .optional(),
+              .regex(/^\d+\s?[FC]$/i)
+              .required(),
             observedDays: Joi.number().min(0).required()
           }).required()
         }
       }
     },
     handler: async (request, h) => {
-      /*
-        const { irrigationValues } = request.payload as any
-        const {
-          irrigationLevelPerMinute,
-          overshootDays,
-          minimalTemperature,
-          evaporationFactor,
-          observedDays,
-        } = irrigationValues
+      const { params, entityId } = request.payload as any
+      const {
+        irrigationVolumePerMinute,
+        overshootDays,
+        minimalTemperature,
+        evaporationFactor,
+        observedDays
+      } = params
 
-        await server.plugins["app/json-storage"].set(
-          request.params.item,
-          "irrigation/irrigation-level-per-minute",
-          irrigationLevelPerMinute
-        )
+      let valveParams =
+        (await server.plugins.storage.get<ValveParams[]>(
+          'irrigation/valves'
+        )) || []
 
-        await server.plugins["app/json-storage"].set(
-          request.params.item,
-          "irrigation/observed-days",
-          observedDays
-        )
+      await server.plugins.storage.set('irrigation/valves', [
+        {
+          entityId,
+          'minimal-temperature': minimalTemperature
+            .replace(' ', '')
+            .toUpperCase(),
+          'volume-per-minute': irrigationVolumePerMinute
+            .replace(' ', '')
+            .toLowerCase(),
+          'overshoot-days': overshootDays,
+          'observed-days': observedDays,
+          'evaporation-factor': evaporationFactor
+        },
+        ...valveParams.filter((valveParam) => !valveParam.entityId)
+      ])
 
-        await server.plugins["app/json-storage"].set(
-          request.params.item,
-          "irrigation/evaporation-factor",
-          evaporationFactor
-        )
+      const valvePayload = await irrigationValvePayload(server, entityId)
+      return h.response(valvePayload).code(200)
+    }
+  })
+  server.route({
+    method: 'POST',
+    path: '/api/irrigation-features',
+    options: {
+      validate: {
+        payload: {
+          checkOnForecastUpdates: Joi.boolean().required()
+        }
+      }
+    },
+    handler: async (request, h) => {
+      const { checkOnForecastUpdates } = request.payload as any
+      await server.plugins.storage.set(
+        'irrigation/triggers/forecast-updates',
+        checkOnForecastUpdates
+      )
 
-        await server.plugins["app/json-storage"].set(
-          request.params.item,
-          "irrigation/minimal-temperature",
-          minimalTemperature
-        )
+      return h.response({ checkOnForecastUpdates }).code(200)
+    }
+  })
 
-        await server.plugins["app/json-storage"].set(
-          request.params.item,
-          "irrigation/overshoot-days",
-          overshootDays
-        )
-        return h.response({ success: true }).code(200)
-        */
+  server.route({
+    method: 'GET',
+    path: '/api/irrigation-features',
+    handler: async (request, h) => {
+      const checkOnForecastUpdates =
+        (await server.plugins.storage.get(
+          'irrigation/triggers/forecast-updates'
+        )) || false
+
+      return h.response({ checkOnForecastUpdates }).code(200)
     }
   })
 }

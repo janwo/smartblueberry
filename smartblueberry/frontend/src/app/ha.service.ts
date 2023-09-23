@@ -1,59 +1,38 @@
 import { Injectable, inject } from '@angular/core'
-import { HttpClient } from '@angular/common/http'
-import { catchError, from, map, mergeMap, of, tap, throwError } from 'rxjs'
+import { HttpClient, HttpResponse } from '@angular/common/http'
+import {
+  Observable,
+  catchError,
+  from,
+  map,
+  mergeMap,
+  of,
+  share,
+  shareReplay,
+  tap,
+  throwError
+} from 'rxjs'
 import { environment } from 'src/environments/environment'
 import { ERR_HASS_HOST_REQUIRED, getAuth } from 'home-assistant-js-websocket'
 import { ActivatedRoute, Router } from '@angular/router'
+
+export type ValidAuthResponse =
+  | { mode: 'bearer'; bearer: string }
+  | { mode: 'supervised' }
+
+export type InvalidAuthResponse = { error: string; hassUrl: string }
 
 export interface GlobalConnectionResponse {
   connected: boolean
   client_name: string
 }
 
-export type AuthResponse =
-  | {
-      success: true
-      mode: 'bearer'
-      bearer: string
-    }
-  | {
-      success: true
-      mode: 'supervised'
-    }
-  | {
-      success: false
-      error: string
-      hassUrl: string
-    }
-
-export interface PostPutDeleteResponse {
-  success: boolean
-  error?: string
-}
-
-export interface GetItemListResponse {
-  data: Item[]
-}
-
-export interface GetSingleItemResponse {
-  data: Item
-}
-
-export interface Item {
-  name: string
-  label: string
-  state: string
-  link: string
-  members?: Item[]
-  jsonStorage?: { [key: string]: any }
-  stateDescription?: { options: [{ value: string; label: string }] }
-}
-
 @Injectable({
   providedIn: 'root'
 })
 export class HAService {
-  private globalConnection: string | undefined = undefined
+  private globalConnectionName: string | undefined = undefined
+  private options$?: Observable<any>
 
   constructor(
     private http: HttpClient,
@@ -66,7 +45,7 @@ export class HAService {
     return from(getAuth()).pipe(
       mergeMap(
         ({ data: { access_token, refresh_token, expires, expires_in } }) =>
-          this.http.post<AuthResponse>(
+          this.http.post(
             authUrl,
             {
               access_token,
@@ -74,7 +53,7 @@ export class HAService {
               expires_in,
               expires
             },
-            this.getOptions({ withoutBearer: true })
+            this.getHttpOptions({ withoutBearer: true })
           )
       ),
       catchError((err) => {
@@ -82,25 +61,30 @@ export class HAService {
           case 2:
           case ERR_HASS_HOST_REQUIRED:
             return this.http
-              .post<AuthResponse>(authUrl, undefined, this.getOptions())
+              .post(authUrl, undefined, this.getHttpOptions())
               .pipe(
-                tap(async ({ body }) => {
-                  if (!body?.success && allowOAuthCall) {
-                    await getAuth({ hassUrl: body!.hassUrl })
+                tap(async (response) => {
+                  if (
+                    response.ok &&
+                    response.status !== 200 &&
+                    allowOAuthCall
+                  ) {
+                    const { hassUrl } = response.body as InvalidAuthResponse
+                    await getAuth({ hassUrl })
                   }
                 })
               )
         }
         return throwError(() => err)
       }),
-      tap(async ({ body }) => {
+      tap(async (response) => {
         // Update authentication state
-        if (body?.success) {
+        if (response.ok && response.status == 200) {
+          const body = response.body as ValidAuthResponse
           localStorage.setItem('auth-mode', body.mode)
           if (body.mode == 'bearer') {
             localStorage.setItem('auth-bearer', body.bearer)
           }
-
           this.checkGlobalConnection()
         } else {
           this.unauthenticate()
@@ -123,10 +107,12 @@ export class HAService {
   unsetGlobalConnection() {
     const authUrl = `${environment.API_URL()}/unset-global-connection`
     this.http
-      .post<GlobalConnectionResponse>(authUrl, undefined, this.getOptions())
+      .post<GlobalConnectionResponse>(authUrl, undefined, this.getHttpOptions())
       .subscribe({
         next: ({ body }) => {
-          this.globalConnection = body?.connected ? body.client_name : undefined
+          this.globalConnectionName = body?.connected
+            ? body.client_name
+            : undefined
         },
         error: (error) => {
           console.error(error)
@@ -137,10 +123,12 @@ export class HAService {
   setGlobalConnection() {
     const authUrl = `${environment.API_URL()}/set-global-connection`
     this.http
-      .post<GlobalConnectionResponse>(authUrl, undefined, this.getOptions())
+      .post<GlobalConnectionResponse>(authUrl, undefined, this.getHttpOptions())
       .subscribe({
         next: ({ body }) => {
-          this.globalConnection = body?.connected ? body.client_name : undefined
+          this.globalConnectionName = body?.connected
+            ? body.client_name
+            : undefined
         },
         error: (error) => {
           console.error(error)
@@ -152,30 +140,30 @@ export class HAService {
     const authUrl = `${environment.API_URL()}/global-connection`
     if (this.isAuthenticated()) {
       this.http
-        .get<GlobalConnectionResponse>(authUrl, this.getOptions())
+        .get<GlobalConnectionResponse>(authUrl, this.getHttpOptions())
         .subscribe({
           next: ({ body }) => {
-            this.globalConnection = body?.connected
+            this.globalConnectionName = body?.connected
               ? body.client_name
               : undefined
           },
           error: (error) => {
             console.error(error)
-            this.globalConnection = undefined
+            this.globalConnectionName = undefined
           }
         })
       return
     }
 
-    this.globalConnection = undefined
+    this.globalConnectionName = undefined
   }
 
   public isGloballyConnected() {
-    return !!this.globalConnection
+    return !!this.globalConnectionName
   }
 
   public getGlobalConnectionName() {
-    return this.globalConnection
+    return this.globalConnectionName
   }
 
   public isAuthenticated() {
@@ -201,7 +189,17 @@ export class HAService {
     this.checkGlobalConnection()
   }
 
-  private getOptions(options = { withoutBearer: false }) {
+  public getOptions(): Observable<any> {
+    if (!this.options$) {
+      this.options$ = this.get('/options').pipe(
+        map(({ body }) => body),
+        shareReplay(1)
+      )
+    }
+    return this.options$
+  }
+
+  private getHttpOptions(options = { withoutBearer: false }) {
     const httpOptions = { observe: 'response' as 'response' }
     if (options.withoutBearer != true) {
       const mode = localStorage.getItem('auth-mode')
@@ -219,26 +217,26 @@ export class HAService {
     return httpOptions
   }
 
-  public get<ResponseBody>(url: string) {
-    return this.http.get<{ data: ResponseBody }>(
+  public get<ResponseBody = null>(url: string) {
+    return this.http.get<ResponseBody>(
       `${environment.API_URL()}${url}`,
-      this.getOptions()
+      this.getHttpOptions()
     )
   }
 
-  public post<ResponseBody>(url: string, bodyJson: any) {
-    return this.http.post<{ data: ResponseBody }>(
+  public post<ResponseBody = null>(url: string, bodyJson: any) {
+    return this.http.post<ResponseBody>(
       `${environment.API_URL()}${url}`,
       bodyJson,
-      this.getOptions()
+      this.getHttpOptions()
     )
   }
 
-  public delete<ResponseBody>(url: string, bodyJson: any) {
-    return this.http.delete<{ data: ResponseBody }>(
-      `${environment.API_URL()}${url}`,
-      { body: bodyJson, ...this.getOptions() }
-    )
+  public delete<ResponseBody = null>(url: string, bodyJson: any) {
+    return this.http.delete<ResponseBody>(`${environment.API_URL()}${url}`, {
+      body: bodyJson,
+      ...this.getHttpOptions()
+    })
   }
 }
 

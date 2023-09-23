@@ -24,6 +24,7 @@ $heading-font-size: (
   'h4': 1rem,
   'h5': 0.85rem
 );
+
 @each $heading, $size in $heading-font-size {
   #{$heading},
   .#{$heading} {
@@ -37,7 +38,7 @@ $heading-font-size: (
 }
 
 .title-icon app-svg-icon {
-  margin-right: $size-small;
+  margin-right: $size-large;
 }
 
 .tag {

@@ -1,11 +1,16 @@
 import * as hapi from '@hapi/hapi'
-import { EVENT_HASSREGISTRY, State, StatePayloadFilter } from '../registry.js'
-import Joi from 'joi'
 import { randomUUID } from 'crypto'
-import { EVENT_STORAGE } from '../../storage.js'
-import { EVENT_HASSPRESENCE } from './presence.js'
 import dayjs from 'dayjs'
+import Joi from 'joi'
+import { EVENT_STORAGE } from '../../storage.js'
 import { EVENT_HASSCONNECT } from '../connect.js'
+import { EVENT_HASSREGISTRY, State, StatePayloadFilter } from '../registry.js'
+import { EVENT_HASSPRESENCE } from './presence.js'
+
+const DEFAULTS = {
+  obscuredTreshold: 0.2,
+  brightTreshold: 0.7
+}
 
 const OBJECT_IDS = {
   lightCondition: (server: hapi.Server) =>
@@ -19,10 +24,8 @@ type LightMode = {
   obscuredCondition: LIGHT_MODE
   brightCondition: LIGHT_MODE
   darkCondition: LIGHT_MODE
-  options: {
-    brightness: number
-    duration: number
-  }
+  brightness: number
+  duration: number
 }
 
 enum LIGHT_MODE {
@@ -145,8 +148,8 @@ async function getLightCondition(server: hapi.Server) {
     .map((value) =>
       classify(
         value,
-        obscured !== undefined ? obscured : 0.2,
-        bright !== undefined ? bright : 0.7
+        obscured !== undefined ? obscured : DEFAULTS.obscuredTreshold,
+        bright !== undefined ? bright : DEFAULTS.brightTreshold
       )
     )
 
@@ -395,7 +398,10 @@ async function getAreaLightMode(server: hapi.Server, areaId: string) {
   return (
     lightMode && {
       mode: lightMode[lightConditionMap[lightConditionEntity.state]],
-      options: lightMode.options
+      options: {
+        duration: lightMode.duration,
+        brightness: lightMode.brightness
+      }
     }
   )
 }
@@ -415,26 +421,9 @@ async function setupLightModeRoutes(server: hapi.Server) {
       const lightModes = (Object.entries(lightModeMap) as [string, any][]).map(
         ([id, lightMode]) => ({ id, ...lightMode })
       )
-      return h.response({ data: lightModes }).code(200)
+      return h.response(lightModes).code(200)
     }
   })
-
-  const LightModeSchema = {
-    name: Joi.string().min(1).required(),
-    obscuredCondition: Joi.string()
-      .pattern(/(?:on)|(?:off)|(?:auto-on)|(?:simulate)|(?:unchanged)/)
-      .required(),
-    darkCondition: Joi.string()
-      .pattern(/(?:on)|(?:off)|(?:auto-on)|(?:simulate)|(?:unchanged)/)
-      .required(),
-    brightCondition: Joi.string()
-      .pattern(/(?:on)|(?:off)|(?:auto-on)|(?:simulate)|(?:unchanged)/)
-      .required(),
-    options: Joi.object({
-      brightness: Joi.number().min(0).max(1).optional(),
-      duration: Joi.number().min(0).required()
-    }).required()
-  }
 
   server.route({
     method: 'POST',
@@ -446,14 +435,25 @@ async function setupLightModeRoutes(server: hapi.Server) {
             .uuid()
             .optional()
             .default(() => randomUUID()),
-          ...LightModeSchema
+          name: Joi.string().min(1).required(),
+          obscuredCondition: Joi.string()
+            .pattern(/(?:on)|(?:off)|(?:auto-on)|(?:simulate)|(?:unchanged)/)
+            .required(),
+          darkCondition: Joi.string()
+            .pattern(/(?:on)|(?:off)|(?:auto-on)|(?:simulate)|(?:unchanged)/)
+            .required(),
+          brightCondition: Joi.string()
+            .pattern(/(?:on)|(?:off)|(?:auto-on)|(?:simulate)|(?:unchanged)/)
+            .required(),
+          brightness: Joi.number().min(0).max(1).optional(),
+          duration: Joi.number().min(0).required()
         }
       }
     },
     handler: async (request, h) => {
       const { id, ...lightMode } = request.payload as any
       await server.plugins.storage.set(`light/modes/${id}`, lightMode)
-      return h.response({ success: true, data: { id, ...lightMode } }).code(200)
+      return h.response({ id, ...lightMode }).code(200)
     }
   })
 
@@ -470,7 +470,47 @@ async function setupLightModeRoutes(server: hapi.Server) {
     handler: async (request, h) => {
       const { id } = request.payload as any
       await server.plugins.storage.delete(`light/modes/${id}`)
-      return h.response({ success: true }).code(200)
+      return h.response().code(200)
+    }
+  })
+
+  server.route({
+    method: 'GET',
+    path: '/api/light-tresholds',
+    handler: async (request, h) => {
+      const { bright, obscured } = (await server.plugins.storage.get(
+        'light/tresholds'
+      )) || {
+        obscured: DEFAULTS.obscuredTreshold,
+        bright: DEFAULTS.brightTreshold
+      }
+      return h.response({ bright, obscured }).code(200)
+    }
+  })
+
+  server.route({
+    method: 'POST',
+    path: '/api/light-tresholds',
+    options: {
+      validate: {
+        payload: {
+          obscured: Joi.number().min(0.05).max(1).required(),
+          bright: Joi.number()
+            .min(0.05)
+            .max(1)
+            .greater(Joi.ref('obscured'))
+            .required()
+        }
+      }
+    },
+    handler: async (request, h) => {
+      const { bright, obscured } = request.payload as any
+      const tresholds = {
+        bright,
+        obscured
+      }
+      await server.plugins.storage.set('light/tresholds', tresholds)
+      return h.response(tresholds).code(200)
     }
   })
 }

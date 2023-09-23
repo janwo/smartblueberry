@@ -11,7 +11,7 @@ export abstract class Base {
    */
   public getEntityId(objectId: string, isPrefixed = false) {
     return `${this.entityDomain}.${
-      isPrefixed ? '' : this.server.plugins.options.entityPrefix
+      isPrefixed ? '' : `${this.server.plugins.options.prefix}_`
     }${objectId}`
   }
 
@@ -23,7 +23,7 @@ export abstract class Base {
    */
   protected getObjectId(entityId: string, keepPrefix = false) {
     const prefix = `${this.entityDomain}.${
-      keepPrefix ? '' : this.server.plugins.options.entityPrefix
+      keepPrefix ? '' : `${this.server.plugins.options.prefix}_`
     }`
     if (!entityId.startsWith(prefix)) {
       throw new Error(`${entityId} is not of domain "${prefix}"!`)

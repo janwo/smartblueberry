@@ -130,7 +130,6 @@ async function authenticateBearer(
       const bearer = signJWT({ id, authData: encryptedAuthData })
       return h
         .response({
-          success: true,
           mode: 'bearer',
           bearer
         })
@@ -140,11 +139,10 @@ async function authenticateBearer(
 
   return h
     .response({
-      success: false,
       hassUrl: env.HOMEASSISTANT_URL,
       error: `Could not connect to Home Assistant via ${env.HOMEASSISTANT_URL}`
     })
-    .code(request.payload ? 401 : 200)
+    .code(request.payload ? 401 : 202)
 }
 
 /**
@@ -190,7 +188,6 @@ async function authenticateSupervised(
 ): Promise<hapi.ResponseObject | Boom.Boom> {
   return h
     .response({
-      success: true,
       mode: 'supervised'
     })
     .code(200)

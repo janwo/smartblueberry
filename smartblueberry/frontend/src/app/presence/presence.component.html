@@ -22,27 +22,44 @@
       </div>
     </div>
     <p i18n class="block">
-      The presence management will automatically adjust the presence state of a
-      location and the entire home in dependence to the last presence detection
-      events. In SmartBerry <span class="tag">Core_Presence</span> reflects the
-      presence status of your entire home and has three states:
+      The presence management will automatically adjust the presence state of n
+      area and the entire home in dependence to the last presence detection
+      events. In Smart Blueberry
+      <app-entity-schema domain="input_select">presence_mode</app-entity-schema>
+      reflects the presence status of your entire home and has three states:
     </p>
     <ul class="content">
-      <li i18n>At home (<code>PRESENT</code>)</li>
-      <li i18n>Away for short (<code>AWAY_SHORT</code>)</li>
-      <li i18n>Away for long (<code>AWAY_LONG</code>)</li>
+      <li i18n>At home (<code>present</code>)</li>
+      <li i18n>Away (<code>away</code>)</li>
+      <li i18n>Abandoned (<code>abandoned</code>)</li>
     </ul>
     <p i18n class="block">
-      Set the number of hours in
-      <span class="tag">Core_Presence_HoursUntilAwayShort</span> until presence
-      management sets the presence state to <code>AWAY_SHORT</code>. Set the
-      number of hours in
-      <span class="tag">Core_Presence_HoursUntilAwayLong</span> until presence
-      management sets the presence state to <code>AWAY_LONG</code>.
+      In order to trigger presence, your presence entities should be names like
+      <app-entity-schema domain="binary_sensor" customPrefix="">
+        &lt;any name&gt;
+      </app-entity-schema>
+      and have the <span class="tag">device_class</span> attribute set to
+      <span class="tag">motion</span>.
     </p>
     <p i18n class="block">
-      In order to trigger presence, you should define presence items, e.g. by
-      tagging your motion sensors.
+      You can adjust the number of hours until presence management sets the
+      presence state to <code>away</code> or <code>abandoned</code> by changing
+      the values below.
     </p>
+    <app-form
+      [formData]="presenceTresholds"
+      (onSubmit)="updatePresenceThresholds($event)"
+    >
+      <div class="buttons is-grouped">
+        <button
+          type="submit"
+          class="button is-primary"
+          i18n
+          [disabled]="presenceTresholds === undefined"
+        >
+          Update
+        </button>
+      </div>
+    </app-form>
   </div>
 </div>

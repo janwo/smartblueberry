@@ -1,20 +1,24 @@
 import { Component, OnInit } from '@angular/core'
-import { FormControl, FormGroup, Validators } from '@angular/forms'
-import { forkJoin } from 'rxjs'
+import { FormGroup, Validators } from '@angular/forms'
+import { Observable, map, of } from 'rxjs'
+import { FormData, FormValue } from '../form/form.component'
 import { HAService } from '../ha.service'
 
 type activationBehavior = 'on' | 'off' | 'auto-on' | 'simulate' | 'unchanged'
 
-interface LightMode {
-  id: string | null
+interface LightModePayload {
+  id?: string
   name: string
   darkCondition: activationBehavior
   brightCondition: activationBehavior
   obscuredCondition: activationBehavior
-  options: {
-    brightness?: number
-    duration?: number
-  }
+  brightness: number
+  duration?: number
+}
+
+interface LightTresholdsPayload {
+  bright: number
+  obscured: number
 }
 
 @Component({
@@ -23,150 +27,213 @@ interface LightMode {
   styleUrls: ['./light.component.scss']
 })
 export class LightComponent implements OnInit {
-  CONDITION_OPTIONS = {
-    on: 'On',
-    off: 'Off',
-    'auto-on': 'Auto-On',
-    unchanged: 'Unverändert',
-    simulate: 'Simulieren'
-  }
-  lightModeForms
+  lightTresholds: FormData<LightTresholdsPayload> | undefined
+  lightModes: FormData<LightModePayload>[] = []
+  visibleAccordion: string | false | undefined = false
 
-  constructor(private haService: HAService) {
-    this.lightModeForms = [] as ReturnType<
-      typeof LightComponent.generateLightModeForm
-    >[]
-  }
+  constructor(private haService: HAService) {}
 
-  private static generateLightModeForm({
-    id,
-    name,
-    darkCondition,
-    brightCondition,
-    obscuredCondition,
-    options
-  }: Partial<LightMode> = {}) {
-    return new FormGroup({
-      id: new FormControl(id === undefined ? null : id),
-      name: new FormControl(name || '', [Validators.required]),
-      darkCondition: new FormControl(darkCondition || null, [
-        Validators.required
-      ]),
-      brightCondition: new FormControl(brightCondition || null, [
-        Validators.required
-      ]),
-      obscuredCondition: new FormControl(obscuredCondition || null, [
-        Validators.required
-      ]),
-      options: new FormGroup({
-        brightness: new FormControl(
-          options?.brightness === undefined ? null : options.brightness,
-          [Validators.min(0), Validators.max(100)]
-        ),
-        duration: new FormControl(
-          options?.duration === undefined ? null : options.duration,
-          [Validators.min(0), Validators.max(100)]
-        )
+  ngOnInit(): void {
+    // Load light modes
+    this.haService
+      .get<LightModePayload[]>('/light-modes')
+      .pipe(
+        map((response) => {
+          const lightModesPayload = response.body || []
+          return lightModesPayload.map(this.createLightMode)
+        })
+      )
+      .subscribe({
+        next: (lightModes) => {
+          this.lightModes = lightModes
+        }
       })
+
+    // Load tresholds
+    this.haService
+      .get<LightTresholdsPayload>('/light-tresholds')
+      .pipe(
+        map((response) => {
+          const { obscured, bright } = response.body!
+          return {
+            defaultValues: { obscured: obscured * 100, bright: bright * 100 },
+            fields: {
+              obscured: {
+                label: $localize`Obscured`,
+                type: 'number',
+                typeOptions: { hint: $localize`%` },
+                validators: [
+                  Validators.required,
+                  Validators.min(1),
+                  Validators.max(100)
+                ]
+              },
+              bright: {
+                label:  $localize`Bright`,
+                type: 'number',
+                typeOptions: { hint: $localize`%` },
+                validators: [
+                  Validators.required,
+                  Validators.min(1),
+                  Validators.max(100)
+                ]
+              }
+            }
+          } as FormData<LightTresholdsPayload>
+        })
+      )
+      .subscribe({
+        next: (lightTresholds) => {
+          this.lightTresholds = lightTresholds
+        }
+      })
+  }
+
+  private createLightMode(lightModePayload?: LightModePayload) {
+    const conditionTitles = {
+      brightCondition: $localize`Bright`,
+      obscuredCondition: $localize`Obscured`,
+      darkCondition: $localize`Dark`
+    }
+
+    return {
+      defaultValues: {
+        id: lightModePayload?.id || null,
+        name: lightModePayload?.name || $localize`New Light Mode`,
+        ...Object.fromEntries(
+          Object.keys(conditionTitles).map((attribute) => {
+            const value =
+              lightModePayload?.[attribute as keyof LightModePayload] ||
+              'unchanged'
+            return [attribute, value]
+          })
+        ),
+        duration: lightModePayload?.duration || 15,
+        brightness: (lightModePayload?.brightness || 1) * 100
+      },
+      fields: {
+        id: { type: 'hidden' },
+        name: {
+          label: $localize`Name`,
+          type: 'text',
+          validators: [Validators.required]
+        },
+        ...Object.fromEntries(
+          Object.entries(conditionTitles).map(([attribute, label]) => [
+            attribute,
+            {
+              label,
+              type: 'select',
+              typeOptions: {
+                options: {
+                  on: $localize`On`,
+                  off: $localize`Off`,
+                  'auto-on': $localize`Auto-On`,
+                  unchanged: $localize`Unchanged`,
+                  simulate: $localize`Simulate`
+                }
+              },
+              validators: [Validators.required]
+            }
+          ])
+        ),
+        brightness: {
+          label: $localize`Light Brightness`,
+          type: 'number',
+          typeOptions: { hint: $localize`%` },
+          validators: [Validators.min(1), Validators.max(100)]
+        },
+        duration: {
+          label: $localize`Light Duration`,
+          type: 'number',
+          typeOptions: { hint: $localize`Minutes` },
+          validators: [Validators.required, Validators.min(1)]
+        }
+      }
+    } as FormData<LightModePayload>
+  }
+
+  protected addLightMode() {
+    this.visibleAccordion = undefined
+    this.lightModes.push(this.createLightMode())
+  }
+
+  upsertLightMode = (form: FormGroup) => {
+    const lightMode = {
+      id: this.convertNullToUndefined(form.value.id),
+      name: this.convertNullToUndefined(form.value.name),
+      darkCondition: form.value.darkCondition,
+      brightCondition: form.value.brightCondition,
+      obscuredCondition: form.value.obscuredCondition,
+      brightness:
+        (this.convertNullToUndefined(form.value.brightness) || 100) / 100,
+      duration: this.convertNullToUndefined(form.value.duration)
+    }
+
+    this.haService.post<LightModePayload>('/light-modes', lightMode).subscribe({
+      next: (response) => {
+        if (response.ok) {
+          form.setValue({
+            ...response.body,
+            brightness: (response.body?.brightness || 1) * 100
+          })
+        }
+      }
     })
   }
 
-  protected hasLightModeConditions(
-    form: ReturnType<typeof LightComponent.generateLightModeForm>,
-    value: keyof typeof this.CONDITION_OPTIONS
-  ) {
-    const { darkCondition, brightCondition, obscuredCondition } = form.controls
-    return [
-      darkCondition.value,
-      brightCondition.value,
-      obscuredCondition,
-      value
-    ].some((v) => value)
+  deleteLightMode(id: string | undefined) {
+    const remove = () => {
+      this.lightModes = this.lightModes.filter(
+        (lightMode) => lightMode.defaultValues.id !== id
+      )
+    }
+
+    if (id === undefined) {
+      return remove()
+    }
+
+    this.haService.delete('/light-modes', { id }).subscribe({
+      next: (response) => response.ok && remove()
+    })
   }
 
-  protected hasUnsetIds(forms: FormGroup<{ id: string } & any>[]) {
-    return forms.some((form) => form.controls['id'].value === null)
+  updateLightTresholds(form: FormGroup) {
+    const tresholds = {
+      obscured: form.controls['obscured'].value/100,
+      bright: form.controls['bright'].value/100
+    }
+
+    this.haService
+      .post<LightTresholdsPayload>('/light-tresholds', tresholds)
+      .subscribe({
+        next: (response) => {
+          if (response.ok) {
+            const { obscured, bright } = response.body!
+            form.setValue({
+              obscured: obscured * 100,
+              bright: bright * 100
+            })
+          }
+        }
+      })
+  }
+
+  protected openAccordion(formData: FormData<LightModePayload>): void {
+    this.visibleAccordion = formData.defaultValues.id
+  }
+
+  protected closeAccordion(): void {
+    this.visibleAccordion = false
   }
 
   convertNullToUndefined(value: any) {
     return value === null ? undefined : value
   }
 
-  addLightMode() {
-    this.lightModeForms.push(LightComponent.generateLightModeForm())
-  }
-
-  submitLightMode(
-    form: ReturnType<typeof LightComponent.generateLightModeForm>
-  ) {
-    if (!form.valid) {
-      form.setErrors({ missing: 'df' })
-      return
-    }
-
-    const lightMode = {
-      id: this.convertNullToUndefined(form.controls.id.value),
-      name: this.convertNullToUndefined(form.controls.name.value),
-      darkCondition: form.controls.darkCondition.value,
-      brightCondition: form.controls.brightCondition.value,
-      obscuredCondition: form.controls.obscuredCondition.value
-    }
-
-    const options = {
-      brightness: this.convertNullToUndefined(
-        form.controls.options.controls.brightness.value
-      ),
-      duration: this.hasLightModeConditions(form, 'auto-on')
-        ? this.convertNullToUndefined(
-            form.controls.options.controls.duration.value
-          )
-        : undefined
-    }
-
-    return this.haService
-      .post<LightMode>('/light-modes', { ...lightMode, options })
-      .subscribe({
-        next: (response) => {
-          if (response.ok) {
-            //this.lightModeForms.filter(lightModeForm => lightModeForm.controls.id.value !== null).push(
-            //  LightComponent.generateLightModeForm(response.body!.data)
-            // )
-            form.controls.id.setValue(response.body?.data.id || null)
-          }
-        }
-      })
-  }
-
-  deleteLightMode(
-    form: ReturnType<typeof LightComponent.generateLightModeForm>
-  ) {
-    if (form.controls.id.value !== null) {
-      this.haService
-        .delete('/light-modes', { id: form.controls.id.value })
-        .subscribe({
-          next: (response) => {
-            if (response.ok) {
-              this.lightModeForms = this.lightModeForms.filter(
-                (lightModeForm) =>
-                  lightModeForm.controls.id.value !== form.controls.id.value
-              )
-            }
-          }
-        })
-      return
-    }
-
-    this.lightModeForms = this.lightModeForms.filter(
-      (lightModeForm) => lightModeForm.controls.id.value !== null
-    )
-  }
-
-  ngOnInit(): void {
-    forkJoin([this.haService.get<LightMode[]>(`/light-modes`)]).subscribe({
-      next: (response) => {
-        const { data } = response[0].body!
-        this.lightModeForms = data.map(LightComponent.generateLightModeForm)
-      }
-    })
+  getValue(formData: FormValue, name: keyof FormValue) {
+    return (formData['initialize']?.pipe(
+      map((value: FormValue) => value[name])
+    ) || of(null)) as Observable<FormValue[typeof name]>
   }
 }

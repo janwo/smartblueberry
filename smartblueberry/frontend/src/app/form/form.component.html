@@ -1,0 +1,80 @@
+<form *ngIf="formGroup" [formGroup]="formGroup" (ngSubmit)="submit()">
+  <div
+    *ngFor="let field of formData?.fields | keyvalue : compare; let i = index"
+    class="columns is-vcentered is-mobile"
+  >
+    <div class="column is-narrow" *ngIf="field.value.type !== 'hidden'">
+      {{ field.value.label }}
+    </div>
+    <div class="column">
+      <div *ngIf="field.value.type == 'text'" class="field has-addons">
+        <p class="control is-expanded">
+          <input
+            class="input"
+            type="text"
+            [placeholder]="field.value.typeOptions?.placeholder || ''"
+            [formControlName]="field.key"
+            [ngClass]="{
+              'is-danger':
+                formGroup.controls[field.key].errors &&
+                formGroup.controls[field.key].touched
+            }"
+          />
+        </p>
+        <p class="control" *ngIf="field.value.typeOptions?.hint">
+          <span class="button is-static">{{
+            field.value.typeOptions?.hint
+          }}</span>
+        </p>
+      </div>
+
+      <div *ngIf="field.value.type === 'number'" class="field has-addons">
+        <p class="control is-expanded">
+          <input
+            class="input"
+            type="number"
+            [min]="field.value.typeOptions?.min || null"
+            [max]="field.value.typeOptions?.max || null"
+            [step]="field.value.typeOptions?.step || null"
+            [formControlName]="field.key"
+            [placeholder]="field.value.typeOptions?.placeholder || ''"
+            [ngClass]="{
+              'is-danger':
+                formGroup.controls[field.key].errors &&
+                formGroup.controls[field.key].touched
+            }"
+          />
+        </p>
+        <p class="control" *ngIf="field.value.typeOptions?.hint">
+          <span class="button is-static">{{
+            field.value.typeOptions?.hint
+          }}</span>
+        </p>
+      </div>
+
+      <label
+        class="checkbox"
+        *ngIf="field.value.type === 'checkbox'"
+        [ngClass]="{
+          'is-danger':
+            formGroup.controls[field.key].errors &&
+            formGroup.controls[field.key].touched
+        }"
+      >
+        <input type="checkbox" [formControlName]="field.key" />
+      </label>
+
+      <app-select
+        *ngIf="field.value.type === 'select'"
+        [options]="field.value.typeOptions.options"
+        [formControlName]="field.key"
+        [error]="
+          !!formGroup.controls[field.key].errors &&
+          formGroup.controls[field.key].touched
+        "
+      />
+    </div>
+  </div>
+  <ng-content />
+  <app-error [form]="formGroup"></app-error>
+</form>

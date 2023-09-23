@@ -1,24 +1,12 @@
 import { Component, OnInit } from '@angular/core'
-import {
-  FormArray,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators
-} from '@angular/forms'
-import { HAService, Item } from '../ha.service'
+import { FormData } from '../form/form.component'
+import { HAService } from '../ha.service'
+import { FormGroup, Validators } from '@angular/forms'
+import { map } from 'rxjs'
 
-interface PresenceItemHelper {
-  item: Item
-  form: FormGroup
-  controls: {
-    absenceStates: FormArray
-    presenceStates: FormArray
-  }
-  addAbsenceState(): void
-  removeAbsenceState(index: number): void
-  addPresenceState(): void
-  removePresenceState(index: number): void
+interface PresenceTresholdsPayload {
+  away: number
+  abandoned: number
 }
 
 @Component({
@@ -27,70 +15,57 @@ interface PresenceItemHelper {
   styleUrls: ['./presence.component.scss']
 })
 export class PresenceComponent implements OnInit {
-  constructor(private haService: HAService, private formBuilder: FormBuilder) {}
+  presenceTresholds: FormData<PresenceTresholdsPayload> | undefined
 
-  schema = {
-    presenceItems: {
-      tags: ['Presence', 'Measurement'],
-      description: $localize`Presence Item`
-    }
-  }
-
-  presenceItems: PresenceItemHelper[] = []
+  constructor(private haService: HAService) {}
 
   ngOnInit(): void {
-    /*
-    this.haService.presence.items().subscribe({
-      next: (items) => {
-        this.presenceItems = items.body!.data.map((item) => {
-          const form = this.formBuilder.group({
-            absenceStates: this.formBuilder.array(
-              (item.jsonStorage?.['states']?.absence || []).map(
-                (state: any) => {
-                  return this.formBuilder.control(state, [Validators.required])
-                }
-              )
-            ),
-            presenceStates: this.formBuilder.array(
-              (item.jsonStorage?.['states']?.presence || []).map(
-                (state: any) => {
-                  return this.formBuilder.control(state, [Validators.required])
-                }
-              )
-            )
-          })
-
-          const controls = form.controls as PresenceItemHelper['controls']
+    this.haService
+      .get<PresenceTresholdsPayload>('/presence-tresholds')
+      .pipe(
+        map((response) => {
+          const { away, abandoned } = response.body!
           return {
-            item,
-            controls,
-            form,
-            addAbsenceState: () => {
-              controls.absenceStates.push(
-                new FormControl(null, [Validators.required])
-              )
-            },
-            removeAbsenceState: (index: number) => {
-              controls.absenceStates.removeAt(index)
-            },
-            addPresenceState: () => {
-              controls.presenceStates.push(
-                new FormControl(null, [Validators.required])
-              )
-            },
-            removePresenceState: (index: number) => {
-              controls.presenceStates.removeAt(index)
+            defaultValues: { away: away || 3, abandoned: abandoned || 24 },
+            fields: {
+              away: {
+                label: $localize`Away`,
+                type: 'number',
+                typeOptions: { hint: $localize`Hours` },
+                validators: [Validators.required, Validators.min(1)]
+              },
+              abandoned: {
+                label: $localize`Abandoned`,
+                type: 'number',
+                typeOptions: { hint: $localize`Hours` },
+                validators: [Validators.required, Validators.min(1)]
+              }
             }
-          }
+          } as FormData<PresenceTresholdsPayload>
         })
-      }
-    })*/
+      )
+      .subscribe({
+        next: (presenceTresholds) => {
+          this.presenceTresholds = presenceTresholds
+        }
+      })
   }
 
-  updateStates(item: PresenceItemHelper) {
-    item.form.markAllAsTouched()
-    if (item.form.invalid) {
-      return
+  updatePresenceThresholds(form: FormGroup) {
+    const tresholds = {
+      away: form.value.away,
+      abandoned:form.value.abandoned
     }
+
+    this.haService
+      .post<PresenceTresholdsPayload>('/presence-tresholds', tresholds)
+      .subscribe({
+        next: (response) => {
+          if (response.ok) {
+            const { away, abandoned } = response.body!
+            form.setValue({ away, abandoned })
+          }
+        }
+      })
   }
 }

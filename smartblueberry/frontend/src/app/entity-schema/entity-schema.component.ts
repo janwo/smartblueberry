@@ -1,5 +1,6 @@
-import { Component, Input } from '@angular/core'
+import { Component, Input, OnInit } from '@angular/core'
 import { HAService } from '../ha.service'
+import { Observable, map, of } from 'rxjs'
 
 @Component({
   selector: 'app-entity-schema',
@@ -9,13 +10,13 @@ import { HAService } from '../ha.service'
 export class EntitySchemaComponent {
   @Input() domain?: string
   @Input() objectId?: string
-  prefix?: string
+  @Input() customPrefix?: string
 
-  constructor(private haService: HAService) {
-    this.haService.get<any>('/options').subscribe({
-      next: (response) => {
-        this.prefix = response.body?.data.entityPrefix
-      }
-    })
+  constructor(private haService: HAService) {}
+
+  getPrefix(): Observable<string> {
+    return this.customPrefix !== undefined
+      ? of(this.customPrefix)
+      : this.haService.getOptions().pipe(map((options) => `${options.prefix}_`))
   }
 }

@@ -13,14 +13,14 @@ import { HAService } from './ha.service'
 import { ReactiveFormsModule } from '@angular/forms'
 import { AccordionComponent } from './accordion/accordion.component'
 import { MapPipe } from './map.pipe'
-import { StateDescriptionPipe } from './state-description.pipe'
 import { LightComponent } from './light/light.component'
 import { PresenceComponent } from './presence/presence.component'
 import { ErrorComponent } from './error/error.component'
 import { IrrigationComponent } from './irrigation/irrigation.component'
 import { IrrigationChartComponent } from './irrigation-chart/irrigation-chart.component'
 import { NgChartsModule } from 'ng2-charts'
-import { SelectComponent } from './select/select.component'
+import { SelectComponent } from './select/select.component';
+import { FormComponent } from './form/form.component'
 
 @NgModule({
   declarations: [
@@ -33,12 +33,12 @@ import { SelectComponent } from './select/select.component'
     IrrigationComponent,
     MapPipe,
     EntitySchemaComponent,
-    StateDescriptionPipe,
     LightComponent,
     PresenceComponent,
     ErrorComponent,
     IrrigationChartComponent,
-    SelectComponent
+    SelectComponent,
+    FormComponent
   ],
   imports: [
     BrowserModule,

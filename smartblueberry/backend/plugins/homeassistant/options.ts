@@ -1,4 +1,3 @@
-import { Config, JsonDB } from 'node-json-db'
 import * as hapi from '@hapi/hapi'
 import path from 'path'
 import fs from 'fs'
@@ -7,7 +6,7 @@ import { env } from '../../index.js'
 declare module '@hapi/hapi' {
   interface PluginProperties {
     options: {
-      entityPrefix: string
+      prefix: string
     }
   }
 }
@@ -28,7 +27,7 @@ const optionsPlugin: hapi.Plugin<{}> = {
       method: 'GET',
       path: '/api/options',
       handler: (request, h) => {
-        return h.response({ success: true, data: options }).code(200)
+        return h.response(options).code(200)
       }
     })
   }

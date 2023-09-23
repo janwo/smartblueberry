@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core'
+import { Component, EventEmitter, Input, Output } from '@angular/core'
 
 @Component({
   selector: 'app-accordion',
@@ -10,8 +10,10 @@ export class AccordionComponent {
   @Input() public visible = false
   @Input() public hint?: string
   @Input() public hintClasses?: string | string[]
+  @Output() public visibleChange = new EventEmitter<boolean>()
 
   toggle() {
     this.visible = !this.visible
+    this.visibleChange.emit(this.visible)
   }
 }

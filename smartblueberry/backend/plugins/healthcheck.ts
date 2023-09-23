@@ -8,7 +8,7 @@ const healthcheckPlugin: hapi.Plugin<{}> = {
       method: 'GET',
       path: '/healthcheck',
       handler: (_, h) => {
-        return h.response({ up: true }).code(200)
+        return h.response().code(200)
       }
     })
   }

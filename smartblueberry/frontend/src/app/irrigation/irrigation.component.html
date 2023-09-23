@@ -7,140 +7,13 @@
       <div class="column">
         <p class="title" i18n>Irrigation Settings</p>
         <p class="subtitle" i18n>
-          Adjust the way how SmartBerry handles the irrigation of your garden.
+          Adjust the way how Smart Blueberry handles the irrigation of your
+          garden.
         </p>
       </div>
     </div>
   </div>
 </section>
-
-<div class="card">
-  <div class="card-content">
-    <div class="columns is-gapless is-vcentered is-mobile">
-      <div class="column">
-        <h2 i18n>OpenWeather API Token</h2>
-      </div>
-      <div class="column is-narrow">
-        <span
-          class="tag"
-          [ngClass]="{
-            'is-success': apiSettings?.hasApiKey,
-            'is-danger': !apiSettings?.hasApiKey
-          }"
-        >
-          <app-svg-icon
-            [icon]="
-              apiSettings?.hasApiKey
-                ? 'checkmark-outline'
-                : 'alert-circle-outline'
-            "
-          ></app-svg-icon>
-          <ng-container *ngIf="apiSettings?.hasApiKey" i18n
-            >Authenticated</ng-container
-          >
-          <ng-container *ngIf="!apiSettings?.hasApiKey" i18n
-            >Unauthenticated</ng-container
-          >
-        </span>
-      </div>
-    </div>
-    <p class="block" i18n>
-      Start to manage the irrigation of your garden! Set the
-      <a href="https://openweathermap.org/api" target="_blank"
-        >OpenWeather API token</a
-      >
-      and make sure to subscribe to the <strong>One Call API 3.0</strong> and to
-      set your location in your
-      <a [href]="locationSettingsLink" target="_blank"
-        >openHAB location settings</a
-      >.
-    </p>
-    <article class="message is-light">
-      <div class="message-header">
-        <p>Limit your call quota</p>
-      </div>
-      <div class="message-body">
-        Although smartBerry reduces the number of API calls to a minimum, you
-        may
-        <a target="_blank" href="https://home.openweathermap.org/subscriptions"
-          >limit your calls to the free quota</a
-        >.
-      </div>
-    </article>
-    <p
-      class="block"
-      i18n
-      *ngIf="this.apiSettings?.latitude && this.apiSettings?.longitude"
-    >
-      The location of the weather forecast (<strong
-        >{{ this.apiSettings?.longitude }},
-        {{ this.apiSettings?.latitude }}</strong
-      >) is
-      <strong>{{
-        this.apiSettings?.syncedLocation ? 'synced' : 'unsynced'
-      }}</strong>
-      with your openHAB location settings.
-    </p>
-    <form
-      [formGroup]="apiTokenForm"
-      (ngSubmit)="submitAPISettings({ apiKey: apiTokenForm.value.apiToken! })"
-      [ngClass]="{
-        'has-error': apiTokenForm.touched && !apiTokenForm.valid
-      }"
-    >
-      <div class="field has-addons">
-        <div class="control is-expanded">
-          <input
-            i18n-placeholder
-            class="input"
-            formControlName="apiToken"
-            type="text"
-            placeholder="Your API Token"
-          />
-        </div>
-        <div class="control">
-          <button type="submit" i18n class="button is-primary">Save</button>
-        </div>
-      </div>
-
-      <div class="field is-grouped">
-        <div class="control">
-          <button
-            i18n
-            type="button"
-            (click)="submitAPISettings({ syncLocation: true })"
-            class="button is-primary"
-          >
-            Sync Location
-          </button>
-        </div>
-
-        <fieldset [attr.disabled]="apiSettings?.hasApiKey ? null : true">
-          <div class="control">
-            <button
-              i18n
-              type="button"
-              (click)="deleteAPISettings()"
-              class="button is-primary"
-            >
-              Delete API Token
-            </button>
-          </div>
-        </fieldset>
-      </div>
-
-      <app-error
-        i18n-errors
-        [form]="apiTokenForm"
-        [errors]="{
-          unauthenticated: 'API Token is invalid',
-          nolocation:
-            'Please set your location in your openHAB location settings first.'
-        }"
-      ></app-error>
-    </form>
-  </div>
-</div>
 
 <div class="card">
   <div class="card-content">
@@ -150,8 +23,12 @@
       </div>
     </div>
     <p class="block" i18n>
-      In order to let SmartBerry handle all irrigation valves for you, organize
-      your valve items as shown below.
+      In order to let Smart Blueberry handle all irrigation valves for you, name
+      your valve items like
+      <app-entity-schema domain="switch" customPrefix="">
+        &lt;any name that contains "valve"&gt; </app-entity-schema
+      >. Afterwards, you can configure your valve entity in respect to your
+      irrigation conditions.
     </p>
 
     <h3 i18n>Adjust irrigation variables</h3>
@@ -161,17 +38,25 @@
     </p>
 
     <p class="block" i18n>
-      <strong>Irrigation Level Per Minute (mm):</strong> How much water will be
-      irrigated by the valve upon your plants? 1.0 liter per square meter is
-      equal to 1.0 millimeter.
+      <strong>Irrigation Level Per Minute (mm / in):</strong> Defines how much
+      water will be irrigated by the valve upon your plants (<code>1mm</code>
+      equals <code>1l/m²</code>, <code>1in</code> equals
+      <code>0.6234gal/ft²</code>)
     </p>
 
     <p class="block" i18n>
       <em>
-        Example: You have an area of 10 m² and your valve pours 10 l per minute.
-        Consequently, you have a irrigation level of
-        <strong>1.0 mm</strong> per minute (<code
-          >10 l / 10 m² = 1.0 l/m² ≙ 1.0 mm</code
+        Example 1: You have an area of <code>10m²</code> and your valve pours
+        <code>10l</code> per minute. Consequently, you have an irrigation level
+        of <code>1mm</code> per minute (<code>10l / 10m² = 1l/m² ≙ 1mm</code>).
+      </em>
+    </p>
+    <p class="block" i18n>
+      <em>
+        Example 2: You have an area of <code>10ft²</code> and your valve pours
+        <code>0.6234gal</code> per minute. Consequently, you have an irrigation
+        level of <code>0.1in</code> per minute (<code
+          >0.6234gal / 10ft² = 0.06234gal/ft² ≙ 0.1in</code
         >).
       </em>
     </p>
@@ -190,239 +75,82 @@
     </p>
 
     <p class="block" i18n>
-      <strong>Bucket Size (days):</strong> Defines the range of days SmartBerry
-      monitors the precipitation rate and decides to trigger irrigation.
+      <strong>Bucket Size (days):</strong> Defines the range of days Smart
+      Blueberry monitors the precipitation rate and decides to trigger
+      irrigation.
     </p>
 
     <p class="block" i18n>
       <strong>Extend Bucket upon Future Rainfalls (days):</strong> Maximum
-      number of days SmartBerry will postpone irrigation on upcoming rain,
+      number of days Smart Blueberry will postpone irrigation on upcoming rain,
       although precipitation level cannot be maintained.
     </p>
 
     <app-accordion
-      [title]="irrigationValveItem.item.label"
-      [hintClasses]="
-        countValues(irrigationValveItem.form)
-          ? ['has-text-primary', 'has-text-weight-bold']
-          : 'has-text-grey'
-      "
-      i18n-hint
-      hint="{{
-        countValues(irrigationValveItem.form)
-          | i18nPlural
-            : { '=0': 'No options', '=1': 'One option', other: '# options' }
-      }} selected"
-      *ngFor="let irrigationValveItem of irrigationValveItems"
+      #accordion
+      [title]="irrigationValve.entityName"
+      *ngFor="let irrigationValve of irrigationValves"
     >
-      <fieldset>
-        <form
-          [formGroup]="irrigationValveItem.form"
-          (ngSubmit)="updateItem(irrigationValveItem)"
-          [ngClass]="{
-            'has-error':
-              irrigationValveItem.form.touched &&
-              !irrigationValveItem.form.valid
-          }"
-        >
-          <div class="field has-addons">
-            <div class="control">
-              <span class="button is-static" i18n>Evaporation Factor</span>
-            </div>
-            <div class="control">
-              <input
-                min="0"
-                step="0.1"
-                i18n-placeholder
-                class="input"
-                formControlName="evaporationFactor"
-                type="number"
-                placeholder="Evaporation Factor"
-              />
-            </div>
-          </div>
-          <div class="field has-addons">
-            <div class="control">
-              <span class="button is-static" i18n
-                >Irrigation Level Per Minute (mm)</span
-              >
-            </div>
-            <div class="control">
-              <input
-                i18n-placeholder
-                min="0"
-                step="0.1"
-                class="input"
-                [ngClass]="{
-                  'is-danger':
-                    irrigationValveItem.form.touched &&
-                    irrigationValveItem.form.controls[
-                      'irrigationLevelPerMinute'
-                    ].errors
-                }"
-                formControlName="irrigationLevelPerMinute"
-                type="number"
-                placeholder="Irrigation Level Per Minute (mm)"
-              />
-            </div>
-          </div>
-          <div class="field has-addons">
-            <div class="control">
-              <span class="button is-static" i18n>Minimal Temperature</span>
-            </div>
-            <div class="control">
-              <input
-                step="1"
-                i18n-placeholder
-                class="input"
-                [ngClass]="{
-                  'is-danger':
-                    irrigationValveItem.form.touched &&
-                    irrigationValveItem.form.controls['minimalTemperature']
-                      .errors
-                }"
-                formControlName="minimalTemperature"
-                type="number"
-                placeholder="Minimal Temperature"
-              />
-            </div>
-            <div class="control">
-              <div
-                class="select"
-                [ngClass]="{
-                  'is-danger':
-                    irrigationValveItem.form.touched &&
-                    irrigationValveItem.form.controls['temperatureUnit'].errors
-                }"
-              >
-                <select formControlName="temperatureUnit">
-                  <option value="C">°C</option>
-                  <option value="F">°F</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="field has-addons">
-            <div class="control">
-              <span class="button is-static" i18n>Bucket Size</span>
-            </div>
-            <div class="control">
-              <div
-                class="select"
-                [ngClass]="{
-                  'is-danger':
-                    irrigationValveItem.form.touched &&
-                    irrigationValveItem.form.controls['observedDays'].errors
-                }"
-              >
-                <select formControlName="observedDays">
-                  <option
-                    i18n-label
-                    *ngFor="let factor of [1, 2, 3, 4, 5, 6, 7]"
-                    [ngValue]="factor"
-                    [label]="factor | i18nPlural : this.i18nPluralMapping"
-                  ></option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="field has-addons">
-            <div class="control">
-              <span class="button is-static" i18n
-                >Extend Bucket upon Future Rainfalls</span
-              >
-            </div>
-            <div class="control">
-              <div
-                class="select"
-                [ngClass]="{
-                  'is-danger':
-                    irrigationValveItem.form.touched &&
-                    irrigationValveItem.form.controls['overshootDays'].errors
-                }"
-              >
-                <select formControlName="overshootDays">
-                  <option
-                    i18n-label
-                    *ngFor="let factor of [0, 1, 2, 3, 4, 5, 6, 7]"
-                    [ngValue]="factor"
-                    [label]="factor | i18nPlural : this.i18nPluralMapping"
-                  ></option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <p class="block">
-            <strong i18n>Calculation Example:</strong>
-            <em
-              i18n
-              *ngIf="
-                !this.irrigationValveItem.form.value.irrigationLevelPerMinute ||
-                  !this.irrigationValveItem.form.value.evaporationFactor ||
-                  !this.irrigationValveItem.form.value.observedDays;
-                else calculationExample
-              "
-            >
-              Enter all required variables first
-            </em>
-            <ng-template #calculationExample>
-              <em i18n>
-                Assuming no rain and an evaporation of 1.0 mm a day, your plants
-                need
-                {{
-                  this.irrigationValveItem.form.value.evaporationFactor
-                    | number : '1.1-1'
-                }}
-                mm (
-                {{
-                  this.irrigationValveItem.form.value.evaporationFactor
-                    | number : '1.1-1'
-                }}
-                l/m²) per day. Your valve irrigates
-                {{
-                  this.irrigationValveItem.form.value.irrigationLevelPerMinute
-                    | number : '1.1-1'
-                }}
-                mm ({{
-                  this.irrigationValveItem.form.value.irrigationLevelPerMinute
-                    | number : '1.1-1'
-                }}
-                l/m²) per minute. Consequently the valve will irrigate for
-                {{
-                  calculatedMinutes(this.irrigationValveItem.form)
-                    | i18nPlural
-                      : {
-                          '=0': '0 minutes',
-                          '=1': '1 minute',
-                          other: '# minutes'
-                        }
-                }}
-                , if there was no rain for
-                {{
-                  this.irrigationValveItem.form.value.observedDays
-                    | i18nPlural : this.i18nPluralMapping
-                }}.
-              </em>
-            </ng-template>
-          </p>
+      <app-form
+        *ngIf="accordion.visible"
+        [formData]="irrigationValve.formData"
+        (onSubmit)="updateIrrigationValve($event)"
+        #form
+      >
+        <p class="block">
+          <strong i18n>Calculation Example:</strong>
+          <em i18n>
+            Assuming no rain and an evaporation of <code>1mm</code> /
+            <code>1in</code> a day, your plants need
+            <code>{{ form.value().evaporationFactor }}mm</code> /
+            <code>{{ form.value().evaporationFactor }}in</code> of water per
+            day. Your valve irrigates
+            <code>{{ form.value().irrigationVolumePerMinute }}</code> per
+            minute. Consequently the valve will irrigate for
+            <code>{{
+              calculatedMinutes(form.value())
+                | i18nPlural
+                  : {
+                      '=0': '0 minutes',
+                      '=1': '1 minute',
+                      other: '# minutes'
+                    }
+            }}</code
+            >, if there was no rain for
+            <code>{{
+              form.value().observedDays | i18nPlural : this.i18nPluralMapping
+            }}</code>
+            and will be no rain in
+            <code>{{
+              form.value().overshootDays | i18nPlural : this.i18nPluralMapping
+            }}</code
+            >.
+          </em>
+        </p>
 
-          <app-irrigation-chart
-            [unit]="
-              irrigationValveItem.form.value.temperatureUnit == 'C'
-                ? 'metric'
-                : 'imperial'
+        <p class="block">
+          <em
+            i18n
+            *ngIf="
+              irrigationValve.amounts.futureIrrigation;
+              else irrigationPlanned
             "
-            [irrigationValveItem]="irrigationValveItem.item"
-            [irrigationValveItemSettings]="irrigationValveItem.form.value"
           >
-          </app-irrigation-chart>
+            An irrigation is planned for today.
+          </em>
+          <ng-template #irrigationPlanned>
+            <em i18n>No irrigation planned today.</em>
+          </ng-template>
+        </p>
 
-          <div class="control">
-            <button type="submit" class="button is-primary" i18n>Save</button>
-          </div>
-          <app-error [form]="irrigationValveItem.form"></app-error>
-        </form>
-      </fieldset>
+        <app-irrigation-chart
+          [values]="irrigationChartValues(irrigationValve.series, form.value())"
+        />
+
+        <div class="control">
+          <button type="submit" class="button is-primary" i18n>Save</button>
+        </div>
+      </app-form>
     </app-accordion>
   </div>
 </div>
@@ -431,13 +159,51 @@
   <div class="card-content">
     <div class="columns">
       <div class="column">
-        <h2 i18n>Irrigation Triggers</h2>
+        <h2 i18n>Additional Irrigation Trigger</h2>
       </div>
     </div>
     <p i18n class="block">
-      You can define irrigation trigger items that automatically start the
-      irrigation check. Any state change of these items will fire an irrigation
-      event.
+      You can trigger the
+      <app-entity-schema>_check_irrigation</app-entity-schema> event in your
+      Home Assistant automations that automatically start the irrigation check.
     </p>
+    <p i18n class="block">
+      Additionally, any valve's state of
+      <app-entity-schema domain="switch" customPrefix="">
+        &lt;any name that contains "valve"&gt;
+      </app-entity-schema>
+      changed to <code>off</code> will trigger an irrigation check.
+    </p>
+    <p i18n class="block">
+      Optionally, you can activate the irrigation check on entity updates of
+      <app-entity-schema customPrefix="" domain="weather">
+        &lt;any name&gt;
+      </app-entity-schema>
+      entities.
+    </p>
+
+    <div class="field has-addons">
+      <div class="control">
+        <button
+          type="submit"
+          i18n
+          class="button is-primary"
+          (click)="setFeature('checkOnForecastUpdates', true)"
+          [disabled]="irrgationFeatures === undefined"
+          *ngIf="!irrgationFeatures?.checkOnForecastUpdates"
+        >
+          Activate
+        </button>
+        <button
+          type="submit"
+          i18n
+          class="button is-primary"
+          (click)="setFeature('checkOnForecastUpdates', false)"
+          *ngIf="irrgationFeatures?.checkOnForecastUpdates"
+        >
+          Deactivate
+        </button>
+      </div>
+    </div>
   </div>
 </div>

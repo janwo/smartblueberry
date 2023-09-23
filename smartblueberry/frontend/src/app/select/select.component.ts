@@ -15,10 +15,12 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 })
 export class SelectComponent implements ControlValueAccessor {
   @Input() options: { [key: string]: string } = {}
+  @Input() error? :boolean
   protected value: string | null = null
   disabled = false
   onChanged = (_: any) => {}
   onTouched = () => {}
+  
 
   setValue(value: string | null) {
     this.value = value

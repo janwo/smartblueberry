@@ -65,7 +65,7 @@
           class="button is-primary"
           (click)="unauthenticate()"
           *ngIf="haService.isAuthenticated()"
-          [attr.disabled]="haService.isSupervised() ? true : null"
+          [disabled]="haService.isSupervised()"
         >
           Logout
         </button>
@@ -132,10 +132,8 @@
       </div>
       <div class="control">
         <button
-          [attr.disabled]="
-            haService.isGloballyConnected() && !haService.isSupervised()
-              ? null
-              : true
+          [disabled]="
+            !haService.isGloballyConnected() && haService.isSupervised()
           "
           i18n
           type="submit"

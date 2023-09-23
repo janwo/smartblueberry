@@ -23,9 +23,9 @@
   "init": false,
   "map": [],
   "options": {
-    "entityPrefix": "smartblueberry_"
+    "prefix": "smartblueberry"
   },
   "schema": {
-    "entityPrefix": "str"
+    "prefix": "str"
   }
 }

@@ -5,9 +5,6 @@
   <ng-container *ngIf="foundError['invalid']" i18n>
     Values are invalid.
   </ng-container>
-  <ng-container *ngIf="foundError['connection']" i18n>
-    No connection to your openHAB-Instance.
-  </ng-container>
   <ng-container *ngFor="let error of errors | keyvalue">
     <ng-container *ngIf="foundError[error.key]">
       {{ error.value }}

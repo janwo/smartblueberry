@@ -3,6 +3,7 @@ import { EVENT_HASSREGISTRY, State, StatePayloadFilter } from '../registry.js'
 import { EVENT_STORAGE } from '../../storage.js'
 import { EVENT_HASSCONNECT } from '../connect.js'
 import dayjs from 'dayjs'
+import Joi from 'joi'
 
 export enum EVENT_HASSPRESENCE {
   PRESENCEMODE_UPDATED = 'hasspresence#presence-mode',
@@ -134,11 +135,33 @@ async function setupPresenceModeEntity(server: hapi.Server) {
 async function setupPresenceRoutes(server: hapi.Server) {
   server.route({
     method: 'GET',
-    path: '/api/presence',
+    path: '/api/presence-tresholds',
     handler: async (request, h) => {
-      // TODO
+      const { away, abandoned } =
+        (await server.plugins.storage.get('presence/tresholds')) || {}
+      return h.response({ away, abandoned }).code(200)
+    }
+  })
 
-      return h.response({ data: {} }).code(200)
+  server.route({
+    method: 'POST',
+    path: '/api/presence-tresholds',
+    options: {
+      validate: {
+        payload: {
+          away: Joi.number().min(1).required(),
+          abandoned: Joi.number().min(1).greater(Joi.ref('away')).required()
+        }
+      }
+    },
+    handler: async (request, h) => {
+      const { away, abandoned } = request.payload as any
+      const tresholds = {
+        away,
+        abandoned
+      }
+      await server.plugins.storage.set('presence/tresholds', tresholds)
+      return h.response(tresholds).code(200)
     }
   })
 }
