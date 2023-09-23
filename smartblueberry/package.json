@@ -1,6 +1,6 @@
 {
   "name": "smartblueberry",
-  "description": "Smart Blueberry is a Home Assistant environment providing multiple extensions to simplify the configuration of scenes, climate and security management. 🫐",
+  "description": "Smart Blueberry is a Home Assistant environment providing multiple extensions to simplify the configuration of light, presence and irrigation management.",
   "scripts": {
     "frontend:build": "npm run frontend:build:icons && ./node_modules/.bin/ng build",
     "frontend:build:icons": "mkdir -p ./frontend/src/tmp/assets && node ./frontend/scripts/generate-svg-icons.js",
