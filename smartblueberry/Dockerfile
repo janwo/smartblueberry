@@ -6,22 +6,21 @@ RUN apk add --no-cache \
   curl
 
 WORKDIR /home
-COPY package*.json /home
+COPY package*.json run.sh /home/
+
+RUN chmod +x run.sh
 RUN npm i
+CMD [ "./run.sh" ]
 
 from base as builder
-COPY --from=base /home/node_modules /home/node_modules
+COPY --from=base /home /home
 COPY . .
 
 RUN npm run frontend:build && npm run backend:build
 
 FROM base AS runner
-COPY --from=builder /home /home
-COPY --from=builder /home/*.json /home
-COPY --from=builder /home/run.sh /home
+COPY --from=base /home /home
+COPY --from=builder /home/dist /home/dist
 
 ENV HTTP_PORT=8099
 HEALTHCHECK --interval=30s --timeout=5s --retries=5 CMD curl -sS localhost:8099/healthcheck
-
-RUN chmod +x run.sh
-CMD [ "./run.sh" ]
