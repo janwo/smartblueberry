@@ -21,7 +21,7 @@ import optionsPlugin from './plugins/homeassistant/options.js'
 export const env = {
   HTTP_PORT: process.env.HTTP_PORT || 8099,
   BUILD: process.env.BUILD || 'production',
-  CONFIG_DIR: process.env.CONFIG_DIR || `data/`,
+  CONFIG_DIR: process.env.CONFIG_DIR || `/data/`,
   JWT_SECRET: process.env.JWT_SECRET || randomUUID(),
   HOMEASSISTANT_URL: process.env.HOMEASSISTANT_URL || 'http://localhost:8123',
   SUPERVISOR_REST_URL:
