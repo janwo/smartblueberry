@@ -21,7 +21,7 @@ Make use of the following features:
 
 All features are easily configurable without using a single line of code! Smart Blueberry comes with an additonal configuration dashboard.
 
-![Dashboard](https://github.com/janwo/smartblueberry/blob/main/.github/assets/dashboard.png)
+![Dashboard](https://raw.githubusercontent.com/janwo/smartblueberry/main/.github/assets/dashboard.png)
 
 ## Getting Started
 
