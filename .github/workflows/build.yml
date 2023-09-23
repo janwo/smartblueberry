@@ -23,5 +23,5 @@ jobs:
         with:
           args: |
             --test \
-            --all \
+            --armhf \
             --target smartblueberry
