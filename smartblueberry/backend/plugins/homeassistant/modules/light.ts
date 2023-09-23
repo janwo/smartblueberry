@@ -388,9 +388,10 @@ async function getAreaLightMode(server: hapi.Server, areaId: string) {
     return undefined
   }
 
-  const lightModes = await server.plugins.storage.get<{
-    [key: string]: LightMode
-  }>('light/modes')
+  const lightModes =
+    (await server.plugins.storage.get<{
+      [key: string]: LightMode
+    }>('light/modes')) || []
   const lightMode = Object.values(lightModes).find(
     ({ name }) => name == lightModeEntity?.state
   )

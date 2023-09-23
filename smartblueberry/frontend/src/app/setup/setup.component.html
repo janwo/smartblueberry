@@ -133,7 +133,7 @@
       <div class="control">
         <button
           [disabled]="
-            !haService.isGloballyConnected() && haService.isSupervised()
+            !haService.isGloballyConnected() || haService.isSupervised()
           "
           i18n
           type="submit"

@@ -23,6 +23,7 @@ jobs:
         with:
           args: |
             --armhf \
+            --armv7 \
             --amd64 \
             --i386 \
             --target smartblueberry
