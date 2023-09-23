@@ -12,7 +12,7 @@
     "amd64",
     "i386"
   ],
-  "webui": "[PROTO]://[HOST]:[PORT:8099]",
+  "webui": "http://[HOST]:[PORT:8099]",
   "watchdog": "http://[HOST]:[PORT:8099]/healthcheck",
   "stage": "stable",
   "hassio_role": "default",
