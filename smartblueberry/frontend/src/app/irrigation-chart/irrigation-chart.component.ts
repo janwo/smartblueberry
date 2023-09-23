@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core'
-import * as dayjs from 'dayjs'
+import dayjs from 'dayjs'
 
 type IrrigationChartValues = {
   temperatureUnit: string

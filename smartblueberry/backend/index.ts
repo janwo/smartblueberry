@@ -71,7 +71,6 @@ console.log('Server [%s] running on %s', env.BUILD, server.info.uri)
 
 await server.plugins.hassConnect.globalConnect()
 
-
 process.on('unhandledRejection', (err) => {
   console.error('unhandledRejection', err)
   process.exit(1)
