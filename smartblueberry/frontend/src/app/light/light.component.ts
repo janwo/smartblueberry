@@ -69,7 +69,7 @@ export class LightComponent implements OnInit {
                 ]
               },
               bright: {
-                label:  $localize`Bright`,
+                label: $localize`Bright`,
                 type: 'number',
                 typeOptions: { hint: $localize`%` },
                 validators: [
@@ -158,22 +158,26 @@ export class LightComponent implements OnInit {
     this.lightModes.push(this.createLightMode())
   }
 
-  upsertLightMode = (form: FormGroup) => {
+  upsertLightMode = (
+    formData: FormData<LightModePayload>,
+    formGroup: FormGroup
+  ) => {
     const lightMode = {
-      id: this.convertNullToUndefined(form.value.id),
-      name: this.convertNullToUndefined(form.value.name),
-      darkCondition: form.value.darkCondition,
-      brightCondition: form.value.brightCondition,
-      obscuredCondition: form.value.obscuredCondition,
+      id: this.convertNullToUndefined(formGroup.value.id),
+      name: this.convertNullToUndefined(formGroup.value.name),
+      darkCondition: formGroup.value.darkCondition,
+      brightCondition: formGroup.value.brightCondition,
+      obscuredCondition: formGroup.value.obscuredCondition,
       brightness:
-        (this.convertNullToUndefined(form.value.brightness) || 100) / 100,
-      duration: this.convertNullToUndefined(form.value.duration)
+        (this.convertNullToUndefined(formGroup.value.brightness) || 100) / 100,
+      duration: this.convertNullToUndefined(formGroup.value.duration)
     }
 
     this.haService.post<LightModePayload>('/light-modes', lightMode).subscribe({
       next: (response) => {
         if (response.ok) {
-          form.setValue({
+          formData.defaultValues.name = response.body!.name
+          formGroup.setValue({
             ...response.body,
             brightness: (response.body?.brightness || 1) * 100
           })
@@ -200,8 +204,8 @@ export class LightComponent implements OnInit {
 
   updateLightTresholds(form: FormGroup) {
     const tresholds = {
-      obscured: form.controls['obscured'].value/100,
-      bright: form.controls['bright'].value/100
+      obscured: form.controls['obscured'].value / 100,
+      bright: form.controls['bright'].value / 100
     }
 
     this.haService

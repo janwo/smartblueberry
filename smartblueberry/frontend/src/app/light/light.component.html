@@ -62,7 +62,7 @@
     >
       <app-form
         [formData]="lightMode"
-        (onSubmit)="upsertLightMode($event)"
+        (onSubmit)="upsertLightMode(lightMode, $event)"
         #form
       >
         <div class="buttons is-grouped">

@@ -276,13 +276,8 @@
           <context context-type="linenumber">102</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="6794539510797219055" datatype="html">
-        <source> Assuming no rain and an evaporation of <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/>1mm<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code
-            &gt;"/> / <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/>1in<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code
-            &gt;"/> a day, your plants need <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/><x id="INTERPOLATION" equiv-text="{{ form.value().evaporationFactor }}"/>mm<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code
-            &gt;"/> / <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/><x id="INTERPOLATION" equiv-text="{{ form.value().evaporationFactor }}"/>in<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code
-            &gt;"/> of water per day. Your valve irrigates <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/><x id="INTERPOLATION_1" equiv-text="{{ form.value().irrigationVolumePerMinute }}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code
-            &gt;"/> per minute. Consequently the valve will irrigate for <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/><x id="INTERPOLATION_2" equiv-text="{{
+      <trans-unit id="5842103100135978980" datatype="html">
+        <source> Assuming no rain and an evaporation of <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/>1mm<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/> / <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/>1in<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/> a day, your plants need <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/><x id="INTERPOLATION" equiv-text="{{ form.value().evaporationFactor }}"/>mm<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/> / <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/><x id="INTERPOLATION" equiv-text="{{ form.value().evaporationFactor }}"/>in<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/> of water per day. Your valve irrigates <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/><x id="INTERPOLATION_1" equiv-text="{{ form.value().irrigationVolumePerMinute }}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/> per minute. Consequently the valve will irrigate for <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/><x id="INTERPOLATION_2" equiv-text="{{
               calculatedMinutes(form.value())
                 | i18nPlural
                   : {
@@ -290,14 +285,11 @@
                       &apos;=1&apos;: &apos;1 minute&apos;,
                       other: &apos;# minutes&apos;
                     }
-            }}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code
-            &gt;"/>, if there was no rain for <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/><x id="INTERPOLATION_3" equiv-text="{{
+            }}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/> , if there was no rain for <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/><x id="INTERPOLATION_3" equiv-text="{{
               form.value().observedDays | i18nPlural : this.i18nPluralMapping
-            }}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code
-            &gt;"/> and will be no rain in <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/><x id="INTERPOLATION_4" equiv-text="{{
+            }}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/> and will be no rain in <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/><x id="INTERPOLATION_4" equiv-text="{{
               form.value().overshootDays | i18nPlural : this.i18nPluralMapping
-            }}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code
-            &gt;"/>. </source>
+            }}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/> . </source>
         <context-group purpose="location">
           <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
           <context context-type="linenumber">103,129</context>
