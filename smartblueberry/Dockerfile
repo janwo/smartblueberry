@@ -9,13 +9,14 @@ WORKDIR /home
 COPY package*.json run.sh /home/
 
 RUN chmod +x run.sh
-RUN npm i
+RUN npm i --only=production
 CMD [ "./run.sh" ]
 
 from base as builder
 COPY --from=base /home /home
 COPY . .
 
+RUN npm i 
 RUN npm run frontend:build && npm run backend:build
 
 FROM base AS runner

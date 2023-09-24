@@ -103,7 +103,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
-          <context context-type="linenumber">194,196</context>
+          <context context-type="linenumber">195,197</context>
         </context-group>
       </trans-unit>
       <trans-unit id="2352265102591847975" datatype="html">
@@ -114,7 +114,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
-          <context context-type="linenumber">203,205</context>
+          <context context-type="linenumber">204,206</context>
         </context-group>
       </trans-unit>
       <trans-unit id="4190196007208578994" datatype="html">
@@ -191,40 +191,39 @@
           <context context-type="linenumber">22</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="2468471906259370288" datatype="html">
-        <source> In order to let Smart Blueberry handle all irrigation valves for you, name your valve items like <x id="START_TAG_APP_ENTITY_SCHEMA" ctype="x-app_entity_schema" equiv-text="&lt;app-entity-schema domain=&quot;switch&quot; customPrefix=&quot;&quot;&gt;"/> &lt;any name that contains &quot;valve&quot;&gt; <x id="CLOSE_TAG_APP_ENTITY_SCHEMA" ctype="x-app_entity_schema" equiv-text="&lt;/app-entity-schema
-      &gt;"/>. Afterwards, you can configure your valve entity in respect to your irrigation conditions. </source>
+      <trans-unit id="5500906189601174136" datatype="html">
+        <source> In order to let Smart Blueberry handle all irrigation valves for you, name your valve items like <x id="START_TAG_APP_ENTITY_SCHEMA" ctype="x-app_entity_schema" equiv-text="&lt;app-entity-schema domain=&quot;switch&quot; customPrefix=&quot;&quot;&gt;"/> &lt;any name that contains &quot;valve&quot;&gt; <x id="CLOSE_TAG_APP_ENTITY_SCHEMA" ctype="x-app_entity_schema" equiv-text="&lt;/app-entity-schema&gt;"/> and configure your valve entity in respect to your irrigation conditions here. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
-          <context context-type="linenumber">25,32</context>
+          <context context-type="linenumber">25,33</context>
         </context-group>
       </trans-unit>
       <trans-unit id="113069793252909340" datatype="html">
         <source>Adjust irrigation variables</source>
         <context-group purpose="location">
           <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
-          <context context-type="linenumber">34</context>
+          <context context-type="linenumber">35</context>
         </context-group>
       </trans-unit>
       <trans-unit id="747262057446848263" datatype="html">
         <source> In order to achieve an optimal irrigation, adjust the following values to your satisfaction. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
-          <context context-type="linenumber">35,38</context>
+          <context context-type="linenumber">36,39</context>
         </context-group>
       </trans-unit>
       <trans-unit id="2692809345927397643" datatype="html">
         <source><x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong&gt;"/>Irrigation Level Per Minute (mm / in):<x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt;"/> Defines how much water will be irrigated by the valve upon your plants (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/>1mm<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/> equals <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/>1l/m²<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/>, <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/>1in<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/> equals <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/>0.6234gal/ft²<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/>) </source>
         <context-group purpose="location">
           <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
-          <context context-type="linenumber">41,45</context>
+          <context context-type="linenumber">42,46</context>
         </context-group>
       </trans-unit>
       <trans-unit id="4009040165381756272" datatype="html">
         <source><x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em&gt;"/> Example 1: You have an area of <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/>10m²<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/> and your valve pours <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/>10l<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/> per minute. Consequently, you have an irrigation level of <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/>1mm<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/> per minute (<x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/>10l / 10m² = 1l/m² ≙ 1mm<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/>). <x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em&gt;"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
-          <context context-type="linenumber">48,52</context>
+          <context context-type="linenumber">49,53</context>
         </context-group>
       </trans-unit>
       <trans-unit id="6120936017248821651" datatype="html">
@@ -239,42 +238,42 @@
         &gt;"/>). <x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em&gt;"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
-          <context context-type="linenumber">55,61</context>
+          <context context-type="linenumber">56,62</context>
         </context-group>
       </trans-unit>
       <trans-unit id="7711680650177069208" datatype="html">
         <source><x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong&gt;"/>Evaporation Factor:<x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt;"/> Increase or decrease the evaporation per day that is based on the <x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em&gt;"/>Hargreaves–Samani model<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em&gt;"/>. Set it above <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/>1<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/> to increase evaporation, set it below <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/>1<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/> to decrease evaporation. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
-          <context context-type="linenumber">65,69</context>
+          <context context-type="linenumber">66,70</context>
         </context-group>
       </trans-unit>
       <trans-unit id="5879384592377590707" datatype="html">
         <source><x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong&gt;"/>Minimal Temperature:<x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt;"/> Skips any irrigation triggers, if the temperature of the upcoming or last seven days has gone below the minimal temperature. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
-          <context context-type="linenumber">72,75</context>
+          <context context-type="linenumber">73,76</context>
         </context-group>
       </trans-unit>
       <trans-unit id="2473029697533550007" datatype="html">
         <source><x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong&gt;"/>Bucket Size (days):<x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt;"/> Defines the range of days Smart Blueberry monitors the precipitation rate and decides to trigger irrigation. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
-          <context context-type="linenumber">78,81</context>
+          <context context-type="linenumber">79,82</context>
         </context-group>
       </trans-unit>
       <trans-unit id="916987062766070982" datatype="html">
         <source><x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong&gt;"/>Extend Bucket upon Future Rainfalls (days):<x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt;"/> Maximum number of days Smart Blueberry will postpone irrigation on upcoming rain, although precipitation level cannot be maintained. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
-          <context context-type="linenumber">84,87</context>
+          <context context-type="linenumber">85,88</context>
         </context-group>
       </trans-unit>
       <trans-unit id="3498058130455223243" datatype="html">
         <source>Calculation Example:</source>
         <context-group purpose="location">
           <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
-          <context context-type="linenumber">101</context>
+          <context context-type="linenumber">102</context>
         </context-group>
       </trans-unit>
       <trans-unit id="6794539510797219055" datatype="html">
@@ -301,56 +300,56 @@
             &gt;"/>. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
-          <context context-type="linenumber">102,128</context>
+          <context context-type="linenumber">103,129</context>
         </context-group>
       </trans-unit>
       <trans-unit id="4976113204352805222" datatype="html">
         <source> An irrigation is planned for today. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
-          <context context-type="linenumber">138,140</context>
+          <context context-type="linenumber">139,141</context>
         </context-group>
       </trans-unit>
       <trans-unit id="854222443102800877" datatype="html">
         <source>No irrigation planned today.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
-          <context context-type="linenumber">142</context>
+          <context context-type="linenumber">143</context>
         </context-group>
       </trans-unit>
       <trans-unit id="3768927257183755959" datatype="html">
         <source>Save</source>
         <context-group purpose="location">
           <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
-          <context context-type="linenumber">151</context>
+          <context context-type="linenumber">152</context>
         </context-group>
       </trans-unit>
       <trans-unit id="789137118393269185" datatype="html">
         <source>Additional Irrigation Trigger</source>
         <context-group purpose="location">
           <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
-          <context context-type="linenumber">162</context>
+          <context context-type="linenumber">163</context>
         </context-group>
       </trans-unit>
       <trans-unit id="8645138319951327079" datatype="html">
         <source> You can trigger the <x id="START_TAG_APP_ENTITY_SCHEMA" ctype="x-app_entity_schema" equiv-text="&lt;app-entity-schema&gt;"/>_check_irrigation<x id="CLOSE_TAG_APP_ENTITY_SCHEMA" ctype="x-app_entity_schema" equiv-text="&lt;/app-entity-schema&gt;"/> event in your Home Assistant automations that automatically start the irrigation check. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
-          <context context-type="linenumber">165,169</context>
+          <context context-type="linenumber">166,170</context>
         </context-group>
       </trans-unit>
       <trans-unit id="5826775470876964309" datatype="html">
         <source> Additionally, any valve&apos;s state of <x id="START_TAG_APP_ENTITY_SCHEMA" ctype="x-app_entity_schema" equiv-text="&lt;app-entity-schema domain=&quot;switch&quot; customPrefix=&quot;&quot;&gt;"/> &lt;any name that contains &quot;valve&quot;&gt; <x id="CLOSE_TAG_APP_ENTITY_SCHEMA" ctype="x-app_entity_schema" equiv-text="&lt;/app-entity-schema&gt;"/> changed to <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/>off<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/> will trigger an irrigation check. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
-          <context context-type="linenumber">170,176</context>
+          <context context-type="linenumber">171,177</context>
         </context-group>
       </trans-unit>
       <trans-unit id="6017870926711445979" datatype="html">
         <source> Optionally, you can activate the irrigation check on entity updates of <x id="START_TAG_APP_ENTITY_SCHEMA" ctype="x-app_entity_schema" equiv-text="&lt;app-entity-schema customPrefix=&quot;&quot; domain=&quot;weather&quot;&gt;"/> &lt;any name&gt; <x id="CLOSE_TAG_APP_ENTITY_SCHEMA" ctype="x-app_entity_schema" equiv-text="&lt;/app-entity-schema&gt;"/> entities. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">frontend/src/app/irrigation/irrigation.component.html</context>
-          <context context-type="linenumber">177,183</context>
+          <context context-type="linenumber">178,184</context>
         </context-group>
       </trans-unit>
       <trans-unit id="9178394960272263692" datatype="html">
