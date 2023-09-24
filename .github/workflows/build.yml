@@ -7,27 +7,14 @@ on:
     branches: ['main']
 
 jobs:
-  init:
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    outputs:
-      architectures: ${{ steps.info.outputs.architectures }}
-    steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v4
-
-      - name: Get information
-        id: info
-        uses: home-assistant/actions/helpers/info@master
-
   publish:
     name: Publish builder
-    needs: init
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       fail-fast: False
       matrix:
-        architecture: ${{ fromJson(needs.init.outputs.architectures) }}
+        architecture: ['armhf', 'armv7', 'aarch64', 'amd64', 'i386']
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
