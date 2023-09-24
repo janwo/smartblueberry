@@ -1,7 +1,7 @@
 <form *ngIf="formGroup" [formGroup]="formGroup" (ngSubmit)="submit()">
   <div
     *ngFor="let field of formData?.fields | keyvalue : compare; let i = index"
-    class="columns is-vcentered is-mobile"
+    class="columns is-vcentered"
   >
     <div class="column is-narrow" *ngIf="field.value.type !== 'hidden'">
       {{ field.value.label }}
