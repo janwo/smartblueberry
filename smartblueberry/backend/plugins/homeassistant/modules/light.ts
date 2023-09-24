@@ -223,12 +223,14 @@ async function setupLightModeEntities(server: hapi.Server) {
 async function setupConstantLightModes(server: hapi.Server) {
   const callback = async () => {
     for (const { area_id } of server.app.hassRegistry.getAreas()) {
-      const lightMode = await getAreaLightMode(server, area_id)
-      switch (lightMode?.mode) {
+      const { mode, options } = (await getAreaLightMode(server, area_id)) || {}
+      switch (mode) {
         case 'on':
           await server.app.hassRegistry.callService('light', 'turn_on', {
             target: { area_id },
-            service_data: { brightness: lightMode.options.brightness }
+            service_data: {
+              brightness: options?.brightness
+            }
           })
           break
 
@@ -243,8 +245,8 @@ async function setupConstantLightModes(server: hapi.Server) {
 
   server.events.on(EVENT_STORAGE.STORAGE_UPDATED, callback)
   server.events.on(
-    EVENT_HASSREGISTRY.ENTITY_UPDATED,
-    async (entityId: string) => {
+    EVENT_HASSREGISTRY.STATE_UPDATED,
+    async ({ entity_id: entityId }: State) => {
       if (
         entityId == OBJECT_IDS.lightCondition(server) ||
         entityId.startsWith(OBJECT_IDS.lightMode(server, ''))
@@ -293,7 +295,7 @@ async function setupAutoOnLightMode(server: hapi.Server) {
                 area_id,
                 last_updated: (last_updated: string) =>
                   elapsedTime.isAfter(last_updated),
-                state: 'off'
+                state: 'on'
               })
               .map(({ entity_id }) => entity_id)
 
@@ -318,8 +320,9 @@ async function setupSimulateLightMode(server: hapi.Server) {
   server.plugins.schedule.addJob('every 5 minutes', async () => {
     try {
       for (const { area_id } of server.app.hassRegistry.getAreas()) {
-        const lightMode = await getAreaLightMode(server, area_id)
-        switch (lightMode?.mode) {
+        const { mode, options } =
+          (await getAreaLightMode(server, area_id)) || {}
+        switch (mode) {
           case 'simulate':
             const historyTimestamp = dayjs(dayjs())
               .subtract(1, 'month')
@@ -353,7 +356,10 @@ async function setupSimulateLightMode(server: hapi.Server) {
 
               const service = hadActiveLight ? 'turn_on' : 'turn_off'
               await server.app.hassRegistry.callService('light', service, {
-                target: { entity_id: lightEntityNames }
+                target: { entity_id: lightEntityNames },
+                service_data: {
+                  brightness: options?.brightness
+                }
               })
             }
             break
@@ -401,7 +407,10 @@ async function getAreaLightMode(server: hapi.Server, areaId: string) {
       mode: lightMode[lightConditionMap[lightConditionEntity.state]],
       options: {
         duration: lightMode.duration,
-        brightness: lightMode.brightness
+        brightness:
+          lightMode.brightness === undefined
+            ? undefined
+            : Math.round(lightMode.brightness * 255)
       }
     }
   )
