@@ -30,5 +30,4 @@ jobs:
         with:
           args: |
             --${{ matrix.architecture }} \
-            --cosign \
             --target smartblueberry

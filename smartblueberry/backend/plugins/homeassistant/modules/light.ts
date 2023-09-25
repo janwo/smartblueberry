@@ -98,7 +98,7 @@ async function setupLightCondition(server: hapi.Server) {
     }
   }
 
-  server.plugins.schedule.addJob('every 5 minutes', update)
+  server.plugins.schedule.addJob('every minute', update)
   server.events.on(EVENT_STORAGE.STORAGE_UPDATED, update)
   server.events.on(EVENT_HASSCONNECT.CONNECTED, initialize)
 }
@@ -155,7 +155,7 @@ async function getLightCondition(server: hapi.Server) {
 
   const sensorValue = sensorValues.sort()[sensorValues.length / 2]
   const sun = server.app.hassRegistry.getState('sensor.sun_solar_elevation')
-  const sunValue = sun && classify(parseFloat(sun.state), 0, 20)
+  const sunValue = sun && classify(parseFloat(sun.state), -10, 5)
 
   return darkest([sensorValue, sunValue])
 }
