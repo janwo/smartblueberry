@@ -292,7 +292,7 @@ async function setupAutoOnLightMode(server: hapi.Server) {
             const elapsedEntities = server.app.hassRegistry
               .getStates({
                 ...LIGHT_ENTITY,
-                area_id,
+                areaId: area_id,
                 last_updated: (last_updated: string) =>
                   elapsedTime.isAfter(last_updated),
                 state: 'on'
@@ -331,7 +331,7 @@ async function setupSimulateLightMode(server: hapi.Server) {
             const lightEntityNames = server.app.hassRegistry
               .getStates({
                 ...LIGHT_ENTITY,
-                area_id
+                areaId: area_id
               })
               .map(({ entity_id }) => entity_id)
 
