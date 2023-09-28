@@ -226,11 +226,14 @@ async function setupConstantLightModes(server: hapi.Server) {
       const { mode, options } = (await getAreaLightMode(server, area_id)) || {}
       switch (mode) {
         case 'on':
+          const service_data: { brightness?: number } = {}
+          if (options?.brightness) {
+            service_data.brightness = options.brightness
+          }
+
           await server.app.hassRegistry.callService('light', 'turn_on', {
             target: { area_id },
-            service_data: {
-              brightness: options?.brightness
-            }
+            service_data
           })
           break
 
@@ -269,9 +272,14 @@ async function setupAutoOnLightMode(server: hapi.Server) {
       const { mode, options } = (await getAreaLightMode(server, areaId)) || {}
       switch (mode) {
         case 'auto-on':
+          const service_data: { brightness?: number } = {}
+          if (options?.brightness) {
+            service_data.brightness = options.brightness
+          }
+
           await server.app.hassRegistry.callService('light', 'turn_on', {
             target: { area_id: areaId },
-            service_data: { brightness: options?.brightness }
+            service_data
           })
           break
       }
@@ -281,30 +289,30 @@ async function setupAutoOnLightMode(server: hapi.Server) {
   server.plugins.schedule.addJob('every minute', async () => {
     try {
       for (const { area_id } of server.app.hassRegistry.getAreas()) {
-        const lightMode = await getAreaLightMode(server, area_id)
-        switch (lightMode?.mode) {
-          case 'auto-on':
-            const elapsedTime = dayjs(dayjs()).subtract(
-              lightMode.options.duration,
-              'minute'
-            )
+        const { mode, options } =
+          (await getAreaLightMode(server, area_id)) || {}
 
-            const elapsedEntities = server.app.hassRegistry
-              .getStates({
-                ...LIGHT_ENTITY,
-                areaId: area_id,
-                last_updated: (last_updated: string) =>
-                  elapsedTime.isAfter(last_updated),
-                state: 'on'
-              })
-              .map(({ entity_id }) => entity_id)
+        if (mode == 'auto-on' && options?.duration) {
+          const elapsedTime = dayjs(dayjs()).subtract(
+            options.duration,
+            'minute'
+          )
 
-            if (elapsedEntities.length > 0) {
-              await server.app.hassRegistry.callService('light', 'turn_off', {
-                target: { entity_id: elapsedEntities }
-              })
-            }
-            break
+          const elapsedEntities = server.app.hassRegistry
+            .getStates({
+              ...LIGHT_ENTITY,
+              areaId: area_id,
+              last_updated: (last_updated: string) =>
+                elapsedTime.isAfter(last_updated),
+              state: 'on'
+            })
+            .map(({ entity_id }) => entity_id)
+
+          if (elapsedEntities.length > 0) {
+            await server.app.hassRegistry.callService('light', 'turn_off', {
+              target: { entity_id: elapsedEntities }
+            })
+          }
         }
       }
     } catch (err) {}
@@ -322,47 +330,48 @@ async function setupSimulateLightMode(server: hapi.Server) {
       for (const { area_id } of server.app.hassRegistry.getAreas()) {
         const { mode, options } =
           (await getAreaLightMode(server, area_id)) || {}
-        switch (mode) {
-          case 'simulate':
-            const historyTimestamp = dayjs(dayjs())
-              .subtract(1, 'month')
-              .toISOString()
+        if (mode == 'simulate') {
+          const historyTimestamp = dayjs(dayjs())
+            .subtract(1, 'month')
+            .toISOString()
 
-            const lightEntityNames = server.app.hassRegistry
-              .getStates({
-                ...LIGHT_ENTITY,
-                areaId: area_id
+          const lightEntityNames = server.app.hassRegistry
+            .getStates({
+              ...LIGHT_ENTITY,
+              areaId: area_id
+            })
+            .map(({ entity_id }) => entity_id)
+
+          if (lightEntityNames.length > 0) {
+            const { ok, json } = await server.plugins.hassConnect.rest.get<
+              Pick<State, 'entity_id' | 'state'>[][]
+            >(
+              `/history/period/${historyTimestamp}?${[
+                `end_time=${historyTimestamp}`,
+                `minimal_response=true`,
+                `filter_entity_id=${lightEntityNames.join(',')}`
+              ].join('&')}`
+            )
+
+            const hadActiveLight =
+              ok &&
+              !!json?.some((entityHistory) => {
+                return entityHistory.some(
+                  (entityHistoryRecord) => entityHistoryRecord.state == 'on'
+                )
               })
-              .map(({ entity_id }) => entity_id)
 
-            if (lightEntityNames.length > 0) {
-              const { ok, json } = await server.plugins.hassConnect.rest.get<
-                Pick<State, 'entity_id' | 'state'>[][]
-              >(
-                `/history/period/${historyTimestamp}?${[
-                  `end_time=${historyTimestamp}`,
-                  `minimal_response=true`,
-                  `filter_entity_id=${lightEntityNames.join(',')}`
-                ].join('&')}`
-              )
-
-              const hadActiveLight =
-                ok &&
-                !!json?.some((entityHistory) => {
-                  return entityHistory.some(
-                    (entityHistoryRecord) => entityHistoryRecord.state == 'on'
-                  )
-                })
-
-              const service = hadActiveLight ? 'turn_on' : 'turn_off'
-              await server.app.hassRegistry.callService('light', service, {
-                target: { entity_id: lightEntityNames },
-                service_data: {
-                  brightness: options?.brightness
-                }
-              })
+            const service = hadActiveLight ? 'turn_on' : 'turn_off'
+            const service_data: { brightness?: number } = {}
+            if (hadActiveLight && options?.brightness) {
+              service_data.brightness = options.brightness
             }
-            break
+
+            await server.app.hassRegistry.callService('light', service, {
+              target: { entity_id: lightEntityNames },
+              service_data
+            })
+          }
         }
       }
     } catch (err) {}
@@ -456,7 +465,7 @@ async function setupLightModeRoutes(server: hapi.Server) {
             .pattern(/(?:on)|(?:off)|(?:auto-on)|(?:simulate)|(?:unchanged)/)
             .required(),
           brightness: Joi.number().min(0).max(1).optional(),
-          duration: Joi.number().min(0).required()
+          duration: Joi.number().min(0).optional()
         }
       }
     },

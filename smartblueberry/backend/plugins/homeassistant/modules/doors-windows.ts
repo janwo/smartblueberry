@@ -79,12 +79,29 @@ async function setupClimate(server: hapi.Server) {
     ) {
       // Turn on / off climate on open windows / doors
       if (await server.plugins.storage.get('doors+windows/climate/activate')) {
-        const service = state.state == 'on' ? 'turn_off' : 'turn_on'
-        await server.app.hassRegistry.callService('climate', service, {
-          service_data: {
-            entity_id: 'all'
-          }
-        })
+        switch (state.state) {
+          case 'on':
+            await server.app.hassRegistry.callService('climate', 'turn_off', {
+              service_data: {
+                entity_id: 'all'
+              }
+            })
+            break
+
+          case 'off':
+            const openables = server.app.hassRegistry.getStates({
+              ...OPENABLE_ENTITY,
+              state: 'on'
+            })
+
+            if (openables.length == 0) {
+              await server.app.hassRegistry.callService('climate', 'turn_on', {
+                service_data: {
+                  entity_id: 'all'
+                }
+              })
+            }
+        }
       }
     }
   })

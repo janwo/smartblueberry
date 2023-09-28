@@ -108,8 +108,14 @@ export class LightComponent implements OnInit {
             return [attribute, value]
           })
         ),
-        duration: lightModePayload?.duration || 15,
-        brightness: (lightModePayload?.brightness || 1) * 100
+        duration:
+          lightModePayload?.duration === undefined
+            ? null
+            : lightModePayload.duration,
+        brightness:
+          lightModePayload?.brightness === undefined
+            ? null
+            : lightModePayload.brightness * 100
       },
       fields: {
         id: { type: 'hidden' },
@@ -140,14 +146,20 @@ export class LightComponent implements OnInit {
         brightness: {
           label: $localize`Light Brightness`,
           type: 'number',
-          typeOptions: { hint: $localize`%` },
+          typeOptions: {
+            hint: $localize`%`,
+            placeholder: $localize`Unchanged, if blank`
+          },
           validators: [Validators.min(1), Validators.max(100)]
         },
         duration: {
           label: $localize`Light Duration`,
           type: 'number',
-          typeOptions: { hint: $localize`Minutes` },
-          validators: [Validators.required, Validators.min(1)]
+          typeOptions: {
+            hint: $localize`Minutes`,
+            placeholder: $localize`Infinite, if blank`
+          },
+          validators: [Validators.min(1)]
         }
       }
     } as FormData<LightModePayload>
@@ -168,8 +180,9 @@ export class LightComponent implements OnInit {
       darkCondition: formGroup.value.darkCondition,
       brightCondition: formGroup.value.brightCondition,
       obscuredCondition: formGroup.value.obscuredCondition,
-      brightness:
-        (this.convertNullToUndefined(formGroup.value.brightness) || 100) / 100,
+      brightness: formGroup.value.brightness
+        ? formGroup.value.brightness / 100
+        : this.convertNullToUndefined(formGroup.value.brightness),
       duration: this.convertNullToUndefined(formGroup.value.duration)
     }
 
@@ -179,7 +192,14 @@ export class LightComponent implements OnInit {
           formData.defaultValues.name = response.body!.name
           formGroup.setValue({
             ...response.body,
-            brightness: (response.body?.brightness || 1) * 100
+            duration:
+              response.body?.duration === undefined
+                ? null
+                : response.body.duration,
+            brightness:
+              response.body?.brightness === undefined
+                ? null
+                : response.body.brightness * 100
           })
         }
       }
