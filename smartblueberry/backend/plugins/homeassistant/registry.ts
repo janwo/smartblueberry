@@ -1,6 +1,12 @@
 import * as hapi from '@hapi/hapi'
 import { EVENT_HASSCONNECT } from './connect.js'
 
+declare module '@hapi/hapi' {
+  interface ServerApplicationState {
+    hassRegistry: Registry
+  }
+}
+
 export type StatePayloadFilter<K = State> = {
   [L in keyof K]?: L extends 'attributes'
     ? { [M in keyof K[L]]: StatePayloadFilterValue<K[L][M]> }
@@ -193,7 +199,7 @@ class Registry {
    * @returns The result of the debounced function.
    */
   private debounce(callback: (...args: any) => void, timeout = 500) {
-    let timer: NodeJS.Timer | undefined
+    let timer: NodeJS.Timeout | undefined
 
     return (...args: typeof callback.arguments) => {
       if (timer === undefined) {
@@ -498,17 +504,10 @@ class Registry {
 
   public async deleteEntity(entityId: string) {
     const connection = await this.server.plugins.hassConnect.globalConnect()
-    const entity: { entity_entry: EntityPayload } | undefined =
-      await connection?.sendMessagePromise({
-        type: 'config/entity_registry/delete',
-        entity_id: entityId
-      })
-  }
-}
-
-declare module '@hapi/hapi' {
-  interface ServerApplicationState {
-    hassRegistry: Registry
+    await connection?.sendMessagePromise({
+      type: 'config/entity_registry/delete',
+      entity_id: entityId
+    })
   }
 }
 

@@ -6,7 +6,6 @@ import filesPlugin from './plugins/files.js'
 import healthcheckPlugin from './plugins/healthcheck.js'
 import storagePlugin from './plugins/storage.js'
 import authenticatePlugin from './plugins/authenticate.js'
-import dashboardPlugin from './plugins/homeassistant/modules/dashboard.js'
 import doorsWindowsPlugin from './plugins/homeassistant/modules/doors-windows.js'
 import presencePlugin from './plugins/homeassistant/modules/presence.js'
 import lightPlugin from './plugins/homeassistant/modules/light.js'
@@ -56,7 +55,6 @@ await server.register([
   hassConnectPlugin,
   hassRegistryPlugin,
   hassSelectPlugin,
-  dashboardPlugin,
   healthcheckPlugin,
   filesPlugin,
   schedulePlugin,

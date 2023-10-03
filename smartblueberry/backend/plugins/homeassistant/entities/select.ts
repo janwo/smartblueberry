@@ -1,6 +1,12 @@
 import * as hapi from '@hapi/hapi'
 import { Base } from './base.js'
 
+declare module '@hapi/hapi' {
+  interface ServerApplicationState {
+    hassSelect: Select
+  }
+}
+
 export interface SelectParams {
   name: string
   icon: string
@@ -96,12 +102,6 @@ class Select extends Base {
       target: { entity_id: entityId },
       service_data: { option }
     })
-  }
-}
-
-declare module '@hapi/hapi' {
-  interface ServerApplicationState {
-    hassSelect: Select
   }
 }
 

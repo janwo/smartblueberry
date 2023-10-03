@@ -5,6 +5,14 @@ import { EVENT_HASSCONNECT } from '../connect.js'
 import dayjs from 'dayjs'
 import Joi from 'joi'
 
+declare module '@hapi/hapi' {
+  interface PluginProperties {
+    presence: {
+      lastPresence: (areaId: string) => dayjs.Dayjs | undefined
+    }
+  }
+}
+
 export enum EVENT_HASSPRESENCE {
   PRESENCEMODE_UPDATED = 'hasspresence#presence-mode',
   PRESENCE_EVENT = 'hasspresence#presence-event'
@@ -38,9 +46,31 @@ const presencePlugin: hapi.Plugin<{}> = {
     // Setup Routes
     await setupPresenceRoutes(server)
 
+    // Setup Presence Memory
+    await setupPresenceMemory(server)
+
     // Setup Home Assistant Helper Entities
     await setupPresenceModeEntity(server)
   }
+}
+
+/**
+ * Setup Presence Memory
+ * @param server The Hapi server instance.
+ * @returns A Promise that resolves when presence memory had been set up.
+ */
+async function setupPresenceMemory(server: hapi.Server) {
+  const memory: { [key: string]: string } = {}
+
+  server.events.on(EVENT_HASSPRESENCE.PRESENCE_EVENT, (areaId: string) => {
+    memory[areaId] = dayjs().toISOString()
+  })
+
+  const lastPresence = (areaId: string) => {
+    return memory[areaId] ? dayjs(memory[areaId]) : undefined
+  }
+
+  server.expose({ lastPresence })
 }
 
 /**
@@ -122,7 +152,7 @@ async function setupPresenceModeEntity(server: hapi.Server) {
   }
 
   server.events.on(EVENT_HASSCONNECT.CONNECTED, initialize)
-  server.plugins.schedule.addJob('every 15 minutes', update)
+  server.plugins.schedule.addJob('every 5 minutes', update)
   server.events.on(EVENT_STORAGE.STORAGE_UPDATED, update)
   server.events.on(EVENT_HASSREGISTRY.STATE_UPDATED, trigger)
 }

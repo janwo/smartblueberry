@@ -308,7 +308,16 @@ async function setupAutoOnLightMode(server: hapi.Server) {
             })
             .map(({ entity_id }) => entity_id)
 
-          if (elapsedEntities.length > 0) {
+          const lastPresence = server.plugins.presence.lastPresence(area_id)
+          const elapsedPresence =
+            lastPresence === undefined
+              ? undefined
+              : elapsedTime.isAfter(lastPresence)
+
+          if (
+            elapsedEntities.length > 0 &&
+            (elapsedPresence === undefined || elapsedPresence)
+          ) {
             await server.app.hassRegistry.callService('light', 'turn_off', {
               target: { entity_id: elapsedEntities }
             })

@@ -24,7 +24,7 @@ export default schedulePlugin
 
 function ScheduleClient() {
   const schedules: Array<{
-    interval?: NodeJS.Timer
+    interval?: NodeJS.Timeout
     timeout?: NodeJS.Timeout
   }> = []
 

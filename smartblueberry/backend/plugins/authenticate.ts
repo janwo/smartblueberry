@@ -8,14 +8,14 @@ import Cryptr from 'cryptr'
 import { UserAuth } from './homeassistant/connect.js'
 import { randomUUID } from 'crypto'
 
-export const API_AUTH_STATEGY = 'API'
-
 declare module '@hapi/hapi' {
   interface UserCredentials {
     id: JWTToken['id']
     auth: UserAuth
   }
 }
+
+export const API_AUTH_STATEGY = 'API'
 
 export type JWTToken = {
   id: string

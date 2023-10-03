@@ -13,14 +13,6 @@ import * as hapi from '@hapi/hapi'
 import { env } from '../../index.js'
 import { randomUUID } from 'crypto'
 
-export type GlobalAuth = AuthData['access_token']
-export type UserAuth = Auth
-
-export enum EVENT_HASSCONNECT {
-  CONNECTED = 'hassconnect#connected',
-  DISCONNECTED = 'hassconnect#disconnected'
-}
-
 declare module '@hapi/hapi' {
   interface PluginProperties {
     hassConnect: {
@@ -29,6 +21,14 @@ declare module '@hapi/hapi' {
       globalConnect: ReturnType<typeof createGlobalConnect>
     }
   }
+}
+
+export type GlobalAuth = AuthData['access_token']
+export type UserAuth = Auth
+
+export enum EVENT_HASSCONNECT {
+  CONNECTED = 'hassconnect#connected',
+  DISCONNECTED = 'hassconnect#disconnected'
 }
 
 /**
