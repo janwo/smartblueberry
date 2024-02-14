@@ -27,7 +27,8 @@ enum PRESENCEMODE {
 const MOTION_ENTITY: StatePayloadFilter = {
   entity_id: (value: string) => /^binary_sensor\./.test(value),
   attributes: {
-    device_class: 'motion'
+    device_class: (device_class) =>
+      ['occupancy', 'motion'].includes(device_class as string)
   }
 }
 
