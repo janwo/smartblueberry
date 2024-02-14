@@ -151,7 +151,25 @@ async function setupPresenceModeEntity(server: hapi.Server) {
     }
   }
 
+  const awake = async () => {
+    const presenceAreaIds = server.app.hassRegistry
+      .getStates({
+        ...MOTION_ENTITY,
+        state: 'on'
+      })
+      .map((state) => state.areaId)
+      .filter((value, index, array) => {
+        return value !== null && array.indexOf(value) === index
+      })
+
+    for (const presenceAreaId of presenceAreaIds) {
+      console.log(`Keep motion awake in area "${presenceAreaId}"...`)
+      server.events.emit(EVENT_HASSPRESENCE.PRESENCE_EVENT, presenceAreaId)
+    }
+  }
+
   server.events.on(EVENT_HASSCONNECT.CONNECTED, initialize)
+  server.plugins.schedule.addJob('every minute', awake)
   server.plugins.schedule.addJob('every 5 minutes', update)
   server.events.on(EVENT_STORAGE.STORAGE_UPDATED, update)
   server.events.on(EVENT_HASSREGISTRY.STATE_UPDATED, trigger)
