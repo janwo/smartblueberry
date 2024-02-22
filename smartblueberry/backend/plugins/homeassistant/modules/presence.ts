@@ -27,8 +27,14 @@ enum PRESENCEMODE {
 const MOTION_ENTITY: StatePayloadFilter = {
   entity_id: (value: string) => /^binary_sensor\./.test(value),
   attributes: {
-    device_class: (device_class) =>
-      ['occupancy', 'motion'].includes(device_class as string)
+    device_class: 'motion'
+  }
+}
+
+const OCCUPANCY_ENTITY: StatePayloadFilter = {
+  entity_id: (value: string) => /^binary_sensor\./.test(value),
+  attributes: {
+    device_class: 'occupancy'
   }
 }
 
@@ -153,9 +159,9 @@ async function setupPresenceModeEntity(server: hapi.Server) {
   }
 
   const awake = async () => {
-    const presenceAreaIds = server.app.hassRegistry
+    const occupancyAreaIds = server.app.hassRegistry
       .getStates({
-        ...MOTION_ENTITY,
+        ...OCCUPANCY_ENTITY,
         state: 'on'
       })
       .map((state) => state.areaId)
@@ -163,7 +169,7 @@ async function setupPresenceModeEntity(server: hapi.Server) {
         return value !== null && array.indexOf(value) === index
       })
 
-    for (const presenceAreaId of presenceAreaIds) {
+    for (const presenceAreaId of occupancyAreaIds) {
       console.log(`Keep motion awake in area "${presenceAreaId}"...`)
       server.events.emit(EVENT_HASSPRESENCE.PRESENCE_EVENT, presenceAreaId)
     }
