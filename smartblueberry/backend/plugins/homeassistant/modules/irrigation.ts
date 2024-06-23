@@ -368,15 +368,15 @@ async function getFutureHydroRecords(
         }
 
       const forecastResponse = await server.app.hassRegistry.callService<{
-        result?: { response: { [key: string]: { forecast: Forecast[] } } }
+        response: { [key: string]: { forecast: Forecast[] } }
       }>('weather', 'get_forecasts', {
         service_data: { type: 'daily' },
         return_response: true,
-        target: weatherEntity
+        target: { entity_id: weatherEntity.entity_id }
       })
 
       const recordMap =
-        forecastResponse?.result?.response[weatherEntity.entity_id]?.forecast
+        forecastResponse?.response?.[weatherEntity.entity_id]?.forecast
           .filter(({ datetime }) => !dayjs(datetime).isAfter(futureDate, 'day'))
           .reduce((recordMap, forecast) => {
             const forecastDay = dayjs(forecast.datetime)
@@ -422,7 +422,6 @@ async function getFutureHydroRecords(
 
             return recordMap
           }, {} as HydroRecordMap) || {}
-
       return {
         recordMap,
         amount: Object.values(recordMap).reduce(
@@ -476,6 +475,7 @@ async function irrigateSeconds(server: hapi.Server, entityId: string) {
       sinceDay.toISOString(),
       calculatedValveParams.irrigationVolumePerMinute
     )
+
   if (pastIrrigationRecords[nowRecordKey]?.irrigation) {
     console.log(`Skip ${entityId} as it had irrigated today...`)
     return 0
@@ -598,20 +598,23 @@ async function setupWeatherCheck(server: hapi.Server) {
     })
   })
 
-  server.events.on(EVENT_HASSREGISTRY.STATE_UPDATED, async (state: State) => {
-    if (
-      server.app.hassRegistry.matchesStateFilter(state, {
-        ...VALVE_ENTITY,
-        state: 'off'
-      }) ||
-      (server.app.hassRegistry.matchesStateFilter(state, FORECAST_ENTITY) &&
-        (await server.plugins.storage.get(
-          'irrigation/triggers/forecast-updates'
-        )))
-    ) {
-      checkValves()
+  server.events.on(
+    EVENT_HASSREGISTRY.STATE_UPDATED,
+    async (state: State | undefined) => {
+      if (
+        server.app.hassRegistry.matchesStateFilter(state, {
+          ...VALVE_ENTITY,
+          state: 'off'
+        }) ||
+        (server.app.hassRegistry.matchesStateFilter(state, FORECAST_ENTITY) &&
+          (await server.plugins.storage.get(
+            'irrigation/triggers/forecast-updates'
+          )))
+      ) {
+        checkValves()
+      }
     }
-  })
+  )
 }
 
 async function irrigationValvePayload(server: hapi.Server, entityId: string) {

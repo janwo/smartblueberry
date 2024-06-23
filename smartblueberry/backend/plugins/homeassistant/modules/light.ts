@@ -249,10 +249,10 @@ async function setupConstantLightModes(server: hapi.Server) {
   server.events.on(EVENT_STORAGE.STORAGE_UPDATED, callback)
   server.events.on(
     EVENT_HASSREGISTRY.STATE_UPDATED,
-    async ({ entity_id: entityId }: State) => {
+    async (state: State | undefined) => {
       if (
-        entityId == OBJECT_IDS.lightCondition(server) ||
-        entityId.startsWith(OBJECT_IDS.lightMode(server, ''))
+        state?.entity_id == OBJECT_IDS.lightCondition(server) ||
+        state?.entity_id.startsWith(OBJECT_IDS.lightMode(server, ''))
       ) {
         await callback()
       }

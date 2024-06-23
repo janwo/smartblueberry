@@ -71,7 +71,7 @@ async function setupDoorsWindowsRoutes(server: hapi.Server) {
  * @returns A Promise that resolves when climate entities had been set up.
  */
 async function setupClimate(server: hapi.Server) {
-  server.events.on(EVENT_HASSREGISTRY.STATE_UPDATED, async (state: State) => {
+  server.events.on(EVENT_HASSREGISTRY.STATE_UPDATED, async (state: State | undefined) => {
     if (
       server.app.hassRegistry.matchesStateFilter(state, {
         ...OPENABLE_ENTITY
@@ -79,7 +79,7 @@ async function setupClimate(server: hapi.Server) {
     ) {
       // Turn on / off climate on open windows / doors
       if (await server.plugins.storage.get('doors+windows/climate/activate')) {
-        switch (state.state) {
+        switch (state?.state) {
           case 'on':
             await server.app.hassRegistry.callService('climate', 'turn_off', {
               service_data: {

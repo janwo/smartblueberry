@@ -496,16 +496,12 @@ class Registry {
   }) {
     const connection = await this.server.plugins.hassConnect.globalConnect()
 
-    return connection
-      ?.sendMessagePromise<{
-        result?: { [key: string]: HistoryPayload[] }
-      }>({
-        type: 'history/history_during_period',
-        start_time: startTime,
-        end_time: endTime,
-        entity_ids: entityIds
-      })
-      .then((response) => response.result)
+    return connection?.sendMessagePromise<{ [key: string]: HistoryPayload[] }>({
+      type: 'history/history_during_period',
+      start_time: startTime,
+      end_time: endTime,
+      entity_ids: entityIds
+    })
   }
 
   /**
