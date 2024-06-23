@@ -29,7 +29,10 @@ export class DoorsWindowsComponent implements OnInit {
     const modifiedFeatures = { ...this.doorsWindowsFeatures, [feature]: state }
 
     this.haService
-      .post<DoorsWindowsFeaturesPayload>('/doors-windows-features', modifiedFeatures)
+      .post<DoorsWindowsFeaturesPayload>(
+        '/doors-windows-features',
+        modifiedFeatures
+      )
       .subscribe({
         next: (response) => {
           if (response.ok) {
