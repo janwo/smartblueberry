@@ -1,7 +1,7 @@
 {
   "slug": "smartblueberry",
   "name": "Smart Blueberry 🫐",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Smart Blueberry is a Home Assistant environment providing multiple extensions to simplify the configuration of light, presence and irrigation management.",
   "url": "https://github.com/janwo/smartblueberry/tree/main/smartblueberry",
   "image": "janwo/smartblueberry-{arch}",

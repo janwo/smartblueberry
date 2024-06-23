@@ -446,13 +446,10 @@ class Registry {
       .filter((state) => state !== undefined) as State[]
   }
 
-  public async callService(
+  public async callService<Result>(
     domain: string,
     service: string,
-    {
-      service_data,
-      target
-    }: {
+    data: {
       service_data?: {
         [key: string]:
           | string
@@ -464,6 +461,7 @@ class Registry {
           | number[]
           | string[]
       }
+      return_response?: boolean
       target?: {
         entity_id?: string | string[]
         area_id?: string | string[]
@@ -473,12 +471,11 @@ class Registry {
   ) {
     const connection = await this.server.plugins.hassConnect.globalConnect()
 
-    return connection?.sendMessagePromise({
+    return connection?.sendMessagePromise<Result>({
       type: 'call_service',
       domain,
       service,
-      service_data,
-      target
+      ...data
     })
   }
 

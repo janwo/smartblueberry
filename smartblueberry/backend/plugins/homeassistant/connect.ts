@@ -52,32 +52,40 @@ function createGlobalConnect(server: hapi.Server) {
       (await server.plugins.storage.get(`global-connection/access-token`))
 
     if (accessToken) {
-      const auth = createLongLivedTokenAuth(env.HOMEASSISTANT_URL, accessToken)
-
-      globalConnection?.close()
-      globalConnection = await connect(auth)
-
-      // Listen and fire events
-      globalConnection?.addEventListener('ready', async () => {
-        console.log(`Reconnected to home assistant...`)
-        server.events.emit(EVENT_HASSCONNECT.CONNECTED)
-      })
-
-      globalConnection?.addEventListener('disconnected', () => {
-        console.log(`Disconnected from home assistant...`)
-        server.events.emit(EVENT_HASSCONNECT.DISCONNECTED)
-      })
-
-      if (reauthenticateWithAccessToken) {
-        await server.plugins.storage.set(
-          `global-connection/access-token`,
+      try {
+        const auth = createLongLivedTokenAuth(
+          env.HOMEASSISTANT_URL,
           accessToken
         )
-      }
 
-      console.log(`Connected to home assistant...`)
-      server.events.emit(EVENT_HASSCONNECT.CONNECTED)
-      return globalConnection
+        globalConnection?.close()
+        globalConnection = await connect(auth)
+
+        // Listen and fire events
+        globalConnection?.addEventListener('ready', async () => {
+          console.log(`Reconnected to home assistant...`)
+          server.events.emit(EVENT_HASSCONNECT.CONNECTED)
+        })
+
+        globalConnection?.addEventListener('disconnected', () => {
+          console.log(`Disconnected from home assistant...`)
+          server.events.emit(EVENT_HASSCONNECT.DISCONNECTED)
+        })
+
+        if (reauthenticateWithAccessToken) {
+          await server.plugins.storage.set(
+            `global-connection/access-token`,
+            accessToken
+          )
+        }
+
+        console.log(`Connected to home assistant...`)
+        server.events.emit(EVENT_HASSCONNECT.CONNECTED)
+        return globalConnection
+      } catch (error) {
+        console.error('Error authenticatiing to Home Assistant...', error)
+        return undefined as any
+      }
     }
 
     if (reauthenticateWithAccessToken !== undefined) {
@@ -181,8 +189,9 @@ async function connect(auth: Auth) {
         createSocket: () => createSocket(auth) as any
       })
       resolve(connection)
-    } catch (err) {
-      reject(err)
+    } catch (error) {
+      console.error('Error connecting to Home Assistant...', error)
+      reject(undefined as any)
     }
   })
 }

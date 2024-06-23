@@ -20,6 +20,14 @@ interface IrrigationRecordMap {
   }
 }
 
+interface Forecast {
+  datetime: string
+  temperature: number
+  templow: number
+  precipitation: number
+  humidity: number
+}
+
 interface ValveParams {
   entityId: string
   'observed-days': number
@@ -37,21 +45,7 @@ const FORECAST_ENTITY: StatePayloadFilter = {
   entity_id: (value: string) => /^weather\./.test(value),
   attributes: {
     temperature_unit: (v) => v !== undefined,
-    precipitation_unit: (v) => v !== undefined,
-    forecast: (forecasts: unknown) => {
-      return (
-        Array.isArray(forecasts) &&
-        forecasts.every((forecast: any) => {
-          return ![
-            'datetime',
-            'templow',
-            'temperature',
-            'humidity',
-            'precipitation'
-          ].some((attribute) => forecast[attribute] === undefined)
-        })
-      )
-    }
+    precipitation_unit: (v) => v !== undefined
   }
 }
 
@@ -251,59 +245,63 @@ async function getPastIrrigationRecords(
         `filter_entity_id=${entityId}`
       ].join('&')}`
     )
-    .then(({ ok, json }) => {
-      const recordMap = (ok ? json! : [])
-        .flat()
-        .reduce((recordMap: IrrigationRecordMap, newRecord, index, array) => {
-          const recordDate = dayjs(newRecord.last_changed)
-          const recordKey = recordDate.format('YYYY-MM-DD')
-          let isFirstOfDay = recordMap[recordKey] === undefined
-          recordMap[recordKey] = isFirstOfDay
-            ? {
-                irrigation: 0,
-                lastChanged: recordDate.startOf('day').toISOString(),
-                lastState: newRecord.state === 'off' ? 'on' : 'off'
-              }
-            : {
-                ...recordMap[recordKey],
-                lastChanged: newRecord.last_changed,
-                lastState: newRecord.state
-              }
+        .then(({ ok, json }) => {
+          const recordMap = (ok ? json! : [])
+            .flat()
+            .reduce(
+              (recordMap: IrrigationRecordMap, newRecord, index, array) => {
+                const recordDate = dayjs(newRecord.last_changed)
+                const recordKey = recordDate.format('YYYY-MM-DD')
+                let isFirstOfDay = recordMap[recordKey] === undefined
+                recordMap[recordKey] = isFirstOfDay
+                  ? {
+                      irrigation: 0,
+                      lastChanged: recordDate.startOf('day').toISOString(),
+                      lastState: newRecord.state === 'off' ? 'on' : 'off'
+                    }
+                  : {
+                      ...recordMap[recordKey],
+                      lastChanged: newRecord.last_changed,
+                      lastState: newRecord.state
+                    }
 
-          recordMap[recordKey].irrigation +=
-            newRecord.state === 'off'
-              ? ((recordDate.unix() -
-                  dayjs(recordMap[recordKey].lastChanged).unix()) /
-                  60) *
-                irrigationVolumePerMinute
-              : 0
+                recordMap[recordKey].irrigation +=
+                  newRecord.state === 'off'
+                    ? ((recordDate.unix() -
+                        dayjs(recordMap[recordKey].lastChanged).unix()) /
+                        60) *
+                      irrigationVolumePerMinute
+                    : 0
 
-          let isLastRecord = array.length - 1 === index
-          if (isLastRecord) {
-            recordMap = Object.fromEntries(
-              Object.entries(recordMap).map(([key, value]) => {
-                if (value.lastState === 'on') {
-                  const recordDate = dayjs(value.lastChanged)
-                  const recordDateEndOfDay = recordDate.endOf('day')
-                  value.irrigation +=
-                    ((recordDateEndOfDay.unix() - recordDate.unix()) / 60) *
-                    irrigationVolumePerMinute
+                let isLastRecord = array.length - 1 === index
+                if (isLastRecord) {
+                  recordMap = Object.fromEntries(
+                    Object.entries(recordMap).map(([key, value]) => {
+                      if (value.lastState === 'on') {
+                        const recordDate = dayjs(value.lastChanged)
+                        const recordDateEndOfDay = recordDate.endOf('day')
+                        value.irrigation +=
+                          ((recordDateEndOfDay.unix() - recordDate.unix()) /
+                            60) *
+                          irrigationVolumePerMinute
+                      }
+                      return [key, value]
+                    })
+                  )
                 }
-                return [key, value]
-              })
+
+                return recordMap
+              },
+              {}
             )
-          }
 
-          return recordMap
-        }, {})
+          const amount = Object.values(recordMap).reduce(
+            (summed, next) => summed + next.irrigation,
+            0
+          )
 
-      const amount = Object.values(recordMap).reduce(
-        (summed, next) => summed + next.irrigation,
-        0
-      )
-
-      return [amount, recordMap] as [number, IrrigationRecordMap]
-    })
+          return [amount, recordMap] as [number, IrrigationRecordMap]
+        })
 }
 
 /**
@@ -361,72 +359,90 @@ async function getFutureHydroRecords(
   untilDay: string,
   evaporationFactor: number
 ) {
+  console.log('Get forecast to calculate future hydro records...')
   const futureDate = dayjs(untilDay)
   const { latitude } = server.app.hassRegistry.getConfig()
   const weatherForecasts = server.app.hassRegistry.getStates(FORECAST_ENTITY)
-  const recordMaps = weatherForecasts.map((weatherForecast) => {
-    const { temperature_unit, precipitation_unit, forecast } =
-      weatherForecast.attributes as {
-        temperature_unit: '°C' | '°F'
-        precipitation_unit: 'in' | 'mm'
-        forecast: any[]
-      }
-
-    const recordMap = forecast
-      .filter(({ datetime }) => !dayjs(datetime).isAfter(futureDate, 'day'))
-      .reduce((recordMap, forecast) => {
-        const recordKey = dayjs(forecast.datetime).format('YYYY-MM-DD')
-        if (recordMap[recordKey] === undefined) {
-          recordMap[recordKey] = {
-            evaporation: 0,
-            precipitation: 0,
-            temperature: { min: Number.MAX_VALUE, max: -Number.MAX_VALUE }
-          }
+  const recordMaps = await Promise.all(
+    weatherForecasts.map(async (weatherEntity) => {
+      const { temperature_unit, precipitation_unit } =
+        weatherEntity.attributes as {
+          temperature_unit: '°C' | '°F'
+          precipitation_unit: 'in' | 'mm'
         }
 
-        const minTemperature =
-          toKelvin(forecast.templow, temperature_unit) || Number.MAX_VALUE
-        recordMap[recordKey].temperature.min = Math.min(
-          minTemperature,
-          recordMap[recordKey].temperature.min
+      const forecastResponse = await server.app.hassRegistry.callService<{
+        result?: { response: { [key: string]: { forecast: Forecast[] } } }
+      }>('weather', 'get_forecasts', {
+        service_data: { type: 'daily' },
+        return_response: true,
+        target: weatherEntity
+      })
+
+      const recordMap =
+        forecastResponse?.result?.response[weatherEntity.entity_id]?.forecast
+          .filter(({ datetime }) => !dayjs(datetime).isAfter(futureDate, 'day'))
+          .reduce((recordMap, forecast) => {
+            const forecastDay = dayjs(forecast.datetime)
+            const forecastKey = forecastDay.format('YYYY-MM-DD')
+            if (recordMap[forecastKey] === undefined) {
+              recordMap[forecastKey] = {
+                evaporation: 0,
+                precipitation: 0,
+                temperature: { min: Number.MAX_VALUE, max: -Number.MAX_VALUE }
+              }
+            }
+
+            const minTemperature =
+              toKelvin(forecast.templow.toString(), temperature_unit) ||
+              Number.MAX_VALUE
+            recordMap[forecastKey].temperature.min = Math.min(
+              minTemperature,
+              recordMap[forecastKey].temperature.min
+            )
+
+            const maxTemperature =
+              toKelvin(forecast.temperature.toString(), temperature_unit) ||
+              -Number.MAX_VALUE
+            recordMap[forecastKey].temperature.max = Math.max(
+              maxTemperature,
+              recordMap[forecastKey].temperature.max
+            )
+
+            recordMap[forecastKey].evaporation +=
+              hargreavesSamani(
+                forecastDay,
+                minTemperature,
+                maxTemperature,
+                forecast.humidity,
+                latitude
+              ) * evaporationFactor
+
+            recordMap[forecastKey].precipitation =
+              toMillimeters(
+                forecast.precipitation.toString(),
+                precipitation_unit
+              ) || 0
+
+            return recordMap
+          }, {} as HydroRecordMap) || {}
+
+      return {
+        recordMap,
+        amount: Object.values(recordMap).reduce(
+          (summed: number, future) =>
+            summed + future.precipitation - future.evaporation,
+          0
         )
-
-        const maxTemperature =
-          toKelvin(forecast.temperature, temperature_unit) || -Number.MAX_VALUE
-        recordMap[recordKey].temperature.max = Math.max(
-          maxTemperature,
-          recordMap[recordKey].temperature.max
-        )
-
-        recordMap[recordKey].evaporation +=
-          hargreavesSamani(
-            forecast.datetime,
-            minTemperature,
-            maxTemperature,
-            forecast.humidity,
-            latitude
-          ) * evaporationFactor
-
-        recordMap[recordKey].precipitation =
-          toMillimeters(forecast.precipitation, precipitation_unit) || 0
-
-        return recordMap
-      }, {}) as HydroRecordMap
-
-    return {
-      recordMap,
-      amount: Object.values(recordMap).reduce(
-        (summed: number, future) =>
-          summed + future.precipitation - future.evaporation,
-        0
-      )
-    }
-  })
+      }
+    })
+  )
 
   const classified = recordMaps.sort((a, b) => b.amount - a.amount).pop() || {
     amount: 0,
     recordMap: {}
   }
+
   return [classified.amount, classified.recordMap] as [number, HydroRecordMap]
 }
 
