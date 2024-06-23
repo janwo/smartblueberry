@@ -28,6 +28,12 @@ interface StateAttributes {
     | StateAttributes
 }
 
+interface HistoryPayload {
+  s: StatePayload['state']
+  lu: StatePayload['last_updated']
+  a: StateAttributes
+}
+
 interface StatePayload {
   entity_id: string
   state: string
@@ -477,6 +483,29 @@ class Registry {
       service,
       ...data
     })
+  }
+
+  public async history<EntityIds extends string[]>({
+    startTime,
+    endTime,
+    entityIds
+  }: {
+    startTime: string
+    endTime: string
+    entityIds: EntityIds
+  }) {
+    const connection = await this.server.plugins.hassConnect.globalConnect()
+
+    return connection
+      ?.sendMessagePromise<{
+        result?: { [key: string]: HistoryPayload[] }
+      }>({
+        type: 'history/history_during_period',
+        start_time: startTime,
+        end_time: endTime,
+        entity_ids: entityIds
+      })
+      .then((response) => response.result)
   }
 
   /**

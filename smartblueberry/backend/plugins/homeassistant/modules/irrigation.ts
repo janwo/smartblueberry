@@ -238,70 +238,66 @@ async function getPastIrrigationRecords(
 ) {
   // Get irrigation amounts of valve
   const now = dayjs()
-  return await server.plugins.hassConnect.rest
-    .get<Pick<State, 'entity_id' | 'state' | 'last_changed'>[][]>(
-      `/history/period/${dayjs(sinceDay).startOf('day').toISOString()}?${[
-        `end_time=${now.toISOString()}`,
-        `filter_entity_id=${entityId}`
-      ].join('&')}`
-    )
-        .then(({ ok, json }) => {
-          const recordMap = (ok ? json! : [])
-            .flat()
-            .reduce(
-              (recordMap: IrrigationRecordMap, newRecord, index, array) => {
-                const recordDate = dayjs(newRecord.last_changed)
-                const recordKey = recordDate.format('YYYY-MM-DD')
-                let isFirstOfDay = recordMap[recordKey] === undefined
-                recordMap[recordKey] = isFirstOfDay
-                  ? {
-                      irrigation: 0,
-                      lastChanged: recordDate.startOf('day').toISOString(),
-                      lastState: newRecord.state === 'off' ? 'on' : 'off'
-                    }
-                  : {
-                      ...recordMap[recordKey],
-                      lastChanged: newRecord.last_changed,
-                      lastState: newRecord.state
-                    }
+  return await server.app.hassRegistry
+    .history({
+      startTime: dayjs(sinceDay).startOf('day').toISOString(),
+      endTime: now.toISOString(),
+      entityIds: [entityId]
+    })
+    .then((result) => {
+      const recordMap = (result?.[entityId] || []).reduce(
+        (recordMap: IrrigationRecordMap, newRecord, index, array) => {
+          const recordDate = dayjs(newRecord.lu)
+          const recordKey = recordDate.format('YYYY-MM-DD')
+          let isFirstOfDay = recordMap[recordKey] === undefined
+          recordMap[recordKey] = isFirstOfDay
+            ? {
+                irrigation: 0,
+                lastChanged: recordDate.startOf('day').toISOString(),
+                lastState: newRecord.s === 'off' ? 'on' : 'off'
+              }
+            : {
+                ...recordMap[recordKey],
+                lastChanged: newRecord.lu,
+                lastState: newRecord.s
+              }
 
-                recordMap[recordKey].irrigation +=
-                  newRecord.state === 'off'
-                    ? ((recordDate.unix() -
-                        dayjs(recordMap[recordKey].lastChanged).unix()) /
-                        60) *
-                      irrigationVolumePerMinute
-                    : 0
+          recordMap[recordKey].irrigation +=
+            newRecord.s === 'off'
+              ? ((recordDate.unix() -
+                  dayjs(recordMap[recordKey].lastChanged).unix()) /
+                  60) *
+                irrigationVolumePerMinute
+              : 0
 
-                let isLastRecord = array.length - 1 === index
-                if (isLastRecord) {
-                  recordMap = Object.fromEntries(
-                    Object.entries(recordMap).map(([key, value]) => {
-                      if (value.lastState === 'on') {
-                        const recordDate = dayjs(value.lastChanged)
-                        const recordDateEndOfDay = recordDate.endOf('day')
-                        value.irrigation +=
-                          ((recordDateEndOfDay.unix() - recordDate.unix()) /
-                            60) *
-                          irrigationVolumePerMinute
-                      }
-                      return [key, value]
-                    })
-                  )
+          let isLastRecord = array.length - 1 === index
+          if (isLastRecord) {
+            recordMap = Object.fromEntries(
+              Object.entries(recordMap).map(([key, value]) => {
+                if (value.lastState === 'on') {
+                  const recordDate = dayjs(value.lastChanged)
+                  const recordDateEndOfDay = recordDate.endOf('day')
+                  value.irrigation +=
+                    ((recordDateEndOfDay.unix() - recordDate.unix()) / 60) *
+                    irrigationVolumePerMinute
                 }
-
-                return recordMap
-              },
-              {}
+                return [key, value]
+              })
             )
+          }
 
-          const amount = Object.values(recordMap).reduce(
-            (summed, next) => summed + next.irrigation,
-            0
-          )
+          return recordMap
+        },
+        {}
+      )
 
-          return [amount, recordMap] as [number, IrrigationRecordMap]
-        })
+      const amount = Object.values(recordMap).reduce(
+        (summed, next) => summed + next.irrigation,
+        0
+      )
+
+      return [amount, recordMap] as [number, IrrigationRecordMap]
+    })
 }
 
 /**

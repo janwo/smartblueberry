@@ -340,10 +340,7 @@ async function setupSimulateLightMode(server: hapi.Server) {
         const { mode, options } =
           (await getAreaLightMode(server, area_id)) || {}
         if (mode == 'simulate') {
-          const historyTimestamp = dayjs(dayjs())
-            .subtract(1, 'month')
-            .toISOString()
-
+          const pastTimestamp = dayjs().subtract(1, 'week').toISOString()
           const lightEntityNames = server.app.hassRegistry
             .getStates({
               ...LIGHT_ENTITY,
@@ -352,23 +349,19 @@ async function setupSimulateLightMode(server: hapi.Server) {
             .map(({ entity_id }) => entity_id)
 
           if (lightEntityNames.length > 0) {
-            const { ok, json } = await server.plugins.hassConnect.rest.get<
-              Pick<State, 'entity_id' | 'state'>[][]
-            >(
-              `/history/period/${historyTimestamp}?${[
-                `end_time=${historyTimestamp}`,
-                `minimal_response=true`,
-                `filter_entity_id=${lightEntityNames.join(',')}`
-              ].join('&')}`
-            )
+            const historicLightStates = await server.app.hassRegistry.history({
+              startTime: pastTimestamp,
+              endTime: pastTimestamp,
+              entityIds: lightEntityNames
+            })
 
-            const hadActiveLight =
-              ok &&
-              !!json?.some((entityHistory) => {
-                return entityHistory.some(
-                  (entityHistoryRecord) => entityHistoryRecord.state == 'on'
-                )
-              })
+            const hadActiveLight = Object.values(
+              historicLightStates || {}
+            ).some((historicLightState) => {
+              return historicLightState.some(
+                (historicLightStateItem) => historicLightStateItem.s == 'on'
+              )
+            })
 
             const service = hadActiveLight ? 'turn_on' : 'turn_off'
             const service_data: { brightness?: number } = {}
